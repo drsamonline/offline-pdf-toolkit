@@ -1,0 +1,45 @@
+Offline PDF Toolkit — Licence
+Copyright (c) 2026 Dr Sohil Momin
+
+THE APPLICATION
+  Permission is granted, free of charge, to any person obtaining a copy of this
+  software (the HTML application, its build pipeline and scripts) to use, copy
+  and modify it for personal study, teaching and non-commercial practice.
+
+  Commercial use — including selling the software, bundling it into a paid
+  product, or offering it as part of a paid service — requires a licence from
+  the copyright holder.
+
+  Educational institutes may use it free of charge, or at a discounted rate for
+  site and institutional licences. Please get in touch.
+
+  Derivative works are welcome provided this licence is retained and the
+  original author is credited.
+
+BUNDLED LIBRARIES
+  This application embeds the following third-party libraries, both under
+  permissive licences which permit redistribution inside a combined work:
+
+    pdf-lib   — MIT License          https://github.com/Hopding/pdf-lib
+    pdf.js    — Apache License 2.0   https://github.com/mozilla/pdf.js
+                (Copyright Mozilla Foundation)
+
+  Their licence texts and copyright notices are reproduced in
+  THIRD-PARTY-NOTICES.md and must be retained in redistributions.
+
+  No third-party data or content is bundled: the application ships no corpora,
+  no fonts and no text of its own.
+
+WARRANTY
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+DOCUMENTS YOU PROCESS
+  The toolkit processes your documents entirely on your own device. The author
+  receives no copy of them and has no access to them. You remain responsible for
+  the documents you handle.
