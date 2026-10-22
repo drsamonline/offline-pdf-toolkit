@@ -1,5 +1,5 @@
 /* Offline PDF Toolkit — offline cache. Network-first for HTML so updates land. */
-const VERSION = 'pdftk-v1';
+const VERSION = 'pdftk-v2';
 const CORE = ['./', './app.html', './index.html', './manifest.webmanifest', './assets/icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE).catch(() => {})).then(() => self.skipWaiting()));

@@ -12,7 +12,7 @@ OUT = os.path.join(HERE, 'pdf_toolkit.html')
 VERSION = '1.0.0'
 
 LIBS = {
-    '__PDFLIB__':    os.path.join(HERE, 'lib/pdf-lib.min.js'),
+    '__PDFLIB__':    os.path.join(HERE, 'lib/cantoo-pdf-lib.min.js'),
     '__PDFJS__':     os.path.join(HERE, 'lib/pdf.min.js'),
     '__PDFWORKER__': os.path.join(HERE, 'lib/pdf.worker.min.js'),
 }

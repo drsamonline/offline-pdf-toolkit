@@ -230,7 +230,37 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
           <p class="hint">Renders each page to an image and rebuilds the PDF — the biggest saving on
           <b>scanned</b> documents. Text stops being selectable, so keep the original.</p>
         </div></details>
+        <details class="sec" id="s-sec"><summary>Password protect</summary><div class="in">
+          <div class="fld"><label for="secuser">User password</label><input type="text" id="secuser" placeholder="needed to open the file"></div>
+          <div class="fld"><label for="secowner">Owner password</label><input type="text" id="secowner" placeholder="optional — controls permissions"></div>
+          <div class="fld"><label>Allow</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
+            <label><input type="checkbox" id="p-print" checked> printing</label>
+            <label><input type="checkbox" id="p-copy"> copying</label>
+            <label><input type="checkbox" id="p-mod"> modifying</label></span></div>
+          <p class="hint">AES-256, applied when you save. Leave the user password empty to set an owner password only.</p>
+        </div></details>
+        <details class="sec" id="s-unlock"><summary>Unlock a PDF</summary><div class="in">
+          <p class="hint">Remove a password you already know. The file is decrypted here, not sent anywhere.</p>
+          <div class="fld"><label for="unpass">Password</label><input type="text" id="unpass"></div>
+          <button class="ibtn" id="unpick">Choose a PDF…</button>
+          <div id="unmsg" class="hint"></div>
+        </div></details>
+        <details class="sec" id="s-text"><summary>Extract text</summary><div class="in">
+          <p class="hint">Pull the text out of the loaded pages — one <code>.txt</code> per source file.</p>
+          <button class="ibtn" id="dotext">Extract text</button>
+        </div></details>
+        <details class="sec" id="s-ocr"><summary>OCR <span class="lbl" id="ocrstate">not loaded</span></summary><div class="in">
+          <p class="hint">Reads text from <b>scans</b>. The recognition engine (~7 MB) is downloaded once and then
+          cached by your browser; after that it works offline. <b>Your document is never uploaded</b> — only the engine is downloaded.</p>
+          <div class="fld"><label for="ocrlang">Language</label><select id="ocrlang">
+            <option value="eng">English</option><option value="hin">Hindi</option><option value="guj">Gujarati</option>
+            <option value="deu">German</option><option value="fra">French</option><option value="spa">Spanish</option></select></div>
+          <button class="ibtn" id="ocrload">Load engine</button>
+          <button class="ibtn" id="ocrtext" disabled>Extract text</button>
+          <div id="ocrmsg" class="hint"></div>
+        </div></details>
         <details class="sec" id="s-info"><summary>Document</summary><div class="in" id="docinfo"></div></details>
+        <details class="sec" id="s-credits"><summary>Credits &amp; licences</summary><div class="in" id="credits"></div></details>
       </div>
     </aside>
   </main>
@@ -238,6 +268,7 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
 
 <input type="file" id="fpick" accept="application/pdf" multiple hidden>
 <input type="file" id="ipick" accept="image/png,image/jpeg" multiple hidden>
+<input type="file" id="unpick" accept="application/pdf" hidden>
 
 <div class="backdrop" id="bd"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
   <div class="mh"><h3 id="mtitle">Help</h3><button class="hbtn" id="mx">Close</button></div>
@@ -358,6 +389,7 @@ function updateBar(){
   $('#clear').disabled=!pages.length;
   $('#selall').disabled=!pages.length;
   $('#save').disabled=!pages.length;
+  const ot=$('#ocrtext'); if(ot) ot.disabled=!pages.length||!ocrWorker;
   $('#fstat').textContent = pages.length ? (pages.length+(pages.length===1?' page':' pages')+' · '+fmt(docs.reduce((a,d)=>a+d.size,0))+' loaded') : '';
 }
 function selList(){ return pages.map((p,i)=>({p,i})).filter(x=>x.p.sel).map(x=>x.i); }
@@ -514,7 +546,9 @@ function toolOpts(){
   const pn=$('#s-pn').open?{on:true,fmt:$('#pnf').value,pos:$('#pnp').value,size:+$('#pns').value,start:+$('#pnstart').value||1}:null;
   const meta={title:$('#mt').value,author:$('#ma').value,subject:$('#ms').value,keywords:$('#mk').value};
   const cmp=$('#s-cmp').open?{dpi:+$('#cdpi').value,quality:+$('#cq').value}:null;
-  return {watermark:wm,pagenum:pn,meta,compress:cmp};
+  const secure=$('#s-sec').open?{user:$('#secuser').value,owner:$('#secowner').value,
+    print:$('#p-print').checked,copy:$('#p-copy').checked,mod:$('#p-mod').checked}:null;
+  return {watermark:wm,pagenum:pn,meta,compress:cmp,secure};
 }
 function download(bytes,name){
   const b=new Blob([bytes],{type:'application/pdf'}), u=URL.createObjectURL(b);
@@ -527,12 +561,20 @@ async function save(){
     let doc;
     if(o.compress){ doc=await compressDoc(o.compress.dpi,o.compress.quality); }
     else { doc=await buildDoc(o); }
+    if(o.secure && (o.secure.user||o.secure.owner)){
+      await doc.encrypt({
+        userPassword:o.secure.user||'',
+        ownerPassword:o.secure.owner||o.secure.user||'',
+        permissions:{printing:o.secure.print?'highResolution':false,copying:o.secure.copy,modifying:o.secure.mod}
+      });
+    }
     prog(88);
     const bytes=await doc.save({useObjectStreams:true});
     prog(100);
     const base=(o.meta&&o.meta.title)?o.meta.title.replace(/[^\w\-. ]+/g,'').trim().slice(0,60)||'document':(docs[0]?docs[0].name.replace(/\.pdf$/i,''):'document');
     download(bytes, base+(o.compress?'-compressed':'')+'.pdf');
-    toast('Saved · '+fmt(bytes.length)+' · '+pages.length+(pages.length===1?' page':' pages'));
+    toast('Saved · '+fmt(bytes.length)+' · '+pages.length+(pages.length===1?' page':' pages')
+      +((o.secure&&(o.secure.user||o.secure.owner))?' · protected':''));
   }catch(e){ console.error(e); toast('Could not build the PDF: '+e.message); }
   $('#save').disabled=false;
 }
@@ -544,6 +586,122 @@ async function extract(){
     toast('Extracted '+pages.length+(pages.length===1?' page':' pages')); }
   catch(e){ toast('Extract failed: '+e.message); }
   pages=keep; render(); $('#save').disabled=false;
+}
+
+/* ---------- unlock a password-protected PDF ---------- */
+async function unlockFile(file){
+  const msg=$('#unmsg'); msg.textContent='Opening…';
+  try{
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    const src=await PDFDocument.load(bytes,{password:$('#unpass').value||undefined,ignoreEncryption:false});
+    const out=await PDFDocument.create();
+    const copied=await out.copyPages(src, src.getPageIndices());
+    copied.forEach(p=>out.addPage(p));
+    const plain=await out.save();
+    download(plain, file.name.replace(/\.pdf$/i,'')+'-unlocked.pdf');
+    msg.textContent='Unlocked '+out.getPageCount()+' pages.';
+    toast('Unlocked · '+fmt(plain.length));
+  }catch(e){
+    const m=/password/i.test(e.message)?'Wrong password, or the file is not encrypted.':
+            /encrypted/i.test(e.message)?'That file is encrypted — enter its password above.':e.message;
+    msg.textContent=m; toast(m);
+  }
+}
+
+/* ---------- extract text (uses the text already in the PDF) ---------- */
+async function extractText(){
+  if(!docs.length){ toast('Add a PDF first'); return; }
+  const groups=new Map();
+  for(const p of pages){
+    const d=docs.find(x=>x.id===p.docId); if(!d||d.kind!=='pdf') continue;
+    if(!groups.has(d.id)) groups.set(d.id,{name:d.name,parts:[]});
+    try{
+      const page=await d.pdfjs.getPage(p.src+1);
+      const tc=await page.getTextContent();
+      groups.get(d.id).parts.push(tc.items.map(i=>i.str).join(' ').replace(/\s+/g,' ').trim());
+    }catch(e){ groups.get(d.id).parts.push(''); }
+  }
+  if(!groups.size){ toast('No PDF pages to read'); return; }
+  let n=0;
+  for(const g of groups.values()){
+    const body='Text extracted from '+g.name+'\n'+'='.repeat(50)+'\n\n'+g.parts.join('\n\n--- page break ---\n\n')+'\n';
+    download(new Blob([body],{type:'text/plain'}), g.name.replace(/\.pdf$/i,'')+'.txt');
+    n++;
+  }
+  toast('Extracted text from '+n+' file'+(n>1?'s':''));
+}
+
+/* ---------- OCR (tesseract.js; engine downloaded once, then cached) ---------- */
+const OCR_BASE='https://cdn.jsdelivr.net/npm/';
+let ocrWorker=null, ocrLang=null;
+function ocrState(msg){ $('#ocrstate').textContent=msg; $('#ocrmsg').textContent=msg==='ready'?'':$('#ocrmsg').textContent; }
+async function loadOcr(){
+  const lang=$('#ocrlang').value;
+  $('#ocrmsg').textContent='Downloading the engine (~7 MB) — this happens once, then it is cached…';
+  ocrState('loading');
+  try{
+    if(!window.Tesseract){
+      await new Promise((res,rej)=>{ const s=document.createElement('script');
+        s.src=OCR_BASE+'tesseract.js@5.1.1/dist/tesseract.min.js';
+        s.onload=res; s.onerror=()=>rej(new Error('could not download the OCR engine — are you online?')); document.head.appendChild(s); });
+    }
+    if(ocrWorker && ocrLang===lang) { ocrState('ready'); $('#ocrmsg').textContent='Engine ready.'; return ocrWorker; }
+    if(ocrWorker){ try{ await ocrWorker.terminate(); }catch(e){} ocrWorker=null; }
+    ocrWorker=await Tesseract.createWorker(lang,1,{
+      workerPath:OCR_BASE+'tesseract.js@5.1.1/dist/worker.min.js',
+      corePath:OCR_BASE+'tesseract.js-core@6.1.2/',
+      langPath:'https://cdn.jsdelivr.net/gh/naptha/tessdata@gh-pages/4.0.0_fast'
+    });
+    ocrLang=lang; ocrState('ready'); $('#ocrmsg').textContent='Engine ready — it is now cached for offline use.';
+    $('#ocrtext').disabled=!pages.length;
+  }catch(e){ ocrState('failed'); $('#ocrmsg').textContent=e.message; toast(e.message); }
+  return ocrWorker;
+}
+async function ocrExtract(){
+  if(!pages.length){ toast('Add a PDF or image first'); return; }
+  const w=ocrWorker||await loadOcr(); if(!w) return;
+  $('#ocrtext').disabled=true; prog(2);
+  const out=[];
+  for(let i=0;i<pages.length;i++){
+    const p=pages[i], d=docs.find(x=>x.id===p.docId); if(!d) continue;
+    $('#ocrmsg').textContent='Reading page '+(i+1)+' of '+pages.length+'…';
+    try{
+      let canvas;
+      if(d.kind==='image'){
+        const bmp=await createImageBitmap(new Blob([d.bytes],{type:'image/'+d.mime}));
+        canvas=document.createElement('canvas'); canvas.width=bmp.width; canvas.height=bmp.height;
+        canvas.getContext('2d').drawImage(bmp,0,0);
+      } else {
+        const page=await d.pdfjs.getPage(p.src+1);
+        const v=page.getViewport({scale:2});
+        canvas=document.createElement('canvas'); canvas.width=Math.ceil(v.width); canvas.height=Math.ceil(v.height);
+        const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        await page.render({canvasContext:ctx,viewport:v}).promise;
+      }
+      const {data}=await w.recognize(canvas);
+      out.push('--- page '+(i+1)+' ---\n'+(data.text||'').trim());
+    }catch(e){ out.push('--- page '+(i+1)+' ---\n[OCR failed: '+e.message+']'); }
+    prog(Math.round(100*(i+1)/pages.length));
+  }
+  $('#ocrmsg').textContent='Done.';
+  $('#ocrtext').disabled=false;
+  download(new Blob([out.join('\n\n')+'\n'],{type:'text/plain'}),'ocr-text.txt');
+  toast('OCR finished · '+pages.length+(pages.length===1?' page':' pages'));
+}
+
+/* ---------- credits ---------- */
+function renderCredits(){
+  const rows=[
+    ['pdf-lib (fork by Cantoo)','MIT','Creating, merging, rotating, watermarking, numbering and <b>AES-256 encryption</b> of PDFs.'],
+    ['pdf.js','Apache-2.0','Rendering PDF pages to canvas — thumbnails, compression and OCR input. Copyright Mozilla Foundation.'],
+    ['tesseract.js','Apache-2.0','Optical character recognition (loaded on demand).'],
+    ['Tesseract OCR engine','Apache-2.0','The recognition engine behind tesseract.js.'],
+  ];
+  $('#credits').innerHTML='<p class="hint">This toolkit is built on other people\u2019s work. Thank you to:</p>'
+    + rows.map(r=>'<div class="stat" style="display:block"><b>'+r[0]+'</b> <span style="color:var(--dim)">'+r[1]+'</span>'
+      +'<div class="hint" style="margin-top:3px">'+r[2]+'</div></div>').join('')
+    + '<p class="hint" style="margin-top:10px">Full licence texts are in <b>THIRD-PARTY-NOTICES.md</b> in the repository. '
+    + 'No third-party data or content is bundled — no corpora, no fonts, no text.</p>';
 }
 
 /* ---------- panels ---------- */
@@ -579,7 +737,10 @@ function helpHTML(){
   +'<li><b>Rotate / delete / duplicate</b> — select pages and use the toolbar.</li>'
   +'<li><b>Watermark &amp; page numbers</b> — open the tool, then <b>Save PDF</b>.</li>'
   +'<li><b>Compress</b> — renders each page to an image. Best for scans; text stops being selectable.</li>'
-  +'<li><b>Images → PDF</b> — use <b>Add images</b> and save.</li></ul>'
+  +'<li><b>Images → PDF</b> — use <b>Add images</b> and save.</li>'
+  +'<li><b>Password protect</b> — set a password and save; AES-256.</li>'
+  +'<li><b>Unlock</b> — remove a password you already know.</li>'
+  +'<li><b>Extract text</b> — from a digital PDF. <b>OCR</b> — from a scan (engine downloaded once).</li></ul>'
   +'<p><b>Shortcuts</b></p>'
   +'<div class="k"><kbd>a</kbd><span>select all</span></div>'
   +'<div class="k"><kbd>d</kbd><span>deselect</span></div>'
@@ -609,6 +770,11 @@ $('#clear').onclick=()=>{ if(!pages.length) return; pages=[]; docs=[]; thumbCach
 $('#reset').onclick=()=>{ $('#wmt').value=''; $('#s-wm').open=false; $('#s-pn').open=false; $('#s-cmp').open=false;
   ['mt','ma','ms','mk'].forEach(i=>$('#'+i).value=''); toast('Tools reset'); };
 $('#help').onclick=()=>openModal('Offline PDF Toolkit', helpHTML());
+$('#dotext').onclick=extractText;
+$('#unpick').onclick=()=>unpick.click();
+$('#unpick').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(f) unlockFile(f); };
+$('#ocrload').onclick=loadOcr;
+$('#ocrtext').onclick=ocrExtract;
 $('#mx').onclick=closeModal;
 $('#bd').onclick=e=>{ if(e.target===$('#bd')||e.target.hasAttribute('data-close')) closeModal(); };
 $('#theme').onclick=cycleTheme;
@@ -661,7 +827,7 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='?') openModal('Offline PDF Toolkit', helpHTML());
 });
 
-applyPrefs(); render(); renderFiles(); updateDoc();
+applyPrefs(); render(); renderFiles(); updateDoc(); renderCredits();
 </script>
 </body>
 </html>

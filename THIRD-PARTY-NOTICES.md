@@ -1,12 +1,13 @@
 # Third-party notices
 
-This application embeds two permissively licensed JavaScript libraries. Their
-licences permit redistribution inside a combined work provided the notices below
-are retained.
+This application embeds or loads the following libraries. Their licences permit
+use inside a combined work, commercial included, provided these notices are
+retained.
 
-## pdf-lib — MIT
+## pdf-lib (Cantoo fork) — MIT
 
-Used for creating, merging, rotating, watermarking and numbering PDF documents.
+Used for creating, merging, splitting, rotating, watermarking, numbering and
+**encrypting** PDF documents.
 
     MIT License
 
@@ -30,9 +31,12 @@ Used for creating, merging, rotating, watermarking and numbering PDF documents.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
+    Upstream: https://github.com/Hopding/pdf-lib
+    Fork:     https://github.com/cantoo-scribe/pdf-lib  (adds encryption)
+
 ## pdf.js — Apache License 2.0
 
-Used for rendering PDF pages to images (thumbnails and the Compress tool).
+Used for rendering PDF pages to canvas (thumbnails, compression and OCR input).
 
     Copyright 2012 Mozilla Foundation
 
@@ -45,5 +49,33 @@ Used for rendering PDF pages to images (thumbnails and the Compress tool).
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
     WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-    License for the specific language governing permissions and limitations under
-    the License.
+    License for the specific language governing permissions and limitations
+    under the License.
+
+## tesseract.js — Apache License 2.0
+
+Used for optical character recognition. The library is loaded on demand, not
+bundled, and runs inside a Web Worker.
+
+    Copyright contributors to tesseract.js
+    Licensed under the Apache License, Version 2.0.
+    https://github.com/naptha/tesseract.js
+
+## Tesseract OCR engine — Apache License 2.0
+
+The recognition engine behind tesseract.js (compiled to WebAssembly).
+
+    Copyright contributors to the Tesseract OCR project
+    Licensed under the Apache License, Version 2.0.
+    https://github.com/tesseract-ocr/tesseract
+
+## Language data
+
+The OCR language model (`eng.traineddata`, and others) is downloaded from the
+`tessdata` project. These are distributed under the Apache License 2.0.
+https://github.com/naptha/tessdata
+
+---
+
+No third-party **data or content** is bundled with this application: it ships no
+corpora, no fonts and no text of its own.

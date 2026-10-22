@@ -27,14 +27,21 @@ is no backend to send anything to. Unplug the network and it still works.
 | **Metadata** | Title, author, subject, keywords. |
 | **Compress** | Renders each page to JPEG at a chosen DPI and quality, then rebuilds. |
 | **Images → PDF** | PNG and JPEG, one image per page. |
+| **Password protect** | AES-256, with user/owner passwords and permissions for printing, copying, modifying. |
+| **Unlock** | Remove a password you already know, in the browser. |
+| **Extract text** | From a digital PDF → `.txt`. |
+| **OCR** | From a scan. Engine downloaded once (~7 MB) then cached; the document is never uploaded. |
+| **Credits** | All bundled libraries credited in-app and in `THIRD-PARTY-NOTICES.md`. |
 | **Themes** | Dark, light, high-contrast. |
 | **Shortcuts** | `a` select all · `d` deselect · `[` `]` rotate · `Delete` remove · `t` theme · `?` help |
 
 ## Not included, deliberately
 
-- **Password protect / unlock.** Encrypting and decrypting PDFs is out of scope, and protected files
-  will not open.
-- **OCR.** Compress rasterises pages; it does not read text.
+- **PDF/A conversion** and **Ghostscript-class compression.** These need AGPL-licensed components
+  (Ghostscript, PyMuPDF, CoherentPDF). Using them would force this app to be AGPL, which is
+  incompatible with the licence below. Compress here means rasterise-and-rebuild, which is
+  permissive and works well on scans.
+- **Editing page content.** The toolkit rearranges and annotates pages; it does not edit text inside them.
 
 ## Files
 
@@ -53,7 +60,8 @@ minifies the app's own CSS/JS/HTML on the way out. The readable template stays i
 
 - **App code** © Dr Sohil Momin — free for personal study, teaching and non-commercial practice;
   commercial use requires a licence; educational institutes free or at a discounted rate.
-- **pdf-lib** — MIT · **pdf.js** — Apache-2.0 (Mozilla). See [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+- **pdf-lib** (Cantoo fork) — MIT · **pdf.js** — Apache-2.0 (Mozilla) ·
+  **tesseract.js** and **Tesseract OCR** — Apache-2.0. See [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 - **No third-party data is bundled** — no corpora, no fonts, no text of its own.
 
 Because the bundled libraries are permissive rather than copyleft, this app can carry normal
@@ -63,3 +71,7 @@ commercial licensing terms.
 
 Your documents are read into the browser's memory, processed on your own CPU, and written back to
 your disk. Nothing is uploaded, stored or logged, and closing the tab discards everything.
+
+The one exception is OCR: clicking *Load engine* downloads the recognition engine (~7 MB) from a
+public CDN and caches it. That is the only network request the app ever makes, and it carries no
+part of your document.
