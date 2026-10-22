@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.1] — 2026-10-22
+### Fixed
+- Removed a dead variable (`v0`) left in the compression path.
+- The build reported its version as `1.0.0` while shipping 1.1.0 — corrected.
+
+### Changed
+- **De-duplicated the page-rendering code.** The block that turns a page (or image) into
+  a canvas existed twice, in Compress and in OCR. Both now call one `pageToCanvas()` helper.
+- **The landing page is now generated, not hand-maintained.** `pipeline/landing.html` is the
+  single source; the build emits `index.html` (root) and `docs/index.html` (Pages source)
+  from it, swapping the app link automatically.
+- **Minified at build time** — the app's own CSS/JS/HTML goes 46,654 → 43,196 bytes (−7%), and
+  the landing page 19,028 → 18,349 (−4%). The bundled libraries were already minified.
+
 ## [1.1.0] — 2026-10-22
 
 ### Added

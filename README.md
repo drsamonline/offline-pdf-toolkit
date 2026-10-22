@@ -50,7 +50,9 @@ app.html                     the whole application (one self-contained file, ~1.
 index.html                   landing page
 docs/                        the same site, for a Pages source pointed at /docs
 pipeline/app_template.html   the application source (readable)
+pipeline/landing.html        the landing page source (readable)
 pipeline/build_pdf.py        inlines the libraries + minifies, producing app.html
+                             and both landing pages from the one source
 ```
 
 `build_pdf.py` embeds **pdf-lib**, **pdf.js** and the pdf.js worker directly into the HTML and

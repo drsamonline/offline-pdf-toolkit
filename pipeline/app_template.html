@@ -511,21 +511,7 @@ async function compressDoc(dpi,quality){
   const total=pages.length;
   for(let i=0;i<total;i++){
     const p=pages[i]; const d=docs.find(x=>x.id===p.docId); if(!d) continue;
-    let canvas;
-    if(d.kind==='image'){
-      const bmp=await createImageBitmap(new Blob([d.bytes],{type:'image/'+d.mime}));
-      canvas=document.createElement('canvas'); canvas.width=bmp.width; canvas.height=bmp.height;
-      canvas.getContext('2d').drawImage(bmp,0,0);
-    } else {
-      const page=await d.pdfjs.getPage(p.src+1);
-      const v0=page.getViewport({scale:1});
-      const scale=(dpi*1.0)/72;
-      const v=page.getViewport({scale});
-      canvas=document.createElement('canvas'); canvas.width=Math.ceil(v.width); canvas.height=Math.ceil(v.height);
-      const ctx=canvas.getContext('2d');
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
-      await page.render({canvasContext:ctx,viewport:v}).promise;
-    }
+    const canvas=await pageToCanvas(p,d,(dpi*1.0)/72);
     const dataUrl=canvas.toDataURL('image/jpeg',quality/100);
     const jpg=Uint8Array.from(atob(dataUrl.split(',')[1]),c=>c.charCodeAt(0));
     const img=await out.embedJpg(jpg);
@@ -586,6 +572,23 @@ async function extract(){
     toast('Extracted '+pages.length+(pages.length===1?' page':' pages')); }
   catch(e){ toast('Extract failed: '+e.message); }
   pages=keep; render(); $('#save').disabled=false;
+}
+
+/* ---------- shared: render a page (or image) to a canvas ---------- */
+async function pageToCanvas(p,d,scale){
+  const c=document.createElement('canvas');
+  if(d.kind==='image'){
+    const bmp=await createImageBitmap(new Blob([d.bytes],{type:'image/'+d.mime}));
+    c.width=bmp.width; c.height=bmp.height;
+    c.getContext('2d').drawImage(bmp,0,0);
+  } else {
+    const page=await d.pdfjs.getPage(p.src+1);
+    const v=page.getViewport({scale});
+    c.width=Math.ceil(v.width); c.height=Math.ceil(v.height);
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    await page.render({canvasContext:ctx,viewport:v}).promise;
+  }
+  return c;
 }
 
 /* ---------- unlock a password-protected PDF ---------- */
@@ -666,18 +669,7 @@ async function ocrExtract(){
     const p=pages[i], d=docs.find(x=>x.id===p.docId); if(!d) continue;
     $('#ocrmsg').textContent='Reading page '+(i+1)+' of '+pages.length+'…';
     try{
-      let canvas;
-      if(d.kind==='image'){
-        const bmp=await createImageBitmap(new Blob([d.bytes],{type:'image/'+d.mime}));
-        canvas=document.createElement('canvas'); canvas.width=bmp.width; canvas.height=bmp.height;
-        canvas.getContext('2d').drawImage(bmp,0,0);
-      } else {
-        const page=await d.pdfjs.getPage(p.src+1);
-        const v=page.getViewport({scale:2});
-        canvas=document.createElement('canvas'); canvas.width=Math.ceil(v.width); canvas.height=Math.ceil(v.height);
-        const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        await page.render({canvasContext:ctx,viewport:v}).promise;
-      }
+      const canvas=await pageToCanvas(p,d,2);
       const {data}=await w.recognize(canvas);
       out.push('--- page '+(i+1)+' ---\n'+(data.text||'').trim());
     }catch(e){ out.push('--- page '+(i+1)+' ---\n[OCR failed: '+e.message+']'); }

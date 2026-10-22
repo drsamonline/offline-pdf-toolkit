@@ -8,8 +8,10 @@ import os, re, sys
 
 HERE = '/scratch/work/pdf'
 TPL = os.path.join(HERE, 'app_template.html')
+LANDING = os.path.join(HERE, 'pipeline/landing.html')
+REPO = os.path.join(HERE, 'repo')
 OUT = os.path.join(HERE, 'pdf_toolkit.html')
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 
 LIBS = {
     '__PDFLIB__':    os.path.join(HERE, 'lib/cantoo-pdf-lib.min.js'),
@@ -70,6 +72,21 @@ def main():
     for ph, path in LIBS.items():
         print('  inline %-14s %8d bytes  %s' % (ph, os.path.getsize(path), os.path.basename(path)))
     print('output      : %.2f MB -> %s' % (len(html) / 1048576, OUT))
+
+    # the landing page is one source; the build emits both copies, minified
+    land = open(LANDING, encoding='utf-8').read()
+    ls = re.search(r'<style>(.*?)</style>', land, re.S)
+    lj = re.search(r'<script>(.*?)</script>', land, re.S)
+    if ls:
+        land = land.replace(ls.group(1), minify_css(ls.group(1)), 1)
+    if lj:
+        land = land.replace(lj.group(1), minify_js(lj.group(1)), 1)
+    land = minify_html(land)
+    open(os.path.join(REPO, 'index.html'), 'w', encoding='utf-8').write(land)
+    open(os.path.join(REPO, 'docs/index.html'), 'w', encoding='utf-8').write(
+        land.replace('href="app.html"', 'href="play/"'))
+    print('landing     : %d -> %d bytes, written to repo/index.html + repo/docs/index.html'
+          % (len(open(LANDING, encoding='utf-8').read()), len(land)))
 
 
 if __name__ == '__main__':
