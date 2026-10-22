@@ -77,3 +77,24 @@ your disk. Nothing is uploaded, stored or logged, and closing the tab discards e
 The one exception is OCR: clicking *Load engine* downloads the recognition engine (~7 MB) from a
 public CDN and caches it. That is the only network request the app ever makes, and it carries no
 part of your document.
+
+---
+
+## Built with Forge
+
+This repo is a **Forge** app and adopts the shared kits.
+
+- **Shared build workflow** — `.github/workflows/build-apps.yml` calls the reusable
+  build in [`drsamonline/app-builder`](https://github.com/drsamonline/app-builder).
+  On every push to `main` it builds a portable Windows **EXE** and a signed
+  Android **APK** and attaches them to the `app-latest` release, so these URLs
+  always track the newest build:
+
+  - `https://github.com/drsamonline/offline-pdf-toolkit/releases/latest/download/offline-pdf-toolkit-portable.exe`
+  - `https://github.com/drsamonline/offline-pdf-toolkit/releases/latest/download/offline-pdf-toolkit.apk`
+
+- **web-kit** — the shared offline-first runtime (`web-kit.js`, from
+  [`drsamonline/web-kit`](https://github.com/drsamonline/web-kit)) is vendored in
+  this repo, ready for the app to adopt on its next release.
+
+Built with [Forge](https://github.com/drsamonline/forge) by Dr Sohil Momin.
