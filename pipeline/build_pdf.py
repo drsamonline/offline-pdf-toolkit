@@ -11,7 +11,7 @@ TPL = os.path.join(HERE, 'app_template.html')
 LANDING = os.path.join(HERE, 'pipeline/landing.html')
 REPO = os.path.join(HERE, 'repo')
 OUT = os.path.join(HERE, 'pdf_toolkit.html')
-VERSION = '1.1.0'
+VERSION = '1.1.2'
 
 LIBS = {
     '__PDFLIB__':    os.path.join(HERE, 'lib/cantoo-pdf-lib.min.js'),

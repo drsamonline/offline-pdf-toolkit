@@ -51,7 +51,7 @@ header{flex:none;display:flex;align-items:center;gap:11px;padding:10px 16px;back
 .hbtn:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line)}
 
 main{flex:1;display:flex;min-height:0}
-#stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+#stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 #aside{width:392px;flex:none;display:flex;flex-direction:column;min-height:0;background:var(--panel);border-left:1px solid var(--line)}
 @media (min-width:1700px){#aside{width:470px}}
 
@@ -126,8 +126,11 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
 @media (max-width:920px){
   main{flex-direction:column}
   #stage,#aside{width:auto}
-  #aside{border-left:0;border-top:1px solid var(--line);max-height:56vh}
+  #stage{flex:1 1 auto;min-height:0}
+  #aside{flex:1 1 auto;max-height:none;border-left:0;border-top:1px solid var(--line)}
   #stage.hide,#aside.hide{display:none}
+  .foot{padding:7px 12px;font-size:11px}
+  .foot .only{display:none}
   #mtabs{display:flex;flex:none;background:var(--panel);border-bottom:1px solid var(--line)}
   #mtabs button{flex:1;padding:12px 8px;color:var(--dim);border-bottom:2px solid transparent;font-weight:550}
   #mtabs button.on{color:var(--text);border-bottom-color:var(--accent)}
@@ -187,7 +190,7 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
         <div class="grid" id="grid"></div>
       </div>
       <div class="foot">
-        <span><span class="dot"></span>Local only — files never leave this device</span>
+        <span class="only"><span class="dot"></span>Local only — files never leave this device</span>
         <span class="sp" style="flex:1"></span>
         <span id="fstat"></span>
       </div>
@@ -770,9 +773,16 @@ $('#ocrtext').onclick=ocrExtract;
 $('#mx').onclick=closeModal;
 $('#bd').onclick=e=>{ if(e.target===$('#bd')||e.target.hasAttribute('data-close')) closeModal(); };
 $('#theme').onclick=cycleTheme;
-$$('#mtabs button').forEach(b=>b.onclick=()=>{ $$('#mtabs button').forEach(x=>x.classList.toggle('on',x===b));
-  const pages_=b.dataset.mt==='pages';
-  $('#stage').classList.toggle('hide',!pages_); $('#aside').classList.toggle('hide',pages_); });
+let mview='pages';
+function setView(v){
+  mview=v;
+  $$('#mtabs button').forEach(b=>b.classList.toggle('on',b.dataset.mt===v));
+  if(window.innerWidth>920){ $('#stage').classList.remove('hide'); $('#aside').classList.remove('hide'); return; }
+  $('#stage').classList.toggle('hide', v!=='pages');
+  $('#aside').classList.toggle('hide', v==='pages');
+}
+$$('#mtabs button').forEach(b=>b.onclick=()=>setView(b.dataset.mt));
+window.addEventListener('resize',()=>setView(mview));
 function cycleTheme(){ const o=['dark','light','hc'],n=o[(o.indexOf(LS.get('theme','dark'))+1)%3]; LS.set('theme',n); applyPrefs(); toast('Theme: '+n); }
 function applyPrefs(){ const t=LS.get('theme','dark'); document.body.classList.toggle('light',t==='light');
   document.body.classList.toggle('hc',t==='hc'); $('#theme').textContent=t==='dark'?'🌙':t==='light'?'☀️':'◐'; }
@@ -819,7 +829,7 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='?') openModal('Offline PDF Toolkit', helpHTML());
 });
 
-applyPrefs(); render(); renderFiles(); updateDoc(); renderCredits();
+applyPrefs(); setView('pages'); render(); renderFiles(); updateDoc(); renderCredits();
 </script>
 </body>
 </html>
