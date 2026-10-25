@@ -1,5 +1,11 @@
 # Offline PDF Toolkit
 
+<!-- shot:start -->
+
+![Screenshot](docs/shot.png)
+
+<!-- shot:end -->
+
 Merge, split, rotate, reorder, watermark, number and compress PDFs — and turn images into PDFs —
 **entirely inside your browser**. No upload, no account, no server, no tracking.
 
