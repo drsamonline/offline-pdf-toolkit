@@ -9,7 +9,7 @@ retained.
 Used for creating, merging, splitting, rotating, watermarking, numbering and
 **encrypting** PDF documents.
 
-    MIT License
+    PolyForm Noncommercial License 1.0.0
 
     Copyright (c) 2019 Andrew Dillon
 
