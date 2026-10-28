@@ -99,8 +99,5 @@ This repo is a **Forge** app and adopts the shared kits.
   - `https://github.com/drsamonline/offline-pdf-toolkit/releases/latest/download/offline-pdf-toolkit-portable.exe`
   - `https://github.com/drsamonline/offline-pdf-toolkit/releases/latest/download/offline-pdf-toolkit.apk`
 
-- **web-kit** — the shared offline-first runtime (`web-kit.js`, from
-  [`drsamonline/web-kit`](https://github.com/drsamonline/web-kit)) is vendored in
-  this repo, ready for the app to adopt on its next release.
 
 Built with [Forge](https://github.com/drsamonline/forge) by Dr Sohil Momin.
