@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.8.0] — 2026-11-01
+
+### Added
+- **A whole folder at once.** *Process a folder…* asks the browser for a directory (the File System
+  Access API), runs the tools you have set up over every PDF in it, and writes the results into an
+  `out` folder beside them. Non-PDF files are skipped, one bad file does not stop the rest, the run
+  reports `3 files written to out/ · 10 KB → 9 KB`, and your workspace is exactly as you left it
+  afterwards. Chrome, Edge and Android Chrome only; where the API is missing the button says so
+  instead of failing when pressed.
+- **Compression now works on the original bytes when it can.** If the only thing asked for is
+  compression — one file, original page order, no watermark, numbering, crop or metadata — qpdf runs
+  on the file you handed over rather than on a pdf-lib rebuild that may itself be larger than the
+  original. That is the difference between a folder run that shrinks 10 KB to 9 KB and one that
+  grows it to 14 KB.
+
+### Changed
+- **The build yields every 25 pages and honours Cancel.** Copying a large document into the output
+  used to be one long uninterruptible loop; it now lets the page breathe and can be stopped.
+
+### Not done, and why
+- **`OffscreenCanvas` for thumbnails.** On the main thread it does not move any work off the thread —
+  the rendering still happens where the canvas is — so it would have been a change that looks like an
+  optimisation and is not one. The yielding above is what actually keeps the interface alive.
+- **Streaming saves.** pdf-lib builds the whole output in memory; there is no incremental writer to
+  stream through. The honest options are a different engine or accepting the memory ceiling, and the
+  app warns at 150 MB rather than pretending.
+
+### Verified
+- 7 new browser checks with the File System Access API mocked by an in-memory directory (headless
+  Chrome cannot drive a real picker): one output per PDF with text files skipped, write access asked
+  for, the workspace restored, the result line reported, a compression-only run that does not
+  inflate, and a clear message when the API is absent.
+- The 1.3–1.7 suites (14 + 16 + 9 + 12 + 6 checks) and the landing page on both deployments still
+  pass.
+
 ## [1.7.0] — 2026-11-01
 
 ### Added

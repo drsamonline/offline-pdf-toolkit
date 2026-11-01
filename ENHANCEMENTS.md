@@ -5,9 +5,9 @@ dependency.** No CDN, no API key, no package that has to be installed at runtime
 has to be reachable. Anything that fails that test is listed at the end as a non-goal rather than
 smuggled into the roadmap.
 
-Status as of **1.7.0**: the app makes no external request, speaks three languages, does the job it
-claims, and compresses losslessly with qpdf. What is left is the larger performance work and the
-folder flavour of batch mode. What is left is written down
+Status as of **1.8.0**: the app makes no external request, speaks three languages, does the job it
+claims, compresses losslessly with qpdf, and processes a whole folder. What is left is one piece of
+performance work that needs a different engine, and a human read of the translations. What is left is written down
 here with the reason it is left, so the next session starts where this one stopped.
 
 ---
@@ -65,18 +65,17 @@ Combined with the network panel, the claim is both enforced and checkable.
 - **A resumable workspace.** The tool settings are now stored and restored (1.5.0). The page list
   is deliberately not: keeping your documents between visits is the one thing this app promises not
   to do.
-- ~~**Batch mode.**~~ Done in 1.5.0 as *one file per source*: the same tools, one output per loaded
-  document. What is still missing is the folder variant — pick a directory, apply a preset, get a
-  per-file result list — which needs the File System Access API and a progress UI that survives one
-  bad file in the middle.
+- ~~**Batch mode.**~~ Done: *one file per source* in 1.5.0, and *a whole folder* in 1.8.0 — the
+  picker, the per-file result line, and one bad file not stopping the rest.
 - **Drag-rectangle selection** and a *select every N* helper.
 
 ## 5. Big files, weak devices
 
 The practical ceiling is memory, and the app now warns at 150 MB but does not manage it.
 
-- **`OffscreenCanvas`** for thumbnails and compression, so the interface does not freeze while a
-  hundred pages render.
+- ~~**`OffscreenCanvas`** for thumbnails and compression.~~ Deliberately not done: on the main
+  thread it moves no work off the thread, so it would be theatre. What the freeze actually needed
+  was yielding, which 1.8.0 added (every 25 pages, with Cancel honoured).
 - **Streaming page-by-page saves** instead of holding the whole output twice.
 - **A memory readout** next to the page count, using `performance.memory` where it exists.
 
