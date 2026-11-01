@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.6.0] — 2026-11-01
+
+### Added
+- **Insert blank pages** — the landing page has claimed this since 1.3.0 and the app never had it,
+  which is the sort of thing a claims audit is for. The blank page takes the size of the page before
+  it, so a run of A4 stays A4, and blanks are not counted as files.
+- **The interface speaks English, हिन्दी and ગુજરાતી.** A language button in the header cycles them
+  and the choice is remembered. Every label, button, panel title, option and the live page counter
+  is translated; the Help text and the long explanatory paragraphs stay English on purpose, because
+  a mistranslated word in a document tool is worse than an English one and those passages want a
+  human read. The strings live in one file, `pipeline/app_i18n.js`.
+
+### Changed
+- The page counter is built at runtime, so it now goes through the same string table as the markup
+  and refreshes when the language changes.
+
+### Verified
+- 12 new browser checks: a blank page lands after the selection and saves as a real page, Hindi and
+  Gujarati both replace the chrome (nothing silently falls back to English), the counter follows the
+  language, and the choice survives a reload.
+- Every produced PDF inspected with PyMuPDF: the saved document is 4 pages, all 595 pt wide.
+- The 1.3, 1.4 and 1.5 suites (14 + 16 + 9 checks) and the landing page on both deployments still pass.
+
 ## [1.5.0] — 2026-11-01
 
 The release where "offline" stopped needing a footnote.

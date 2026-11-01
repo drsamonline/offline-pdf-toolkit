@@ -136,7 +136,8 @@ def main():
         if ph not in tpl:
             sys.exit("placeholder %s missing from template" % ph)
 
-    for ph, f in (("<!--APPEXTRAS_UI-->", "app_extras_ui.html"), ("/*__APPEXTRAS__*/", "app_extras.js")):
+    for ph, f in (("<!--APPEXTRAS_UI-->", "app_extras_ui.html"), ("/*__APPEXTRAS__*/", "app_extras.js"),
+                                 ("/*__I18N__*/", "app_i18n.js")):
         fp = os.path.join(HERE, "pipeline", f)
         if not os.path.exists(fp):
             sys.exit("missing %s" % fp)

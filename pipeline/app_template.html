@@ -176,6 +176,7 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
         <button class="ibtn" id="left" disabled title="Move earlier">◀</button>
         <button class="ibtn" id="right" disabled title="Move later">▶</button>
         <button class="ibtn" id="dup" disabled>Duplicate</button>
+        <button class="ibtn" id="blank">Insert blank</button>
         <button class="ibtn" id="del" disabled>Delete</button>
         <button class="ibtn" id="extract" disabled>Extract to new PDF</button>
         <span class="sp"></span>
@@ -350,7 +351,12 @@ async function thumbFor(pg){
   const d=docs.find(x=>x.id===pg.docId); if(!d) return null;
   let url=null;
   try{
-    if(d.kind==='image'){
+    if(d.kind==='blank'){
+      const c=document.createElement('canvas'); c.width=200; c.height=283;
+      const cx=c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,c.width,c.height);
+      cx.strokeStyle='#dfe6ee'; cx.strokeRect(.5,.5,c.width-1,c.height-1);
+      url=c.toDataURL('image/png');
+    } else if(d.kind==='image'){
       url=URL.createObjectURL(new Blob([d.bytes],{type:'image/'+d.mime}));
     } else {
       const page=await d.pdfjs.getPage(pg.src+1);
@@ -398,7 +404,9 @@ function render(){
 }
 function updateBar(){
   const n=pages.filter(p=>p.sel).length;
-  $('#count').textContent = pages.length ? (pages.length+(pages.length===1?' page':' pages')+(n?' · '+n+' selected':'')) : 'no pages yet';
+  $('#count').textContent = pages.length
+    ? (pages.length + ' ' + t('Pages') + (n ? ' · ' + n + ' ' + t('selected') : ''))
+    : t('no pages yet');
   for(const id of ['selnone','rotl','rotr','left','right','dup','del','extract']) $('#'+id).disabled=!n;
   $('#clear').disabled=!pages.length;
   $('#selall').disabled=!pages.length;
@@ -458,6 +466,12 @@ async function buildDoc(opts={}){
   for(let i=0;i<plan.length;i++){
     const {p,d}=plan[i];
     if(!d) continue;
+    if(d.kind==='blank'){
+      const made=out.getPages();
+      const size=made.length?made[made.length-1].getSize():{width:595.28,height:841.89};
+      out.addPage([size.width,size.height]);
+      continue;
+    }
     if(d.kind==='image'){
       try{
         const img = d.mime==='png' ? await out.embedPng(d.bytes) : await out.embedJpg(d.bytes);
@@ -761,8 +775,9 @@ function renderCredits(){
 /* ---------- panels ---------- */
 function renderFiles(){
   const el=$('#files');
-  if(!docs.length){ el.innerHTML='<p class="hint">No files loaded.</p>'; return; }
-  el.innerHTML=docs.map(d=>{
+  const real=docs.filter(d=>d.kind!=='blank');
+  if(!real.length){ el.innerHTML='<p class="hint">No files loaded.</p>'; return; }
+  el.innerHTML=real.map(d=>{
     const n=pages.filter(p=>p.docId===d.id).length;
     return '<div class="stat"><span title="'+esc(d.name)+'">'+esc(d.name.length>30?d.name.slice(0,28)+'…':d.name)+'</span>'
       +'<b>'+n+' / '+d.numPages+' · '+fmt(d.size)+'</b></div>';
@@ -772,7 +787,8 @@ function updateDoc(){
   const el=$('#docinfo');
   if(!pages.length){ el.innerHTML='<p class="hint">Nothing loaded yet.</p>'; return; }
   const totalIn=docs.reduce((a,d)=>a+d.size,0);
-  el.innerHTML='<div class="stat"><span>Files</span><b>'+docs.length+'</b></div>'
+  const nFiles=docs.filter(d=>d.kind!=='blank').length;
+  el.innerHTML='<div class="stat"><span>Files</span><b>'+nFiles+'</b></div>'
    +'<div class="stat"><span>Pages in output</span><b>'+pages.length+'</b></div>'
    +'<div class="stat"><span>Source size</span><b>'+fmt(totalIn)+'</b></div>'
    +'<div class="stat"><span>Selected</span><b>'+selList().length+'</b></div>';
@@ -821,6 +837,8 @@ function helpHTML(){
   +'<div class="k"><kbd>Esc</kbd><span>close</span></div>'
   +'<p class="hint" style="margin-top:12px">Shift-click selects a range. Drag a page onto another to reorder.</p>';
 }
+
+/*__I18N__*/
 
 /*__APPEXTRAS__*/
 
