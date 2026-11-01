@@ -49,6 +49,8 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
 | **Compress, two ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *every page* rasterises, with an optional greyscale pass. |
 | **Batch** | *One file per source* — apply the same tools to every loaded document and get one output each. |
+| **Insert blank pages** | Drop an empty page after the selection, sized like the page before it. |
+| **Interface languages** | English, हिन्दी and ગુજરાતી for the interface, switched in the header and remembered. |
 | **Remembered tools** | Your tool settings come back on the next visit; *Reset tools* forgets them. |
 | **Flatten & strip** | Flatten form fields, or remove the metadata before sending a file on. |
 | **Page numbers** | Four formats, four positions, starting number, size. |
@@ -66,7 +68,7 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Command palette** | `Ctrl-K` — every tool by name. |
 | **Undo / redo** | `Ctrl-Z` and `Shift-Ctrl-Z` across rotate, delete, duplicate, move and loading files. |
 | **Keyboard** | `Alt-←` / `Alt-→` moves the selected pages; the grid is a labelled listbox for screen readers. |
-| **Shortcuts** | `a` select all · `d` deselect · `[` `]` rotate · `Delete` remove · `t` theme · `Ctrl-K` commands · `Ctrl-Z` undo · `?` help |
+| **Shortcuts** | `a` select all · `d` deselect · `[` `]` rotate · `Delete` remove · `t` theme · `Ctrl-K` commands · `Ctrl-Z` undo · `Alt-←/→` move pages · `?` help |
 
 ## Not included, deliberately
 
@@ -106,7 +108,8 @@ docs/assets/                 badges, screenshots, icons, sample PDFs (all local)
 docs/play/ocr/               the OCR engine: wrapper, worker, two LSTM WASM cores, English data
 pipeline/app_template.html   the application source (readable)
 pipeline/landing.html        the landing page source (readable)
-pipeline/app_extras.js       the 1.3 tools (trim, impose, redaction, split, self-test…)
+pipeline/app_extras.js       the 1.3–1.6 tools (trim, impose, redaction, split, forms, signatures…)
+pipeline/app_i18n.js         the हिन्दी and ગુજરાતી interface tables
 pipeline/app_extras_ui.html  the panels for them
 pipeline/kit_extras.html     export / restore / undo / keyboard, kept in the source
 pipeline/build_pdf.py        inlines the libraries + minifies → app.html
@@ -158,6 +161,15 @@ were written against the pdf-lib and pdf.js APIs already in the file.
 - **A Content-Security-Policy** in the built page: `connect-src 'self' blob: data:` — no other
   origin is named anywhere, so the browser itself refuses any other destination. The promise is
   structural rather than a paragraph.
+
+## Languages
+
+The interface speaks English, Hindi and Gujarati — the language button in the header cycles them and
+the choice is remembered. The Help text and the longer explanatory paragraphs stay in English on
+purpose: a mistranslated word in a document tool that handles clinical paperwork is worse than an
+English one, and those passages want a human read before they are translated. The translations that
+are in place came from a translation model, so corrections from a native speaker are welcome —
+`pipeline/app_i18n.js` is one file of plain string pairs.
 
 ## Privacy
 

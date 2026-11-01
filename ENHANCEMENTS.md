@@ -5,8 +5,9 @@ dependency.** No CDN, no API key, no package that has to be installed at runtime
 has to be reachable. Anything that fails that test is listed at the end as a non-goal rather than
 smuggled into the roadmap.
 
-Status as of **1.5.0**: the app makes no external request at all. What is left is translation, the
-larger performance work, and one open question about lossless compression. What is left is written down
+Status as of **1.6.0**: the app makes no external request, speaks three languages, and does the
+job it claims. What is left is the larger performance work, the folder flavour of batch mode, and one
+open question about lossless compression. What is left is written down
 here with the reason it is left, so the next session starts where this one stopped.
 
 ---
@@ -84,8 +85,9 @@ helper, four callers, so a change needs a regression pass on all four.
 
 ## 6. Reach and manners
 
-- **English / हिन्दी / ગુજરાતી** in the interface, following the estate's `web-kit` i18n pattern.
-  Strings live in the app; no font download, no translation service. Effort M.
+- ~~**English / हिन्दी / ગુજરાતી** in the interface.~~ Done in 1.6.0 for the whole interface, with
+  the Help text deliberately left in English until a native speaker reads it. Corrections live in
+  one file of string pairs.
 - **Accessibility pass.** The grid is drag-only for reordering, and the new panels need a
   keyboard route; there is an `aria-live` line now, but focus order and labels are unchecked.
 - **File System Access API**: open a file and save back to it, where the browser supports it.

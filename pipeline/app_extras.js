@@ -406,6 +406,7 @@ const ACTIONS=[
   ['Rotate left','pages',()=>rotate(-1)],
   ['Rotate right','pages',()=>rotate(1)],
   ['Duplicate selected','pages',duplicateSel],
+  ['Insert a blank page','pages',insertBlank],
   ['Delete selected','pages',removeSel],
   ['Extract selected to a new PDF','pages',extract],
   ['Watermark','tools',()=>openSec('s-wm')],
@@ -836,6 +837,23 @@ function toGrey(canvas){
   return canvas;
 }
 
+/* ---------- insert a blank page ---------- */
+function insertBlank(){
+  snapshotPages();
+  const sel = selList();
+  const at = sel.length ? Math.max.apply(null, sel) + 1 : pages.length;
+  let blank = docs.find(d => d.kind === 'blank');
+  if(!blank){
+    blank = {id:nextId++, name:'blank', bytes:new Uint8Array(0), size:0, kind:'blank', numPages:1};
+    docs.push(blank);
+  }
+  const page = {id:nextId++, docId:blank.id, src:0, rot:0, sel:false};
+  pages.splice(at, 0, page);
+  render(); renderFiles(); updateDoc();
+  toast('Blank page at ' + (at + 1));
+  announce('Blank page inserted at ' + (at + 1));
+}
+
 /* ---------- undo / redo ---------- */
 let histStack = [], redoStack = [];
 function snapshotPages(){
@@ -976,6 +994,7 @@ function initExtras14(){
     const el = $('#' + id); if(el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', labels[id]);
   });
 
+  initI18n();
   settingsRestore();
   $('#apanel').addEventListener('input', settingsSave);
   $('#apanel').addEventListener('change', settingsSave);
@@ -983,6 +1002,7 @@ function initExtras14(){
   $('#reset').addEventListener('click', () => { try{ localStorage.removeItem('pdftk_tools'); }catch(e){} }, true);
 
   // the new buttons
+  const bl = $('#blank'); if(bl) bl.onclick = insertBlank;
   const scan = $('#scanform'); if(scan) scan.onclick = scanForms;
   const ex = $('#doimg'); if(ex) ex.onclick = extractImages;
   initSignature();
