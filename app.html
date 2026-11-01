@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="dark light">
 <meta name="description" content="Merge, split, rotate, reorder, watermark, number and compress PDFs entirely in your browser. Nothing is ever uploaded.">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' blob: data:; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
-<meta name="app-version" content="1.5.0">
+<meta name="app-version" content="1.6.0">
 <title>Offline PDF Toolkit — everything stays on your device</title>
 <style>:root{--bg:#0a0e14;--bg2:#0e141c;--panel:#121a24;--panel2:#18222e;--panel3:#1e2a38;--line:#22303f;--line2:#2c3d50;--text:#e9eff7;--dim:#93a7bd;--dim2:#6a8098;--accent:#5fa8ff;--accent2:#a78bfa;--accentInk:#04101f;--ok:#3fb950;--warn:#d6a231;--bad:#f2655c;--shadow:0 10px 34px rgba(0,0,0,.5);--shadow2:0 2px 10px rgba(0,0,0,.3);--r:12px;--r2:9px;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}body.light{--bg:#f6f8fb;--bg2:#eef2f7;--panel:#fff;--panel2:#f5f8fb;--panel3:#eaeff5;--line:#dfe6ee;--line2:#ccd6e2;--text:#0f1a26;--dim:#5a6b7e;--dim2:#8595a7;--accent:#1f6feb;--accent2:#7c3aed;--accentInk:#fff;--ok:#1a7f37;--warn:#9a6700;--bad:#c02626;--shadow:0 10px 34px rgba(20,40,70,.14);--shadow2:0 2px 10px rgba(20,40,70,.08)}body.hc{--bg:#000;--bg2:#000;--panel:#000;--panel2:#0b0b0b;--panel3:#141414;--line:#777;--line2:#999;--text:#fff;--dim:#e2e2e2;--dim2:#bdbdbd;--accent:#7fd1ff;--accent2:#d0a3ff}*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0;padding:0}a{color:var(--accent)}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid transparent;background-clip:padding-box}:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}kbd{background:var(--panel3);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:600 11px/1.4 ui-monospace,Menlo,monospace}#shell{display:flex;flex-direction:column;height:100vh;height:100dvh}header{flex:none;display:flex;align-items:center;gap:11px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;z-index:5}.brand{display:flex;align-items:center;gap:10px;flex:none}.brand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--accent),var(--accent2));display:grid;place-items:center;font:700 16px/1 var(--serif);color:#fff;box-shadow:var(--shadow2)}.brand h1{margin:0;font-size:15px;font-weight:650;white-space:nowrap}.brand small{display:block;font-size:10.5px;color:var(--dim)}.sp{flex:1}.hbtn{padding:9px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);white-space:nowrap;transition:border-color .15s,background .15s;font-size:13.5px}.hbtn:hover{border-color:var(--accent);background:var(--panel3)}.hbtn.on{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent)}.hbtn.pri{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accentInk);border:0;font-weight:650}.hbtn.pri:hover{filter:brightness(1.07)}.hbtn:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line)}main{flex:1;display:flex;min-height:0}#stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}#aside{max-width:392px;width:100%;flex:none;display:flex;flex-direction:column;min-height:0;background:var(--panel);border-left:1px solid var(--line)}@media (min-width:1700px){#aside{max-width:470px;width:100%}}.bar{flex:none;display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg2);flex-wrap:wrap}.bar .sep{width:1px;height:22px;background:var(--line)}.bar .lbl{color:var(--dim);font-size:12.5px}.ibtn{padding:7px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;white-space:nowrap}.ibtn:hover:not(:disabled){border-color:var(--accent)}.ibtn:disabled{opacity:.4;cursor:not-allowed}#drop{flex:1;overflow:auto;padding:18px;min-height:0}#drop.over{background:color-mix(in srgb,var(--accent) 8%,transparent);outline:2px dashed var(--accent);outline-offset:-12px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;align-content:start}.pg{position:relative;border:1px solid var(--line);border-radius:var(--r2);background:var(--panel);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .12s}.pg:hover{border-color:var(--line2);transform:translateY(-1px)}.pg.sel{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent)}.pg.drag{opacity:.4}.pg.tgt{outline:2px dashed var(--accent);outline-offset:2px}.pg .thumb{aspect-ratio:1/1.414;background:#fff;display:grid;place-items:center;overflow:hidden}.pg .thumb canvas,.pg .thumb img{max-width:100%;max-height:100%;display:block}.pg .thumb .ph{color:#9aa7b4;font-size:11px}.pg .cap{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:11.5px;border-top:1px solid var(--line)}.pg .cap .n{font-weight:650;font-variant-numeric:tabular-nums}.pg .cap .src{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.pg .tick{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line2);background:rgba(10,14,20,.55);display:grid;place-items:center;color:#fff;font-size:12px}.pg.sel .tick{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}.pg .rot{position:absolute;top:6px;right:6px;background:rgba(10,14,20,.55);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px}.empty{text-align:center;color:var(--dim);padding:48px 20px;max-width:560px;margin:0 auto}.empty .big{font-size:44px;display:block;margin-bottom:12px;opacity:.45}.empty h2{margin:0 0 8px;font-size:19px;font-weight:650;color:var(--text)}.empty p{margin:0 0 6px;font-size:14px}.empty .k{display:inline-block;margin-top:14px;font-size:12.5px;color:var(--dim2)}#apanel{flex:1;overflow:auto;padding:14px 16px 90px;min-height:0}.sec{border:1px solid var(--line);border-radius:var(--r2);background:var(--bg2);margin-bottom:12px;overflow:hidden}.sec>summary{padding:11px 13px;font-weight:600;font-size:13.5px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px}.sec>summary::-webkit-details-marker{display:none}.sec>summary:after{content:"+";margin-left:auto;color:var(--dim);font-weight:400}.sec[open]>summary:after{content:"−"}.sec .in{padding:0 13px 14px}.fld{display:flex;align-items:center;gap:9px;margin:9px 0;font-size:13px}.fld>label{color:var(--dim);min-width:96px}.fld input[type=text],.fld input[type=number],.fld select{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px}.fld input[type=range]{flex:1;accent-color:var(--accent)}.fld .v{min-width:38px;text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}.hint{color:var(--dim2);font-size:12px;margin:8px 0 0;line-height:1.6}.stat{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}.stat:last-child{border-bottom:0}.stat span{color:var(--dim)}.foot{flex:none;padding:9px 15px;border-top:1px solid var(--line);color:var(--dim);font-size:11.5px;background:var(--panel);display:flex;gap:12px;align-items:center;flex-wrap:wrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}.backdrop{position:fixed;inset:0;background:rgba(2,6,12,.7);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:60;padding:18px}body.light .backdrop{background:rgba(30,50,80,.35)}.backdrop.open{display:flex}.modal{background:var(--panel);border:1px solid var(--line2);border-radius:16px;box-shadow:var(--shadow);max-width:700px;width:100%;max-height:88vh;display:flex;flex-direction:column}.modal .mh{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}.modal .mh h3{margin:0;font-size:15px;flex:1;font-weight:650}.modal .mb{padding:16px 18px;overflow:auto}.modal .mf{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.modal ul,.modal ol{margin:8px 0 12px;padding-left:20px}.modal li{margin:4px 0}.modal .k{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}.modal .k:last-child{border-bottom:0}.modal .k span{color:var(--dim);font-size:12.5px}#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);background:var(--panel);border:1px solid var(--line2);padding:10px 18px;border-radius:11px;box-shadow:var(--shadow);display:none;z-index:90;font-size:13px;opacity:0;transition:opacity .2s,transform .2s;max-width:88vw;text-align:center}#toast.show{display:block;opacity:1;transform:translateX(-50%) translateY(0)}#bar2{position:fixed;left:0;right:0;top:0;height:3px;background:var(--accent);width:0;z-index:100;transition:width .2s;display:none}#mtabs{display:none}@media (max-width:920px){main{flex-direction:column}#stage,#aside{width:auto}#stage{flex:1 1 auto;min-height:0}#aside{flex:1 1 auto;max-height:none;border-left:0;border-top:1px solid var(--line)}#stage.hide,#aside.hide{display:none}.foot{padding:7px 12px;font-size:11px}.foot .only{display:none}#mtabs{display:flex;flex:none;background:var(--panel);border-bottom:1px solid var(--line)}#mtabs button{flex:1;padding:12px 8px;color:var(--dim);border-bottom:2px solid transparent;font-weight:550}#mtabs button.on{color:var(--text);border-bottom-color:var(--accent)}.brand small{display:none}header{gap:8px;padding:9px 12px}}@media (max-width:430px){.brand h1{font-size:13.5px}.hbtn{padding:8px 10px;font-size:12.5px}.grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style>
 </head>
@@ -42,6 +42,7 @@
 <button class="ibtn" id="left" disabled title="Move earlier">◀</button>
 <button class="ibtn" id="right" disabled title="Move later">▶</button>
 <button class="ibtn" id="dup" disabled>Duplicate</button>
+<button class="ibtn" id="blank">Insert blank</button>
 <button class="ibtn" id="del" disabled>Delete</button>
 <button class="ibtn" id="extract" disabled>Extract to new PDF</button>
 <span class="sp"></span>
@@ -339,7 +340,12 @@ if(thumbCache.has(pg.id)) return thumbCache.get(pg.id);
 const d=docs.find(x=>x.id===pg.docId); if(!d) return null;
 let url=null;
 try{
-if(d.kind==='image'){
+if(d.kind==='blank'){
+const c=document.createElement('canvas'); c.width=200; c.height=283;
+const cx=c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,c.width,c.height);
+cx.strokeStyle='#dfe6ee'; cx.strokeRect(.5,.5,c.width-1,c.height-1);
+url=c.toDataURL('image/png');
+} else if(d.kind==='image'){
 url=URL.createObjectURL(new Blob([d.bytes],{type:'image/'+d.mime}));
 } else {
 const page=await d.pdfjs.getPage(pg.src+1);
@@ -384,7 +390,9 @@ $$('#grid .thumb').forEach(t=>io.observe(t));
 }
 function updateBar(){
 const n=pages.filter(p=>p.sel).length;
-$('#count').textContent = pages.length ? (pages.length+(pages.length===1?' page':' pages')+(n?' · '+n+' selected':'')) : 'no pages yet';
+$('#count').textContent = pages.length
+? (pages.length + ' ' + t('Pages') + (n ? ' · ' + n + ' ' + t('selected') : ''))
+: t('no pages yet');
 for(const id of ['selnone','rotl','rotr','left','right','dup','del','extract']) $('#'+id).disabled=!n;
 $('#clear').disabled=!pages.length;
 $('#selall').disabled=!pages.length;
@@ -438,6 +446,12 @@ const plan=pages.map(p=>({p,d:docs.find(x=>x.id===p.docId)}));
 for(let i=0;i<plan.length;i++){
 const {p,d}=plan[i];
 if(!d) continue;
+if(d.kind==='blank'){
+const made=out.getPages();
+const size=made.length?made[made.length-1].getSize():{width:595.28,height:841.89};
+out.addPage([size.width,size.height]);
+continue;
+}
 if(d.kind==='image'){
 try{
 const img = d.mime==='png' ? await out.embedPng(d.bytes) : await out.embedJpg(d.bytes);
@@ -714,8 +728,9 @@ $('#credits').innerHTML='<p class="hint">This toolkit is built on other people\u
 }
 function renderFiles(){
 const el=$('#files');
-if(!docs.length){ el.innerHTML='<p class="hint">No files loaded.</p>'; return; }
-el.innerHTML=docs.map(d=>{
+const real=docs.filter(d=>d.kind!=='blank');
+if(!real.length){ el.innerHTML='<p class="hint">No files loaded.</p>'; return; }
+el.innerHTML=real.map(d=>{
 const n=pages.filter(p=>p.docId===d.id).length;
 return '<div class="stat"><span title="'+esc(d.name)+'">'+esc(d.name.length>30?d.name.slice(0,28)+'…':d.name)+'</span>'
 +'<b>'+n+' / '+d.numPages+' · '+fmt(d.size)+'</b></div>';
@@ -725,7 +740,8 @@ function updateDoc(){
 const el=$('#docinfo');
 if(!pages.length){ el.innerHTML='<p class="hint">Nothing loaded yet.</p>'; return; }
 const totalIn=docs.reduce((a,d)=>a+d.size,0);
-el.innerHTML='<div class="stat"><span>Files</span><b>'+docs.length+'</b></div>'
+const nFiles=docs.filter(d=>d.kind!=='blank').length;
+el.innerHTML='<div class="stat"><span>Files</span><b>'+nFiles+'</b></div>'
 +'<div class="stat"><span>Pages in output</span><b>'+pages.length+'</b></div>'
 +'<div class="stat"><span>Source size</span><b>'+fmt(totalIn)+'</b></div>'
 +'<div class="stat"><span>Selected</span><b>'+selList().length+'</b></div>';
@@ -771,6 +787,143 @@ return '<p class="hint" style="margin:0 0 12px">Version <b>'+esc(appVersion())+'
 +'<div class="k"><kbd>Alt</kbd> <kbd>←</kbd> <kbd>→</kbd><span>move the selected pages</span></div>'
 +'<div class="k"><kbd>Esc</kbd><span>close</span></div>'
 +'<p class="hint" style="margin-top:12px">Shift-click selects a range. Drag a page onto another to reorder.</p>';
+}
+const I18N = {
+en: {},
+hi: {
+"Save PDF":"PDF सेव करें", "Pages":"पेज", "Tools":"टूल्स", "Select all":"सब चुनें",
+"Clear":"साफ करें", "Duplicate":"डुप्लीकेट", "Insert blank":"खाली पेज डालें",
+"Delete":"डिलीट करें", "Extract to new PDF":"नए PDF में निकालें", "Clear all":"सब साफ करें",
+"Reset tools":"टूल्स रीसेट करें", "Choose a PDF…":"PDF चुनें…", "Extract text":"टेक्स्ट निकालें",
+"Load engine":"इंजन लोड करें", "Close":"बंद करें", "Split now":"अभी स्प्लिट करें",
+"Export pages as PNG":"पेज को PNG के रूप में एक्सपोर्ट करें",
+"Run self-test":"सेल्फ-टेस्ट रन करें", "Find fields":"फील्ड्स खोजें",
+"Load a picture…":"तस्वीर डालें…", "Extract images":"तस्वीरें निकालें", "Files":"फाइलें",
+"Watermark":"वाटरमार्क", "Page numbers":"पेज नंबर", "Metadata":"मेटाडेटा",
+"Compress":"कंप्रेस करें", "Password protect":"पासवर्ड से सुरक्षित करें",
+"Unlock a PDF":"PDF अनलॉक करें", "OCR":"OCR", "Document":"डॉक्यूमेंट",
+"Credits & licences":"क्रेडिट और लाइसेंस", "Page size & trim":"पेज का साइज़ और ट्रिम",
+"Impose (N-up)":"इम्पोज़ (N-up)", "Header & footer":"हेडर और फुटर",
+"Bates numbering":"बेट्स नंबरिंग", "Split & export":"स्प्लिट और एक्सपोर्ट",
+"Redaction":"रिडाक्शन", "Document & self-test":"डॉक्यूमेंट और सेल्फ-टेस्ट",
+"Form fields":"फॉर्म फील्ड्स", "Signature":"सिग्नेचर", "Network":"नेटवर्क",
+"Text":"टेक्स्ट", "Size":"साइज़", "Opacity":"ओपेसिटी", "Angle":"एंगल",
+"Position":"पोज़िशन", "Colour":"कलर", "Format":"फॉर्मेट", "Start at":"से शुरू करें",
+"Title":"टाइटल", "Author":"ऑथर", "Subject":"सब्जेक्ट", "Keywords":"कीवर्ड्स",
+"Mode":"मोड", "Resolution":"रिज़ॉल्यूशन", "JPEG quality":"JPEG क्वालिटी",
+"User password":"यूज़र पासवर्ड", "Owner password":"ओनर पासवर्ड", "Password":"पासवर्ड",
+"Language":"लैंग्वेज", "Trim edges":"किनारे काटें", "Page size":"पेज का साइज़",
+"Layout":"लेआउट", "Gap":"गैप", "Top left":"ऊपर बाएँ", "Top centre":"ऊपर बीच",
+"Top right":"ऊपर दाएँ", "Bottom left":"नीचे बाएँ", "Bottom centre":"नीचे बीच",
+"Bottom right":"नीचे दाएँ", "Prefix":"प्रीफिक्स", "Digits":"अंक",
+"Split by":"इनके हिसाब से बाँटें", "Ranges":"रेंज", "Image DPI":"इमेज DPI",
+"Words":"शब्द", "Width":"चौड़ाई", "Drop PDFs or images here":"यहाँ PDFs या इमेज ड्रॉप करें",
+"Help":"मदद", "Centre":"सेंटर", "Tiled":"टाइल",
+"photos only — keeps text":"सिर्फ फोटो — टेक्स्ट को बनाए रखता है",
+"every page — rasterise":"हर पेज — रास्टराइज़", "keep original":"ओरिजिनल बनाए रखें",
+"A4 portrait":"A4 पोर्ट्रेट", "A4 landscape":"A4 लैंडस्केप", "Letter portrait":"लेटर पोर्ट्रेट",
+"2 per sheet":"1 शीट में 2", "4 per sheet":"1 शीट में 4", "booklet (2-up)":"बुकलेट (2-अप)",
+"every N pages":"हर N पेज पर", "one file per page":"हर पेज के लिए एक फ़ाइल", "ranges":"रेंज",
+"+ Add PDFs":"+ PDF जोड़ें", "+ Add images":"+ इमेज जोड़ें", "Save my data":"मेरा डेटा सेव करें",
+"Restore":"रिस्टोर करें", "Undo":"अनडू करें",
+"no pages yet":"अभी तक कोई पेज नहीं", "selected":"चुना गया"
+},
+gu: {
+"Save PDF":"PDF સેવ કરો", "Pages":"પેજ", "Tools":"ટૂલ્સ", "Select all":"બધું પસંદ કરો",
+"Clear":"ક્લિયર કરો", "Duplicate":"ડુપ્લિકેટ કરો", "Insert blank":"ખાલી પેજ ઉમેરો",
+"Delete":"ડિલીટ કરો", "Extract to new PDF":"નવી PDF માં એક્સટ્રેક્ટ કરો",
+"Clear all":"બધું ક્લિયર કરો", "Reset tools":"ટૂલ્સ રિસેટ કરો",
+"Choose a PDF…":"PDF પસંદ કરો…", "Extract text":"ટેક્સ્ટ એક્સટ્રેક્ટ કરો",
+"Load engine":"એન્જિન લોડ કરો", "Close":"બંધ કરો", "Split now":"અત્યારે સ્પ્લિટ કરો",
+"Export pages as PNG":"પેજને PNG તરીકે એક્સપોર્ટ કરો",
+"Run self-test":"સેલ્ફ-ટેસ્ટ રન કરો", "Find fields":"ફિલ્ડ્સ શોધો",
+"Load a picture…":"ફોટો લોડ કરો…", "Extract images":"ઇમેજ એક્સટ્રેક્ટ કરો",
+"Files":"ફાઇલ્સ", "Watermark":"વોટરમાર્ક", "Page numbers":"પેજ નંબર",
+"Metadata":"મેટાડેટા", "Compress":"કમ્પ્રેસ કરો",
+"Password protect":"પાસવર્ડ પ્રોટેક્ટ કરો", "Unlock a PDF":"PDF અનલોક કરો",
+"OCR":"OCR", "Document":"ડોક્યુમેન્ટ", "Credits & licences":"ક્રેડિટ્સ અને લાયસન્સ",
+"Page size & trim":"પેજ સાઇઝ અને ટ્રિમ", "Impose (N-up)":"ઇમ્પોઝ (N-up)",
+"Header & footer":"હેડર અને ફૂટર", "Bates numbering":"બેટ્સ નંબરિંગ",
+"Split & export":"સ્પ્લિટ અને એક્સપોર્ટ", "Redaction":"રેડક્શન",
+"Document & self-test":"ડોક્યુમેન્ટ અને સેલ્ફ-ટેસ્ટ", "Form fields":"ફોર્મ ફિલ્ડ્સ",
+"Signature":"સિગ્નેચર", "Network":"નેટવર્ક", "Text":"ટેક્સ્ટ", "Size":"સાઇઝ",
+"Opacity":"ઓપેસિટી", "Angle":"એંગલ", "Position":"પોઝિશન", "Colour":"કલર",
+"Format":"ફોર્મેટ", "Start at":"આનાથી શરૂ કરો", "Title":"ટાઇટલ", "Author":"ઓથર",
+"Subject":"સબ્જેક્ટ", "Keywords":"કીવર્ડ્સ", "Mode":"મોડ", "Resolution":"રિઝોલ્યુશન",
+"JPEG quality":"JPEG ક્વોલિટી", "User password":"યુઝર પાસવર્ડ",
+"Owner password":"ઓનર પાસવર્ડ", "Password":"પાસવર્ડ", "Language":"ભાષા",
+"Trim edges":"કિનારીઓ કાપો", "Page size":"પેજનું કદ", "Layout":"લેઆઉટ", "Gap":"અંતર",
+"Top left":"ઉપર ડાબે", "Top centre":"ઉપર વચ્ચે", "Top right":"ઉપર જમણે",
+"Bottom left":"નીચે ડાબે", "Bottom centre":"નીચે વચ્ચે", "Bottom right":"નીચે જમણે",
+"Prefix":"પ્રીફિક્સ", "Digits":"અંકો", "Split by":"આનાથી અલગ કરો", "Ranges":"રેન્જ",
+"Image DPI":"ઇમેજ DPI", "Words":"શબ્દો", "Width":"પહોળાઈ",
+"Drop PDFs or images here":"અહીં PDFs અથવા ઇમેજ મૂકો", "Help":"મદદ", "Centre":"સેન્ટર",
+"Tiled":"ટાઇલ્ડ", "photos only — keeps text":"માત્ર ફોટા — ટેક્સ્ટ જાળવી રાખે છે",
+"every page — rasterise":"દરેક પેજ — રાસ્ટરાઇઝ કરો", "keep original":"મૂળ જાળવી રાખો",
+"A4 portrait":"A4 પોટ્રેટ", "A4 landscape":"A4 લેન્ડસ્કેપ", "Letter portrait":"લેટર પોટ્રેટ",
+"2 per sheet":"શીટ દીઠ 2", "4 per sheet":"શીટ દીઠ 4", "booklet (2-up)":"બુકલેટ (2-અપ)",
+"every N pages":"દર N પેજ", "one file per page":"દરેક પેજ માટે એક ફાઇલ", "ranges":"રેન્જ",
+"+ Add PDFs":"+ PDF ઉમેરો", "+ Add images":"+ ઇમેજ ઉમેરો", "Save my data":"મારો ડેટા સેવ કરો",
+"Restore":"રિસ્ટોર", "Undo":"અનડૂ",
+"no pages yet":"અત્યાર સુધી કોઈ પેજ નથી", "selected":"પસંદ કરેલ"
+}
+};
+const LANG_ORDER = ['en', 'hi', 'gu'];
+const LANG_LABEL = {en:'EN', hi:'हिं', gu:'ગુ'};
+const LANG_HTML  = {en:'en', hi:'hi', gu:'gu'};
+let LANG = 'en';
+const i18nNodes = new Map();   
+function t(s){
+const table = I18N[LANG];
+return (table && table[s]) || s;
+}
+function i18nCollect(){
+if(i18nNodes.size) return;
+const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+let n;
+while((n = walk.nextNode())){
+const v = n.nodeValue.trim();
+if(v && (I18N.hi[v] || I18N.gu[v])) i18nNodes.set(n, n.nodeValue);
+}
+}
+function i18nApply(){
+i18nCollect();
+i18nNodes.forEach((orig, node) => {
+const key = orig.trim();
+const table = I18N[LANG];
+const tr = table && table[key];
+node.nodeValue = tr ? orig.replace(key, tr) : orig;
+});
+document.documentElement.lang = LANG_HTML[LANG] || 'en';
+try{ if(typeof updateBar === 'function') updateBar(); }catch(e){}
+const btn = $('#lang');
+if(btn){
+btn.textContent = LANG_LABEL[LANG];
+btn.title = LANG === 'en' ? 'Interface language' : 'भाषा / ભાષા';
+btn.setAttribute('aria-label', 'Interface language: ' + LANG);
+}
+}
+function setLang(l){
+LANG = LANG_ORDER.indexOf(l) >= 0 ? l : 'en';
+LS.set('lang', LANG);
+i18nApply();
+}
+function cycleLang(){
+const next = LANG_ORDER[(LANG_ORDER.indexOf(LANG) + 1) % LANG_ORDER.length];
+setLang(next);
+toast(next === 'en' ? 'Language: English' : next === 'hi' ? 'भाषा: हिन्दी' : 'ભાષા: ગુજરાતી');
+}
+function initI18n(){
+const head = document.querySelector('header');
+if(head && !$('#lang')){
+const b = document.createElement('button');
+b.className = 'hbtn'; b.id = 'lang'; b.textContent = 'EN';
+b.onclick = cycleLang;
+const theme = $('#theme');
+if(theme && theme.parentNode) theme.parentNode.insertBefore(b, theme);
+else head.appendChild(b);
+}
+setLang(LS.get('lang', 'en'));
 }
 let cancelJob=false;
 const NET={count:0,external:0,urls:[]};
@@ -1127,6 +1280,7 @@ const ACTIONS=[
 ['Rotate left','pages',()=>rotate(-1)],
 ['Rotate right','pages',()=>rotate(1)],
 ['Duplicate selected','pages',duplicateSel],
+['Insert a blank page','pages',insertBlank],
 ['Delete selected','pages',removeSel],
 ['Extract selected to a new PDF','pages',extract],
 ['Watermark','tools',()=>openSec('s-wm')],
@@ -1518,6 +1672,21 @@ d[i] = d[i + 1] = d[i + 2] = v;
 ctx.putImageData(img, 0, 0);
 return canvas;
 }
+function insertBlank(){
+snapshotPages();
+const sel = selList();
+const at = sel.length ? Math.max.apply(null, sel) + 1 : pages.length;
+let blank = docs.find(d => d.kind === 'blank');
+if(!blank){
+blank = {id:nextId++, name:'blank', bytes:new Uint8Array(0), size:0, kind:'blank', numPages:1};
+docs.push(blank);
+}
+const page = {id:nextId++, docId:blank.id, src:0, rot:0, sel:false};
+pages.splice(at, 0, page);
+render(); renderFiles(); updateDoc();
+toast('Blank page at ' + (at + 1));
+announce('Blank page inserted at ' + (at + 1));
+}
 let histStack = [], redoStack = [];
 function snapshotPages(){
 histStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
@@ -1644,11 +1813,13 @@ del:'Delete selected pages', extract:'Extract selected pages into a new PDF', cl
 Object.keys(labels).forEach(id => {
 const el = $('#' + id); if(el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', labels[id]);
 });
+initI18n();
 settingsRestore();
 $('#apanel').addEventListener('input', settingsSave);
 $('#apanel').addEventListener('change', settingsSave);
 $('#apanel').addEventListener('toggle', settingsSave, true);
 $('#reset').addEventListener('click', () => { try{ localStorage.removeItem('pdftk_tools'); }catch(e){} }, true);
+const bl = $('#blank'); if(bl) bl.onclick = insertBlank;
 const scan = $('#scanform'); if(scan) scan.onclick = scanForms;
 const ex = $('#doimg'); if(ex) ex.onclick = extractImages;
 initSignature();
