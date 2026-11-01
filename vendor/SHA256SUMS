@@ -1,0 +1,5 @@
+# sha256 of the vendored libraries, verified by pipeline/build_pdf.py
+# regenerate with: python3 pipeline/vendor_libs.py --sums
+2294a0bb8742d8948ae2d49a60cb6a3600c0b5deae6de198e57fb368d1b79ba9  cantoo-pdf-lib.min.js
+5b5799e6f8c680663207ac5b42ee14eed2a406fa7af48f50c154f0c0b1566946  pdf.min.js
+feabdf309770ed24bba31a5467836cdc8cf639c705af27d52b585b041bb8527b  pdf.worker.min.js

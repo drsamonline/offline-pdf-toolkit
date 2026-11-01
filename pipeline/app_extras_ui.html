@@ -1,0 +1,74 @@
+<details class="sec" id="s-geom"><summary>Page size &amp; trim</summary><div class="in">
+  <div class="fld"><label for="trim">Trim edges</label><input type="number" id="trim" min="0" max="144" value="0" style="max-width:84px"><span class="v">pt</span></div>
+  <div class="fld"><label for="resize">Page size</label><select id="resize">
+    <option value="">keep original</option><option value="a4">A4 portrait</option>
+    <option value="a4l">A4 landscape</option><option value="letter">Letter portrait</option></select></div>
+  <p class="hint">Trim cuts the same margin off every edge. A page size re-lays each page onto a new
+  sheet, scaled to fit — the text stays selectable, because nothing is rasterised.</p>
+</div></details>
+
+<details class="sec" id="s-impose"><summary>Impose (N-up)</summary><div class="in">
+  <div class="fld"><label for="impose">Layout</label><select id="impose">
+    <option value="">off</option><option value="2">2 per sheet</option>
+    <option value="4">4 per sheet</option><option value="bk">booklet (2-up)</option></select></div>
+  <div class="fld"><label for="imgap">Gap</label><input type="range" id="imgap" min="0" max="40" value="12"><span class="v" id="imgapv">12</span></div>
+  <p class="hint">Sheets are A4 landscape. Booklet pairs the outermost pages, so the printed stack
+  folds into reading order. Use it with a two-sided printer.</p>
+</div></details>
+
+<details class="sec" id="s-hf"><summary>Header &amp; footer</summary><div class="in">
+  <div class="fld"><label for="hfl">Top left</label><input type="text" id="hfl" placeholder="{file}"></div>
+  <div class="fld"><label for="hfc">Top centre</label><input type="text" id="hfc"></div>
+  <div class="fld"><label for="hfr">Top right</label><input type="text" id="hfr"></div>
+  <div class="fld"><label for="hfo">Bottom left</label><input type="text" id="hfo" placeholder="{date}"></div>
+  <div class="fld"><label for="hfoc">Bottom centre</label><input type="text" id="hfoc"></div>
+  <div class="fld"><label for="hfor">Bottom right</label><input type="text" id="hfor" placeholder="{n} / {total}"></div>
+  <div class="fld"><label for="hfs">Size</label><input type="range" id="hfs" min="6" max="18" value="9"><span class="v" id="hfsv">9</span></div>
+  <p class="hint">Tokens: <code>{n}</code> page number, <code>{total}</code>, <code>{date}</code>,
+  <code>{file}</code> the first file's name.</p>
+</div></details>
+
+<details class="sec" id="s-bates"><summary>Bates numbering</summary><div class="in">
+  <div class="fld"><label for="btp">Prefix</label><input type="text" id="btp" placeholder="ABC-"></div>
+  <div class="fld"><label for="bts">Start at</label><input type="number" id="bts" value="1" min="0" style="max-width:84px"></div>
+  <div class="fld"><label for="btd">Digits</label><input type="number" id="btd" value="6" min="1" max="12" style="max-width:84px"></div>
+  <div class="fld"><label for="btpos">Position</label><select id="btpos">
+    <option value="br">Bottom right</option><option value="bl">Bottom left</option>
+    <option value="tr">Top right</option><option value="tl">Top left</option></select></div>
+  <p class="hint">The legal and medical convention: a prefix, a zero-padded counter, one stamp per page.</p>
+</div></details>
+
+<details class="sec" id="s-split"><summary>Split &amp; export</summary><div class="in">
+  <div class="fld"><label for="splitmode">Split by</label><select id="splitmode">
+    <option value="n">every N pages</option><option value="1">one file per page</option>
+    <option value="ranges">ranges</option></select></div>
+  <div class="fld"><label for="splitn">N</label><input type="number" id="splitn" value="1" min="1" style="max-width:84px"></div>
+  <div class="fld"><label for="splitr">Ranges</label><input type="text" id="splitr" placeholder="1-3, 4, 8-10"></div>
+  <button class="ibtn" id="dosplit">Split now</button>
+  <div class="fld" style="margin-top:14px"><label for="pngdpi">Image DPI</label><input type="range" id="pngdpi" min="72" max="300" step="12" value="150"><span class="v" id="pngdpiv">150</span></div>
+  <button class="ibtn" id="dopng">Export pages as PNG</button>
+  <p class="hint">Both act on the selected pages, or on every page when nothing is selected.
+  Each file is downloaded separately — nothing is bundled, and nothing is sent.</p>
+</div></details>
+
+<details class="sec" id="s-redact"><summary>Redaction</summary><div class="in">
+  <div class="fld"><label for="rdt">Words</label><input type="text" id="rdt" placeholder="surname, account no"></div>
+  <div class="fld"><label>Mode</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
+    <label><input type="checkbox" id="rdraster" checked> rebuild pages as images</label></span></div>
+  <p class="hint">Every match is covered on save. With <b>rebuild</b> on, the page is rasterised
+  afterwards, so the text underneath is really gone — without it, a box is only a box.</p>
+</div></details>
+
+<details class="sec" id="s-doc"><summary>Document &amp; self-test</summary><div class="in">
+  <div class="fld"><label>On save</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
+    <label><input type="checkbox" id="flatten"> flatten form fields</label>
+    <label><input type="checkbox" id="stripmd"> remove metadata</label></span></div>
+  <button class="ibtn" id="selftest">Run self-test</button>
+  <div id="selftestout" class="hint" aria-live="polite"></div>
+</div></details>
+
+<details class="sec" id="s-net"><summary>Network <span class="lbl" id="netcount">0 requests</span></summary><div class="in">
+  <div id="netlist"></div>
+  <p class="hint">Every <code>fetch</code> and <code>XMLHttpRequest</code> this page makes is
+  counted here. Your documents never appear in this list, because they are never in a request.</p>
+</div></details>

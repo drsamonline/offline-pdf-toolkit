@@ -52,8 +52,8 @@ header{flex:none;display:flex;align-items:center;gap:11px;padding:10px 16px;back
 
 main{flex:1;display:flex;min-height:0}
 #stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
-#aside{width:392px;flex:none;display:flex;flex-direction:column;min-height:0;background:var(--panel);border-left:1px solid var(--line)}
-@media (min-width:1700px){#aside{width:470px}}
+#aside{max-width:392px;width:100%;flex:none;display:flex;flex-direction:column;min-height:0;background:var(--panel);border-left:1px solid var(--line)}
+@media (min-width:1700px){#aside{max-width:470px;width:100%}}
 
 .bar{flex:none;display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg2);flex-wrap:wrap}
 .bar .sep{width:1px;height:22px;background:var(--line)}
@@ -262,6 +262,7 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
           <button class="ibtn" id="ocrtext" disabled>Extract text</button>
           <div id="ocrmsg" class="hint"></div>
         </div></details>
+        <!--APPEXTRAS_UI-->
         <details class="sec" id="s-info"><summary>Document</summary><div class="in" id="docinfo"></div></details>
         <details class="sec" id="s-credits"><summary>Credits &amp; licences</summary><div class="in" id="credits"></div></details>
       </div>
@@ -308,6 +309,8 @@ function fmt(n){ return n<1024?n+' B' : n<1048576?(n/1024).toFixed(0)+' KB' : (n
 /* ---------- adding files ---------- */
 async function addFiles(list){
   const files=[...list]; if(!files.length) return;
+  const big=files.reduce((a,f)=>a+(f.size||0),0);
+  if(big>150*1048576) toast('That is '+fmt(big)+' — large enough that this tab may run out of memory');
   prog(2);
   for(let i=0;i<files.length;i++){
     const f=files[i];
@@ -506,6 +509,10 @@ async function buildDoc(opts={}){
   if(md.author) out.setAuthor(md.author);
   if(md.subject) out.setSubject(md.subject);
   if(md.keywords) out.setKeywords(md.keywords.split(',').map(s=>s.trim()).filter(Boolean));
+
+  // trim, redaction, re-layout, imposition, headers, Bates, forms, metadata
+  if(opts.trim||opts.resize||opts.impose||opts.hf||opts.bates||opts.redact||opts.flatten||opts.stripmd)
+    return await finishDoc(out,opts);
   return out;
 }
 
@@ -513,6 +520,7 @@ async function compressDoc(dpi,quality){
   const out=await PDFDocument.create();
   const total=pages.length;
   for(let i=0;i<total;i++){
+    if(cancelJob) throw new Error('cancelled');
     const p=pages[i]; const d=docs.find(x=>x.id===p.docId); if(!d) continue;
     const canvas=await pageToCanvas(p,d,(dpi*1.0)/72);
     const dataUrl=canvas.toDataURL('image/jpeg',quality/100);
@@ -537,7 +545,7 @@ function toolOpts(){
   const cmp=$('#s-cmp').open?{dpi:+$('#cdpi').value,quality:+$('#cq').value}:null;
   const secure=$('#s-sec').open?{user:$('#secuser').value,owner:$('#secowner').value,
     print:$('#p-print').checked,copy:$('#p-copy').checked,mod:$('#p-mod').checked}:null;
-  return {watermark:wm,pagenum:pn,meta,compress:cmp,secure};
+  return Object.assign({watermark:wm,pagenum:pn,meta,compress:cmp,secure},extrasOpts());
 }
 function download(bytes,name){
   const b=new Blob([bytes],{type:'application/pdf'}), u=URL.createObjectURL(b);
@@ -548,7 +556,8 @@ async function save(){
   const o=toolOpts(); $('#save').disabled=true; prog(4);
   try{
     let doc;
-    if(o.compress){ doc=await compressDoc(o.compress.dpi,o.compress.quality); }
+    if(o.compress){ doc=await compressDoc(o.compress.dpi,o.compress.quality);
+      if(o.trim||o.resize||o.impose||o.hf||o.bates||o.redact||o.flatten||o.stripmd) doc=await finishDoc(doc,o); }
     else { doc=await buildDoc(o); }
     if(o.secure && (o.secure.user||o.secure.owner)){
       await doc.encrypt({
@@ -564,7 +573,10 @@ async function save(){
     download(bytes, base+(o.compress?'-compressed':'')+'.pdf');
     toast('Saved · '+fmt(bytes.length)+' · '+pages.length+(pages.length===1?' page':' pages')
       +((o.secure&&(o.secure.user||o.secure.owner))?' · protected':''));
-  }catch(e){ console.error(e); toast('Could not build the PDF: '+e.message); }
+  }catch(e){
+    if(String(e.message)==='cancelled') toast('Stopped — nothing was saved');
+    else { console.error(e); toast('Could not build the PDF: '+e.message); }
+  }
   $('#save').disabled=false;
 }
 async function extract(){
@@ -723,8 +735,14 @@ function updateDoc(){
 function openModal(t,b,f){ $('#mtitle').textContent=t; $('#mbody').innerHTML=b;
   $('#mfoot').innerHTML=f||'<button class="hbtn" data-close>Close</button>'; $('#bd').classList.add('open'); }
 function closeModal(){ $('#bd').classList.remove('open'); }
+function appVersion(){
+  const m=document.querySelector('meta[name="app-version"]');
+  return m?m.content:'dev';
+}
 function helpHTML(){
-  return '<p>Everything in this page runs in your browser. There is no server, no upload and no account — '
+  return '<p class="hint" style="margin:0 0 12px">Version <b>'+esc(appVersion())+'</b> · '
+  +'one self-contained file · <span id="helpnet">0 requests</span> made by this page</p>'
+  +'<p>Everything in this page runs in your browser. There is no server, no upload and no account — '
   +'your documents never leave this device.</p>'
   +'<p><b>Typical jobs</b></p><ul>'
   +'<li><b>Merge</b> — add several PDFs; they are laid out in order. Drag pages to reorder.</li>'
@@ -735,16 +753,23 @@ function helpHTML(){
   +'<li><b>Images → PDF</b> — use <b>Add images</b> and save.</li>'
   +'<li><b>Password protect</b> — set a password and save; AES-256.</li>'
   +'<li><b>Unlock</b> — remove a password you already know.</li>'
-  +'<li><b>Extract text</b> — from a digital PDF. <b>OCR</b> — from a scan (engine downloaded once).</li></ul>'
+  +'<li><b>Extract text</b> — from a digital PDF. <b>OCR</b> — from a scan (engine downloaded once).</li>'
+  +'<li><b>Trim / resize / impose</b> — cut margins, re-lay pages onto A4, or put 2, 4 or a booklet on a sheet.</li>'
+  +'<li><b>Header, footer, Bates</b> — running text and the legal numbering convention, stamped on save.</li>'
+  +'<li><b>Split &amp; export</b> — every N pages, one file per page, ranges, or every page as a PNG.</li>'
+  +'<li><b>Redaction</b> — cover every match of a word, and optionally rebuild the page so the text is gone.</li></ul>'
   +'<p><b>Shortcuts</b></p>'
   +'<div class="k"><kbd>a</kbd><span>select all</span></div>'
   +'<div class="k"><kbd>d</kbd><span>deselect</span></div>'
   +'<div class="k"><kbd>Delete</kbd><span>remove selected pages</span></div>'
   +'<div class="k"><kbd>[</kbd> <kbd>]</kbd><span>rotate selected</span></div>'
   +'<div class="k"><kbd>t</kbd><span>theme</span></div>'
+  +'<div class="k"><kbd>Ctrl</kbd> <kbd>K</kbd><span>command palette — every tool by name</span></div>'
   +'<div class="k"><kbd>Esc</kbd><span>close</span></div>'
   +'<p class="hint" style="margin-top:12px">Shift-click selects a range. Drag a page onto another to reorder.</p>';
 }
+
+/*__APPEXTRAS__*/
 
 /* ---------- events ---------- */
 $('#add').onclick=()=>$('#fpick').click();
@@ -830,6 +855,27 @@ document.addEventListener('keydown',e=>{
 });
 
 applyPrefs(); setView('pages'); render(); renderFiles(); updateDoc(); renderCredits();
+</script>
+<!--KIT_EXTRAS-->
+<script>
+/* ---------- offline shell ----------
+   The app is served from two places: app.html at the site root and play/ inside
+   the Pages deployment, and the service worker sits one level up in the second
+   case. Try the same directory first, then the parent, and stay quiet if neither
+   exists. update() on every load so a returning reader cannot sit on an old copy. */
+(function(){
+  if(!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
+  addEventListener('load',function(){
+    var cands=[['sw.js','./'],['../sw.js','../']], i=0;
+    (function next(){
+      if(i>=cands.length) return;
+      var c=cands[i++];
+      navigator.serviceWorker.register(c[0],{scope:c[1]})
+        .then(function(r){ return r.update(); })
+        .catch(next);
+    })();
+  });
+})();
 </script>
 </body>
 </html>
