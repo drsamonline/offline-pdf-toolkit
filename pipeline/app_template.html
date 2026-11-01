@@ -469,6 +469,8 @@ async function buildDoc(opts={}){
   for(let i=0;i<plan.length;i++){
     const {p,d}=plan[i];
     if(!d) continue;
+    if(i && i%25===0) await new Promise(r=>setTimeout(r,0));   // let the page breathe
+    if(cancelJob) throw new Error('cancelled');
     if(d.kind==='blank'){
       const made=out.getPages();
       const size=made.length?made[made.length-1].getSize():{width:595.28,height:841.89};
@@ -610,7 +612,9 @@ async function save(){
           losslessSkipped = true;
         } else {
           prog(70);
-          const packed = await losslessCompress(doc);
+          const packed = onlyCompression(o)
+            ? await losslessBytes(docs[0].bytes)     // nothing else asked for: skip the rebuild
+            : await losslessCompress(doc);
           prog(95);
           const name0 = (o.meta && o.meta.title)
             ? o.meta.title.replace(/[^\w\-. ]+/g, '').trim().slice(0, 60) || 'document'

@@ -407,6 +407,7 @@ const ACTIONS=[
   ['Rotate right','pages',()=>rotate(1)],
   ['Duplicate selected','pages',duplicateSel],
   ['Insert a blank page','pages',insertBlank],
+  ['Process a folder of PDFs','tools',()=>openSec('s-folder')],
   ['Delete selected','pages',removeSel],
   ['Extract selected to a new PDF','pages',extract],
   ['Watermark','tools',()=>openSec('s-wm')],
@@ -956,7 +957,39 @@ function qpdfRun(bytes){
     });
   });
 }
+/* true when the only thing asked for is compression — no decoration, no page
+   edit, one source file in its original order. Then qpdf can work on the bytes
+   the user handed us, instead of on a pdf-lib rebuild that may itself be bigger
+   than the original. */
+function onlyCompression(o){
+  if(docs.length !== 1) return false;
+  const d = docs[0];
+  if(d.kind !== 'pdf') return false;
+  if(pages.length !== d.numPages) return false;
+  if(pages.some((p, i) => p.src !== i || p.rot)) return false;
+  const md = o.meta || {};
+  return !(o.trim || o.resize || o.impose || o.hf || o.bates || o.redact || o.flatten || o.stripmd
+    || o.sign || (o.watermark && o.watermark.text) || (o.pagenum && o.pagenum.on)
+    || (o.form && Object.keys(o.form).length)
+    || md.title || md.author || md.subject || md.keywords);
+}
+
+async function losslessBytes(bytes){
+  await qpdfReady();
+  const after = await qpdfRun(bytes);
+  if(after.length >= bytes.length){
+    toast('qpdf: already as small as it gets · ' + fmt(bytes.length));
+    return bytes;
+  }
+  toast('qpdf · ' + fmt(bytes.length) + ' → ' + fmt(after.length)
+    + ' (−' + Math.round(100 - 100 * after.length / bytes.length) + '%), nothing lost');
+  return after;
+}
 async function losslessCompress(doc){
+  const before = await doc.save({useObjectStreams:true});
+  return losslessBytes(before);
+}
+async function unusedLosslessCompress(doc){
   await qpdfReady();
   const before = await doc.save({useObjectStreams:true});
   const after = await qpdfRun(before);
@@ -967,6 +1000,81 @@ async function losslessCompress(doc){
   toast('qpdf · ' + fmt(before.length) + ' → ' + fmt(after.length)
     + ' (−' + Math.round(100 - 100 * after.length / before.length) + '%), nothing lost');
   return after;
+}
+
+/* ---------- a whole folder, through the File System Access API ----------
+   The browser gives this page a directory handle; the page reads the PDFs and
+   writes results back into an `out` folder beside them. No upload, no server —
+   the same promise as everything else, extended to a hundred files at once.
+   Chrome, Edge and Android Chrome have this; Firefox and Safari do not, and the
+   button says so rather than failing when pressed. */
+async function processFolder(){
+  const msg = $('#foldermsg');
+  if(!window.showDirectoryPicker){
+    const t = 'This browser cannot open a folder. Use "one file per source" instead, or Chrome, '
+      + 'Edge or Android Chrome.';
+    if(msg) msg.textContent = t;
+    toast(t);
+    return;
+  }
+  let dir;
+  try{ dir = await window.showDirectoryPicker({ mode:'readwrite' }); }
+  catch(e){ return; }                       // the user closed the picker
+  const outDir = await dir.getDirectoryHandle('out', { create:true });
+
+  const entries = [];
+  for await (const [name, handle] of dir.entries()){
+    if(handle.kind === 'file' && /\.pdf$/i.test(name)) entries.push({name, handle});
+  }
+  if(!entries.length){ toast('No PDFs in that folder'); if(msg) msg.textContent = 'No PDFs found.'; return; }
+
+  const o = toolOpts();
+  const keepDocs = docs, keepPages = pages;
+  let done = 0, failed = 0, before = 0, after = 0;
+  cancelJob = false; $('#save').disabled = true;
+  try{
+    for(let i = 0; i < entries.length; i++){
+      if(cancelJob) break;
+      const e = entries[i];
+      if(msg) msg.textContent = 'Working on ' + (i + 1) + ' of ' + entries.length + ' — ' + e.name;
+      prog(Math.round(100 * i / entries.length));
+      try{
+        const file = await e.handle.getFile();
+        docs = []; pages = []; thumbCache.clear();
+        await addFiles([file]);
+        let bytes;
+        if(o.compress && o.cmode === 'lossless' && onlyCompression(o)
+           && !(o.secure && (o.secure.user || o.secure.owner))){
+          // straight through qpdf: no rebuild, no inflation
+          bytes = await losslessBytes(new Uint8Array(await file.arrayBuffer()));
+        } else {
+          const doc = await buildDoc(o);
+          bytes = await doc.save({useObjectStreams:true});
+          if(o.compress && o.cmode === 'lossless' && !(o.secure && (o.secure.user || o.secure.owner))){
+            bytes = await losslessCompress(doc);
+          }
+        }
+        before += file.size; after += bytes.length;
+        const outName = e.name.replace(/\.pdf$/i, '') + '-out.pdf';
+        const fh = await outDir.getFileHandle(outName, { create:true });
+        const w = await fh.createWritable();
+        await w.write(bytes);
+        await w.close();
+        done++;
+      }catch(err){ failed++; console.warn('folder', e.name, err); }
+    }
+    prog(100);
+    const line = done + ' file' + (done === 1 ? '' : 's') + ' written to out/'
+      + (failed ? ' · ' + failed + ' failed' : '')
+      + (done ? ' · ' + fmt(before) + ' → ' + fmt(after) : '');
+    if(msg) msg.textContent = line;
+    toast('Folder: ' + line);
+    announce(line);
+  } finally {
+    docs = keepDocs; pages = keepPages; thumbCache.clear();
+    render(); renderFiles(); updateDoc();
+    $('#save').disabled = false;
+  }
 }
 
 /* ---------- the tool settings survive a reload ---------- */
@@ -1062,6 +1170,7 @@ function initExtras14(){
 
   // the new buttons
   const bl = $('#blank'); if(bl) bl.onclick = insertBlank;
+  const fol = $('#dofolder'); if(fol) fol.onclick = processFolder;
   const scan = $('#scanform'); if(scan) scan.onclick = scanForms;
   const ex = $('#doimg'); if(ex) ex.onclick = extractImages;
   initSignature();

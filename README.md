@@ -48,7 +48,8 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Signature** | Draw it with a mouse or finger, or load a picture; the empty margin is trimmed and it is stamped where you choose. |
 | **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
 | **Compress, three ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *lossless* runs qpdf over the result; *every page* rasterises, with an optional greyscale pass. |
-| **Batch** | *One file per source* — apply the same tools to every loaded document and get one output each. |
+| **Batch** | *One file per source* — the same tools on every loaded document, one output each. |
+| **A whole folder** | Pick a folder, and every PDF in it is processed and written to an `out` folder beside it. Chrome, Edge and Android Chrome only — the button says so when the browser cannot. |
 | **Insert blank pages** | Drop an empty page after the selection, sized like the page before it. |
 | **Interface languages** | English, हिन्दी and ગુજરાતી for the interface, switched in the header and remembered. |
 | **Remembered tools** | Your tool settings come back on the next visit; *Reset tools* forgets them. |
