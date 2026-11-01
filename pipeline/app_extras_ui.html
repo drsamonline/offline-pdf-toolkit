@@ -67,6 +67,34 @@
   <div id="selftestout" class="hint" aria-live="polite"></div>
 </div></details>
 
+<details class="sec" id="s-form"><summary>Form fields</summary><div class="in">
+  <p class="hint">Fills an AcroForm and bakes the values into the page, so they cannot be edited back.</p>
+  <button class="ibtn" id="scanform">Find fields</button>
+  <div id="formfields" style="margin-top:10px"></div>
+</div></details>
+
+<details class="sec" id="s-sign"><summary>Signature</summary><div class="in">
+  <p class="hint">Draw with a mouse or a finger, or load a picture of your signature.</p>
+  <canvas id="sigpad" width="600" height="180" style="width:100%;height:120px;background:var(--panel);border:1px dashed var(--line2);border-radius:8px;touch-action:none"></canvas>
+  <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+    <button class="ibtn" id="sigclear">Clear</button>
+    <button class="ibtn" id="sigfile">Load a picture…</button>
+  </div>
+  <div class="fld"><label for="sigpos">Position</label><select id="sigpos">
+    <option value="br">Bottom right</option><option value="bl">Bottom left</option>
+    <option value="tr">Top right</option><option value="tl">Top left</option>
+    <option value="bc">Bottom centre</option></select></div>
+  <div class="fld"><label for="sigw">Width</label><input type="range" id="sigw" min="10" max="60" value="28"><span class="v" id="sigwv">28</span></div>
+  <div class="fld"><label for="sigo">Opacity</label><input type="range" id="sigo" min="30" max="100" value="100"><span class="v" id="sigov">100</span></div>
+  <p class="hint">Stamped on the selected pages, or every page when nothing is selected, when you save.</p>
+</div></details>
+
+<details class="sec" id="s-img"><summary>Extract images</summary><div class="in">
+  <p class="hint">Recovers the pictures stored inside the PDF at their original resolution — not screenshots of the page.</p>
+  <button class="ibtn" id="doimg">Extract images</button>
+  <div id="imgmsg" class="hint"></div>
+</div></details>
+
 <details class="sec" id="s-net"><summary>Network <span class="lbl" id="netcount">0 requests</span></summary><div class="in">
   <div id="netlist"></div>
   <p class="hint">Every <code>fetch</code> and <code>XMLHttpRequest</code> this page makes is

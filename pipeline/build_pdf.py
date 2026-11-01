@@ -39,9 +39,64 @@ def minify_css(css):
     return css.replace(";}", "}").strip()
 
 
+def strip_js_comments(js):
+    """Remove comments without touching strings OR regular expressions.
+
+    The previous version was three regexes, and `'image/*'` — an ordinary string —
+    opened a block comment that swallowed the next few hundred lines of the app.
+    The version after that knew about quotes and was fooled by the `"` inside the
+    character class of `/[&<>"]/g`. This one knows about both: a `/` after an
+    operator position starts a regex literal, and everything inside it is copied
+    verbatim.
+    """
+    out = []
+    i, n, quote, prev = 0, len(js), None, ""
+    while i < n:
+        c = js[i]
+        if quote:
+            out.append(c)
+            if c == "\\" and i + 1 < n:
+                out.append(js[i + 1]); i += 2; continue
+            if c == quote:
+                quote = None
+            i += 1; continue
+        if c in "\"'`":
+            quote = c; out.append(c); prev = c; i += 1; continue
+        if c == "/" and i + 1 < n and js[i + 1] == "*":
+            j = js.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+            continue
+        if c == "/" and i + 1 < n and js[i + 1] == "/":
+            j = js.find("\n", i)
+            i = n if j < 0 else j
+            continue
+        if c == "/" and (prev == "" or prev in "(,=:[!&|?{};+-*%<>~^"):
+            out.append(c); i += 1
+            in_class = False
+            while i < n:
+                d = js[i]
+                if d == "\\" and i + 1 < n:
+                    out.append(d); out.append(js[i + 1]); i += 2; continue
+                if d == "[":
+                    in_class = True
+                elif d == "]":
+                    in_class = False
+                elif d == "/" and not in_class:
+                    out.append(d); i += 1; break
+                out.append(d); i += 1
+            while i < n and js[i].isalpha():
+                out.append(js[i]); i += 1
+            prev = "x"
+            continue
+        out.append(c)
+        if not c.isspace():
+            prev = c
+        i += 1
+    return "".join(out)
+
+
 def minify_js(js):
-    js = re.sub(r"/\*.*?\*/", "", js, flags=re.S)
-    js = re.sub(r"(?m)^\s*//.*$", "", js)
+    js = strip_js_comments(js)
     js = re.sub(r"(?m)^[ \t]+", "", js)
     return re.sub(r"\n{2,}", "\n", js).strip()
 

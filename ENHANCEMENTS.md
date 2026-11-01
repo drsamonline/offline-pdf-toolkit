@@ -5,7 +5,8 @@ dependency.** No CDN, no API key, no package that has to be installed at runtime
 has to be reachable. Anything that fails that test is listed at the end as a non-goal rather than
 smuggled into the roadmap.
 
-Status as of **1.3.0**: the first three groups are largely shipped. What is left is written down
+Status as of **1.4.0**: everything except the OCR engine, batch mode, translation, and the
+larger performance work is shipped. What is left is written down
 here with the reason it is left, so the next session starts where this one stopped.
 
 ---
@@ -29,6 +30,13 @@ here with the reason it is left, so the next session starts where this one stopp
 | Size guard above 150 MB | on load |
 | Version and build stamp in Help | Help |
 | Libraries vendored with `SHA256SUMS`, verified before inlining; one-command rebuild | `vendor/`, `pipeline/build_pdf.py` |
+| Fill AcroForm fields, with appearances built before flattening | Form fields |
+| Signature: draw or load, trimmed to its ink, placed where you choose | Signature |
+| Extract the images a PDF stores inside itself, at full resolution | Extract images |
+| Compress the photographs only, leaving the text as text; optional greyscale | Compress |
+| Undo / redo over every page operation | `Ctrl-Z` |
+| A Content-Security-Policy that names the only two origins allowed | built page |
+| Memory readout, grid roles and labels, keyboard page moves | footer, grid |
 
 ## 1. The one remaining network dependency: OCR
 
@@ -60,15 +68,13 @@ than the panel already makes.
 
 | Feature | Why people need it | Effort |
 |---|---|---|
-| **Fill AcroForm fields** | Flattening exists; filling does not. pdf-lib can set values, then the existing flatten finishes the job. | M |
-| **Extract embedded images** | Pull the photographs out of a report. pdf.js can enumerate them. | M |
-| **Place a drawn signature** | A canvas signature stamped onto the page and flattened. Needs a placement UI to be worth having — a fixed corner is not good enough for real documents. | M |
 | **PDF → Word / text with layout** | Text extraction is flat today. | L |
+| **A real lossless compression pass** | The photos-only mode re-encodes JPEGs, but object streams, fonts and duplicate resources are untouched. qpdf is Apache-2.0 (unlike Ghostscript), so a WASM build of it would not change this app's licence — that is the one route worth investigating. | L |
 
 ## 4. Working on many pages without losing your place
 
-- **Undo / redo across every operation.** The kit's Undo covers one step; rotate, delete, reorder,
-  duplicate and clear should all be on the same stack. Effort M — it is a stack of page arrays.
+- ~~**Undo / redo across every operation.**~~ Done in 1.4.0: a 60-step stack over rotate, delete,
+  duplicate, move and loading files.
 - **A resumable workspace.** Autosave the page list *and* the tool settings to IndexedDB, offer
   *Restore* next visit, let the user discard it. The buttons exist; the tool settings are not in them.
 - **Batch mode across a folder.** One watermark, one numbering scheme or one compression preset

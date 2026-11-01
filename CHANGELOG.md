@@ -1,5 +1,57 @@
 # Changelog
 
+## [1.4.0] — 2026-11-01
+
+Everything below runs on the pdf-lib and pdf.js already inside the single file. No new library,
+no new request, no new dependency.
+
+### Added
+- **Fill form fields** — reads an AcroForm, fills it and flattens the values into the page. Works
+  on fields that carry no default appearance, which is where a naive flatten draws nothing.
+- **Signature** — draw it on a pad or load a picture; the empty margin is trimmed off the ink,
+  then it is stamped on the selected pages at a chosen corner, width and opacity.
+- **Extract images** — recovers the pictures a PDF stores inside itself at full resolution,
+  through pdf.js's operator list, including images it caches in the shared object store.
+- **Compress: photos only** — re-encodes the JPEGs inside the file and leaves the text as text,
+  which is the right tool for a document with photographs. On the test document: 234 KB → 155 KB
+  with the text still extractable.
+- **Greyscale** — an optional pass on the rasterise path; verified to produce R = G = B.
+- **Undo / redo** — `Ctrl-Z` and `Shift-Ctrl-Z` over rotate, delete, duplicate, move and loading
+  files, with a 60-step stack.
+- **A Content-Security-Policy** — `connect-src` names this origin and the OCR CDN and nothing
+  else, so the browser refuses any other destination.
+- **Memory readout** in the footer where the browser exposes it, and labels/roles for the page
+  grid so it is a listbox rather than a mystery to a screen reader.
+
+### Fixed
+- **The build's minifier was not safe for real code.** It stripped `/* … */` with a regex, so the
+  string `'image/*'` opened a comment that swallowed the next few hundred lines; the version that
+  knew about quotes was then fooled by the `"` inside `/[&<>"]/g`. It now scans properly, with
+  strings and regular-expression literals both respected — and `build_landing.py` uses the same
+  implementation instead of its own copy.
+- **Form fields silently did nothing.** The vendored pdf-lib is minified, so its class names are
+  mangled (`Tp`, `Sp`); type checks by constructor name matched nothing. Both the field scan and
+  the fill now ask what a field can *do* (`setText`, `check`, `select`).
+- **A signature never reached the page** unless another decoration was also selected — the
+  post-pass in `buildDoc` did not list `opts.sign` among its triggers.
+- Imposition drew pages at full size inside smaller cells (fixed in 1.3.1's maths, covered here by
+  the same test).
+
+### Verified
+- 16 browser checks in headless Chromium: form scan and fill, signature trimming and stamping,
+  image extraction, both compression modes, greyscale, undo and redo, the memory readout, grid
+  roles, the CSP, and that the palette still lists every action.
+- Every produced PDF inspected with PyMuPDF: the filled value present as text with zero widgets
+  left, a signature image on all three pages, 234 KB → 155 KB with "Report with a photograph" and
+  the body paragraph still extractable, a rendered page whose channels are identical, and a
+  1600 × 1200 PNG recovered from the embedded JPEG.
+- The 1.3 suite still green: 14 checks, and the landing page verified on both deployments.
+
+### Credits
+Two ideas — re-encoding embedded JPEGs instead of rasterising, and trimming a signature to its ink —
+come from [PaperKnife](https://github.com/potatameister/PaperKnife) (AGPL-3.0). No code was taken;
+it is AGPL and this app is not, so both were written fresh against pdf-lib and pdf.js.
+
 ## [1.3.0] — 2026-11-01
 
 The tools release. Everything below runs on the pdf-lib and pdf.js already inside the

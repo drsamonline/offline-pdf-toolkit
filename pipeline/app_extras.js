@@ -230,6 +230,10 @@ async function finishDoc(doc,o){
   if(o.trim>0) trimPages(out,o.trim);
   let redacted=0;
   if(o.redact&&o.redact.words.length) redacted=await drawRedactions(out,o.redact);
+  if(o.sign&&o.sign.dataUrl){
+    const n=await drawSignature(out,o.sign);
+    if(n) toast('Signature on '+n+' page'+(n===1?'':'s'));
+  }
   if(o.resize) out=await resizeDoc(out,o.resize);
   if(o.impose) out=await imposeDoc(out,o.impose.mode,o.impose.gap);
   if(o.hf) await drawHeaderFooter(out,o.hf);
@@ -253,8 +257,15 @@ function extrasOpts(){
     digits:Math.max(1,+$('#btd').value||6),pos:$('#btpos').value}:null;
   const words=$('#rdt').value.split(',').map(s=>s.trim()).filter(Boolean);
   const redact=(words.length&&$('#s-redact').open)?{words,raster:$('#rdraster').checked}:null;
-  return {trim,resize,impose:imp?{mode:imp,gap:+$('#imgap').value}:null,hf,bates,redact,
-          flatten:$('#flatten').checked,stripmd:$('#stripmd').checked};
+  const form = ($('#s-form') && $('#s-form').open && formFound.length) ? readFormValues() : null;
+  const sign = (sigDataUrl && $('#s-sign') && $('#s-sign').open) ? {
+    dataUrl:sigDataUrl, pos:$('#sigpos').value, width:+$('#sigw').value,
+    opacity:+$('#sigo').value/100, pages:selList()
+  } : null;
+  const cmode = $('#cmode') ? $('#cmode').value : 'photos';
+  const cgray = $('#cgray') ? $('#cgray').checked : false;
+  return {trim,resize,impose:imp?{mode:imp,gap:+$('#imgap').value}:null,hf,bates,redact,form,sign,
+          cmode,cgray,flatten:$('#flatten').checked,stripmd:$('#stripmd').checked};
 }
 
 /* ---------- split & export ---------- */
@@ -476,3 +487,425 @@ function initExtras(){
   netUpdate();
 }
 initExtras();
+
+/* =====================================================================
+   1.4 — forms, signatures, image extraction, real compression,
+   undo/redo, and the small honest things (memory, labels, OCR paths).
+   ===================================================================== */
+
+/* ---------- AcroForm: read the fields, fill them, flatten them ---------- */
+let formFound = [];
+async function scanForms(){
+  const box = $('#formfields'); if(!box) return;
+  box.innerHTML = '<p class="hint">Reading…</p>';
+  formFound = [];
+  for(const d of docs){
+    if(d.kind !== 'pdf') continue;
+    let doc, form;
+    try{ doc = await PDFDocument.load(d.bytes, {ignoreEncryption:true}); }catch(e){ continue; }
+    try{ form = doc.getForm(); }catch(e){ continue; }
+    let fields = [];
+    try{ fields = form.getFields(); }catch(e){ continue; }
+    for(const f of fields){
+      /* The vendored pdf-lib is minified, so constructor names are mangled
+         (Tp, Sp, …). Ask what the field can do instead. */
+      let options = null, value = '', type = 'text';
+      if(typeof f.getOptions === 'function'){
+        type = 'dropdown';
+        try{ options = f.getOptions(); }catch(e){ options = null; }
+      } else if(typeof f.check === 'function' && typeof f.isChecked === 'function'){
+        type = 'checkbox';
+        try{ value = f.isChecked(); }catch(e){}
+      } else if(typeof f.getText === 'function'){
+        try{ value = f.getText() || ''; }catch(e){}
+      }
+      formFound.push({name:f.getName(), type, value, options});
+    }
+  }
+  if(!formFound.length){
+    box.innerHTML = '<p class="hint">No form fields in the loaded files. A flat PDF has none — '
+      + 'this only does something on a file with an AcroForm.</p>';
+    return;
+  }
+  box.innerHTML = formFound.map((f, i) => {
+    const id = 'ff' + i, label = esc(f.name.length > 24 ? f.name.slice(0, 22) + '…' : f.name);
+    const attr = 'id="' + id + '" data-field="' + esc(f.name) + '"';
+    if(f.options && f.options.length)
+      return '<div class="fld"><label for="' + id + '">' + label + '</label><select ' + attr + '>'
+        + f.options.map(o => '<option>' + esc(o) + '</option>').join('') + '</select></div>';
+    if(f.type === 'checkbox')
+      return '<div class="fld"><label for="' + id + '">' + label + '</label><input type="checkbox" ' + attr + '></div>';
+    return '<div class="fld"><label for="' + id + '">' + label + '</label><input type="text" '
+      + attr + ' value="' + esc(f.value) + '"></div>';
+  }).join('') + '<p class="hint">' + formFound.length + ' field' + (formFound.length === 1 ? '' : 's')
+    + ' — filled and flattened when you save.</p>';
+}
+function readFormValues(){
+  const out = {};
+  $$('#formfields [data-field]').forEach(el => {
+    out[el.getAttribute('data-field')] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  return out;
+}
+async function applyFormValues(doc, values){
+  /* A field created without a default appearance draws nothing when flattened —
+     the value is set but there is no glyph run to show. Give every text field an
+     appearance first, then flatten. */
+  try{
+    const form = doc.getForm();
+    let font = null;
+    try{ font = await doc.embedFont(StandardFonts.Helvetica); }catch(e){}
+    for(const f of form.getFields()){
+      const name = f.getName();
+      if(!(name in values)) continue;
+      const v = values[name];
+      try{
+        if(typeof f.setText === 'function'){
+          f.setText(String(v == null ? '' : v));
+          if(font && f.updateAppearances) f.updateAppearances(font);
+        } else if(typeof f.check === 'function' && typeof f.isChecked === 'function'){
+          v ? f.check() : f.uncheck();
+        } else if(typeof f.select === 'function'){
+          if(v) f.select(String(v));
+          if(font && f.updateAppearances) f.updateAppearances(font);
+        }
+      }catch(e){ console.warn('field', name, e); }
+    }
+    form.flatten();
+  }catch(e){ console.warn('form flatten', e); }
+}
+
+/* ---------- signature: draw it, trim the empty margin, stamp it ---------- */
+let sigDataUrl = null;
+function trimCanvasToInk(c){
+  const ctx = c.getContext('2d');
+  const {data, width, height} = ctx.getImageData(0, 0, c.width, c.height);
+  let minX = width, minY = height, maxX = -1, maxY = -1;
+  for(let y = 0; y < height; y++){
+    for(let x = 0; x < width; x++){
+      if(data[(y * width + x) * 4 + 3] > 8){
+        if(x < minX) minX = x; if(x > maxX) maxX = x;
+        if(y < minY) minY = y; if(y > maxY) maxY = y;
+      }
+    }
+  }
+  if(maxX < 0) return null;
+  const w = maxX - minX + 1, h = maxY - minY + 1;
+  const out = document.createElement('canvas');
+  out.width = w; out.height = h;
+  out.getContext('2d').drawImage(c, minX, minY, w, h, 0, 0, w, h);
+  return out.toDataURL('image/png');
+}
+function initSignature(){
+  const c = $('#sigpad'); if(!c) return;
+  const ctx = c.getContext('2d');
+  ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#101010';
+  let drawing = false;
+  const at = e => {
+    const r = c.getBoundingClientRect();
+    return {x:(e.clientX - r.left) * c.width / r.width, y:(e.clientY - r.top) * c.height / r.height};
+  };
+  c.addEventListener('pointerdown', e => {
+    drawing = true; try{ c.setPointerCapture(e.pointerId); }catch(err){}
+    const p = at(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  });
+  c.addEventListener('pointermove', e => {
+    if(!drawing) return;
+    const p = at(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+  });
+  const stop = () => { if(!drawing) return; drawing = false; sigDataUrl = trimCanvasToInk(c); };
+  c.addEventListener('pointerup', stop);
+  c.addEventListener('pointercancel', stop);
+  c.addEventListener('pointerleave', stop);
+
+  $('#sigclear').onclick = () => {
+    ctx.clearRect(0, 0, c.width, c.height); sigDataUrl = null; toast('Signature cleared');
+  };
+  $('#sigfile').onclick = () => {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*';
+    input.onchange = async () => {
+      const f = input.files && input.files[0]; if(!f) return;
+      try{
+        const bmp = await createImageBitmap(f);
+        ctx.clearRect(0, 0, c.width, c.height);
+        const s = Math.min(c.width / bmp.width, c.height / bmp.height);
+        const w = bmp.width * s, h = bmp.height * s;
+        ctx.drawImage(bmp, (c.width - w) / 2, (c.height - h) / 2, w, h);
+        sigDataUrl = trimCanvasToInk(c);
+        toast(sigDataUrl ? 'Signature loaded' : 'That picture is empty');
+      }catch(e){ toast('Could not read that image'); }
+    };
+    input.click();
+  };
+}
+async function drawSignature(doc, o){
+  if(!o.dataUrl) return 0;
+  const png = Uint8Array.from(atob(o.dataUrl.split(',')[1]), ch => ch.charCodeAt(0));
+  const img = await doc.embedPng(png);
+  const all = doc.getPages();
+  const idx = (o.pages && o.pages.length) ? o.pages : all.map((_, i) => i);
+  let n = 0;
+  for(const i of idx){
+    const page = all[i]; if(!page) continue;
+    const {width:W, height:H} = page.getSize();
+    const w = W * (o.width / 100), h = w * img.height / img.width, m = 24;
+    let x, y;
+    if(o.pos === 'br'){ x = W - m - w; y = m; }
+    else if(o.pos === 'bl'){ x = m; y = m; }
+    else if(o.pos === 'tr'){ x = W - m - w; y = H - m - h; }
+    else if(o.pos === 'tl'){ x = m; y = H - m - h; }
+    else { x = (W - w) / 2; y = m; }
+    page.drawImage(img, {x, y, width:w, height:h, opacity:o.opacity});
+    n++;
+  }
+  return n;
+}
+
+/* ---------- extract the images a PDF stores inside itself ---------- */
+function saveBlob(blob, name){
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = u; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(u), 5000);
+}
+async function imageObjectFrom(page, name){
+  /* pdf.js's PDFObjects.get() with a callback behaves differently from the
+     promise-less form when the object is already settled, so ask directly and
+     wait for the render that populates the store. */
+  for(let attempt = 0; attempt < 15; attempt++){
+    /* pdf.js keeps a page-local store and a shared one: an image repeated across
+       pages (or already seen) lives in commonObjs, and asking the page for it
+       alone misses it. */
+    try{ const o = page.objs.get(name); if(o) return o; }catch(e){}
+    try{ const o = page.commonObjs.get(name); if(o) return o; }catch(e){}
+    await new Promise(r => setTimeout(r, 120));
+  }
+  return null;
+}
+function imageToCanvas(ob){
+  const w = ob.width | 0, h = ob.height | 0;
+  if(!w || !h) return null;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  if(ob.bitmap){
+    ctx.drawImage(ob.bitmap, 0, 0); return c;
+  }
+  const data = ob.data; if(!data) return null;
+  const n = w * h;
+  const img = ctx.createImageData(w, h);
+  if(ob.kind === 3 && data.length >= n * 4){ img.data.set(data.subarray(0, n * 4)); }
+  else if(ob.kind === 2 && data.length >= n * 3){
+    for(let i = 0; i < n; i++){
+      img.data[i * 4] = data[i * 3];
+      img.data[i * 4 + 1] = data[i * 3 + 1];
+      img.data[i * 4 + 2] = data[i * 3 + 2];
+      img.data[i * 4 + 3] = 255;
+    }
+  } else if(ob.kind === 1){
+    const row = (w + 7) >> 3;
+    for(let y = 0; y < h; y++){
+      for(let x = 0; x < w; x++){
+        const bit = (data[y * row + (x >> 3)] >> (7 - (x & 7))) & 1;
+        const v = bit ? 0 : 255, o = (y * w + x) * 4;
+        img.data[o] = img.data[o + 1] = img.data[o + 2] = v; img.data[o + 3] = 255;
+      }
+    }
+  } else return null;
+  ctx.putImageData(img, 0, 0);
+  return c;
+}
+async function extractImages(){
+  if(!pages.length){ toast('Add a PDF first'); return; }
+  const sel = selList(), base = sel.length ? sel : pages.map((_, i) => i);
+  const msg = $('#imgmsg');
+  const OPS = pdfjsLib.OPS;
+  let made = 0, seen = 0;
+  cancelJob = false; $('#save').disabled = true;
+  try{
+    for(let k = 0; k < base.length; k++){
+      if(cancelJob) break;
+      const i = base[k], p = pages[i], d = docs.find(x => x.id === p.docId);
+      if(!d || d.kind !== 'pdf') continue;
+      prog(Math.round(100 * k / base.length));
+      msg.textContent = 'Scanning page ' + (i + 1) + '…';
+      let pg, ol;
+      try{ pg = await d.pdfjs.getPage(p.src + 1); ol = await pg.getOperatorList(); }catch(e){ continue; }
+      /* pdf.js only decodes the images while it renders, so draw the page once at
+         a small scale — otherwise page.objs is empty and every lookup misses. */
+      try{
+        const vp = pg.getViewport({scale:0.3});
+        const cv = document.createElement('canvas');
+        cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+        await pg.render({canvasContext:cv.getContext('2d'), viewport:vp}).promise;
+      }catch(e){}
+      const names = [];
+      for(let j = 0; j < ol.fnArray.length; j++){
+        const f = ol.fnArray[j];
+        if(f === OPS.paintImageXObject || f === OPS.paintInlineImageXObject ||
+           f === OPS.paintImageMaskXObject || f === OPS.paintJpegXObject){
+          const a = ol.argsArray[j]; if(a && a[0] !== undefined) names.push(a[0]);
+        }
+      }
+      for(const name of names){
+        if(typeof name !== 'string' && typeof name !== 'number') continue;
+        seen++;
+        const ob = await imageObjectFrom(pg, name);
+        if(!ob) continue;
+        let c = null;
+        try{ c = imageToCanvas(ob); }catch(e){ c = null; }
+        if(!c) continue;
+        const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+        if(!blob) continue;
+        made++;
+        saveBlob(blob, 'page-' + String(i + 1).padStart(3, '0') + '-image-' + made + '.png');
+        await new Promise(r => setTimeout(r, 140));
+      }
+    }
+    prog(100);
+    msg.textContent = made ? (made + ' image' + (made === 1 ? '' : 's') + ' recovered.')
+      : (seen ? 'Found ' + seen + ' image reference' + (seen === 1 ? '' : 's') + ' but could not decode them.'
+              : 'No embedded images in these pages — this file is probably all text or a pure scan flattened to one picture per page.');
+    toast(made ? ('Extracted ' + made + ' image' + (made === 1 ? '' : 's')) : 'No images found');
+    announce(msg.textContent);
+  }catch(e){ toast('Extraction failed: ' + e.message); }
+  $('#save').disabled = false;
+}
+
+/* ---------- compression that keeps the text: re-encode the JPEGs ---------- */
+async function condenseDoc(doc, maxDim, quality){
+  const {PDFRawStream, PDFName} = PDFLib;
+  const ctx = doc.context;
+  const stats = {photos:0, shrunk:0, skipped:0, before:0, after:0};
+  for(const [ref, obj] of ctx.enumerateIndirectObjects()){
+    let dict = null;
+    try{ dict = obj.dict; }catch(e){ continue; }
+    if(!dict) continue;
+    let sub; try{ sub = dict.get(PDFName.of('Subtype')); }catch(e){ continue; }
+    if(!sub || String(sub) !== '/Image') continue;
+    const filt = dict.get(PDFName.of('Filter'));
+    if(!filt || String(filt) !== '/DCTDecode'){ stats.skipped++; continue; }
+    if(dict.get(PDFName.of('SMask')) || dict.get(PDFName.of('Mask'))){ stats.skipped++; continue; }
+    let bytes = null;
+    try{ bytes = obj.getContents ? obj.getContents() : obj.contents; }catch(e){}
+    if(!bytes || !bytes.length){ stats.skipped++; continue; }
+    stats.photos++;
+    try{
+      const bmp = await createImageBitmap(new Blob([bytes], {type:'image/jpeg'}));
+      const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(bmp.width * scale));
+      c.height = Math.max(1, Math.round(bmp.height * scale));
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      if(bmp.close) bmp.close();
+      const data = c.toDataURL('image/jpeg', quality / 100);
+      const nb = Uint8Array.from(atob(data.split(',')[1]), ch => ch.charCodeAt(0));
+      if(nb.length >= bytes.length){ stats.skipped++; continue; }
+      const nd = ctx.obj({
+        Type:'XObject', Subtype:'Image', Width:c.width, Height:c.height,
+        ColorSpace:'DeviceRGB', BitsPerComponent:8, Filter:'DCTDecode'
+      });
+      ctx.assign(ref, PDFRawStream.of(nd, nb));
+      stats.shrunk++; stats.before += bytes.length; stats.after += nb.length;
+      prog(null);
+    }catch(e){ stats.skipped++; }
+  }
+  return stats;
+}
+
+/* ---------- greyscale, for the rasterise path ---------- */
+function toGrey(canvas){
+  const ctx = canvas.getContext('2d');
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = img.data;
+  for(let i = 0; i < d.length; i += 4){
+    const v = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) | 0;
+    d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
+/* ---------- undo / redo ---------- */
+let histStack = [], redoStack = [];
+function snapshotPages(){
+  histStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
+  if(histStack.length > 60) histStack.shift();
+  redoStack.length = 0;
+}
+function restorePages(json){
+  pages = JSON.parse(json).map(p => ({...p, id:nextId++}));
+  thumbCache.clear(); render(); renderFiles(); updateDoc();
+}
+function undo(){
+  if(!histStack.length){ toast('Nothing to undo'); return; }
+  redoStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
+  restorePages(histStack.pop()); toast('Undo'); announce('Undone');
+}
+function redo(){
+  if(!redoStack.length){ toast('Nothing to redo'); return; }
+  histStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
+  restorePages(redoStack.pop()); toast('Redo'); announce('Redone');
+}
+
+/* ---------- the rest of the 1.4 wiring ---------- */
+function initExtras14(){
+  // memory readout, where the browser exposes it
+  const foot = $('.foot');
+  if(foot && !$('#memstat')){
+    const s = document.createElement('span');
+    s.id = 'memstat'; s.className = 'only'; s.style.marginLeft = 'auto';
+    foot.appendChild(s);
+  }
+  const mem = () => {
+    const el = $('#memstat'); if(!el) return;
+    const m = performance.memory;
+    el.textContent = m ? ('≈ ' + Math.round(m.usedJSHeapSize / 1048576) + ' MB heap') : '';
+  };
+  const _updateBar = window.updateBar;
+  window.updateBar = function(){ _updateBar.apply(this, arguments); mem(); };
+
+  // undo/redo on the mutating operations, plus the keys
+  for(const fn of ['rotate', 'removeSel', 'duplicateSel', 'moveSel']){
+    const orig = window[fn];
+    if(typeof orig !== 'function') continue;
+    window[fn] = function(){ snapshotPages(); return orig.apply(this, arguments); };
+  }
+  const _addFiles = window.addFiles;
+  if(typeof _addFiles === 'function')
+    window.addFiles = function(){ snapshotPages(); return _addFiles.apply(this, arguments); };
+  const _clear = $('#clear');
+  if(_clear) _clear.addEventListener('click', () => snapshotPages(), true);
+
+  addEventListener('keydown', e => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || '') || (e.target || {}).isContentEditable;
+    if(typing) return;
+    const k = e.key.toLowerCase();
+    if((e.ctrlKey || e.metaKey) && k === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); }
+    else if((e.ctrlKey || e.metaKey) && k === 'y'){ e.preventDefault(); redo(); }
+    else if(e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')){
+      if(selList().length){ e.preventDefault(); moveSel(e.key === 'ArrowLeft' ? -1 : 1); }
+    }
+  });
+
+  // labels and roles, so the grid is not a mystery to a screen reader
+  const grid = $('#grid');
+  if(grid){ grid.setAttribute('role', 'listbox'); grid.setAttribute('aria-multiselectable', 'true');
+    grid.setAttribute('aria-label', 'Pages in the output'); }
+  const labels = {add:'Add PDF files', addimg:'Add images', save:'Build and download the PDF',
+    help:'Help and shortcuts', theme:'Switch theme', selall:'Select every page',
+    selnone:'Clear the selection', rotl:'Rotate selected pages left', rotr:'Rotate selected pages right',
+    left:'Move selected pages earlier', right:'Move selected pages later', dup:'Duplicate selected pages',
+    del:'Delete selected pages', extract:'Extract selected pages into a new PDF', clear:'Remove every page'};
+  Object.keys(labels).forEach(id => {
+    const el = $('#' + id); if(el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', labels[id]);
+  });
+
+  // the new buttons
+  const scan = $('#scanform'); if(scan) scan.onclick = scanForms;
+  const ex = $('#doimg'); if(ex) ex.onclick = extractImages;
+  initSignature();
+  for(const [id, vid] of [['sigw', 'sigwv'], ['sigo', 'sigov']]){
+    const el = $('#' + id); if(el) el.oninput = () => { $('#' + vid).textContent = el.value; };
+  }
+}
+initExtras14();

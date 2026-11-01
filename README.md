@@ -44,6 +44,10 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Split** | Every N pages, one file per page, or ranges (`1-3, 4, 8-10`). |
 | **Export images** | Every page as a PNG at the DPI you choose. |
 | **Redaction** | Cover every match of a word; with *rebuild* on, the page is rasterised so the text underneath is really gone. |
+| **Form fields** | Reads the AcroForm, fills it, and flattens the values into the page so they cannot be edited back. |
+| **Signature** | Draw it with a mouse or finger, or load a picture; the empty margin is trimmed and it is stamped where you choose. |
+| **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
+| **Compress, two ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *every page* rasterises, with an optional greyscale pass. |
 | **Flatten & strip** | Flatten form fields, or remove the metadata before sending a file on. |
 | **Page numbers** | Four formats, four positions, starting number, size. |
 | **Metadata** | Title, author, subject, keywords. |
@@ -58,7 +62,9 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Network counter** | Every `fetch` and `XMLHttpRequest` this page makes, listed in the app. A fresh copy reads `0 requests`. |
 | **Self-test** | Proves merging, rotating, cropping and AES-256 work — on your machine, in your tab. |
 | **Command palette** | `Ctrl-K` — every tool by name. |
-| **Shortcuts** | `a` select all · `d` deselect · `[` `]` rotate · `Delete` remove · `t` theme · `Ctrl-K` commands · `?` help |
+| **Undo / redo** | `Ctrl-Z` and `Shift-Ctrl-Z` across rotate, delete, duplicate, move and loading files. |
+| **Keyboard** | `Alt-←` / `Alt-→` moves the selected pages; the grid is a labelled listbox for screen readers. |
+| **Shortcuts** | `a` select all · `d` deselect · `[` `]` rotate · `Delete` remove · `t` theme · `Ctrl-K` commands · `Ctrl-Z` undo · `?` help |
 
 ## Not included, deliberately
 
@@ -130,6 +136,11 @@ this repository.
 Because the bundled libraries are permissive rather than copyleft, this app can carry normal
 commercial licensing terms.
 
+Two techniques here — re-encoding the JPEGs inside a PDF while leaving the text alone, and trimming
+a signature to its ink before placing it — were inspired by [PaperKnife](https://github.com/potatameister/PaperKnife).
+PaperKnife is AGPL-3.0, which this app cannot be, so **no code was taken**: the implementations here
+were written against the pdf-lib and pdf.js APIs already in the file.
+
 ## How to check it, rather than believe it
 
 - **Network panel** in the app: a live count and list of every request the page has made.
@@ -139,6 +150,9 @@ commercial licensing terms.
   through pdf.js. Every line reports pass or fail, in your tab, on your machine.
 - **The build**: `vendor/SHA256SUMS` is checked before anything is inlined, so the shipped file
   is built from the exact library bytes on record.
+- **A Content-Security-Policy** in the built page: `connect-src 'self' blob: data: https://cdn.jsdelivr.net`.
+  The browser itself refuses any other destination, so the promise is structural rather than a
+  paragraph. The one external origin left is the OCR engine's.
 
 ## Privacy
 
