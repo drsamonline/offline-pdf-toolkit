@@ -5,8 +5,8 @@ dependency.** No CDN, no API key, no package that has to be installed at runtime
 has to be reachable. Anything that fails that test is listed at the end as a non-goal rather than
 smuggled into the roadmap.
 
-Status as of **1.4.0**: everything except the OCR engine, batch mode, translation, and the
-larger performance work is shipped. What is left is written down
+Status as of **1.5.0**: the app makes no external request at all. What is left is translation, the
+larger performance work, and one open question about lossless compression. What is left is written down
 here with the reason it is left, so the next session starts where this one stopped.
 
 ---
@@ -38,31 +38,17 @@ here with the reason it is left, so the next session starts where this one stopp
 | A Content-Security-Policy that names the only two origins allowed | built page |
 | Memory readout, grid roles and labels, keyboard page moves | footer, grid |
 
-## 1. The one remaining network dependency: OCR
+## 1. ~~The one remaining network dependency: OCR~~ — done in 1.5.0
 
-OCR is now the only thing that touches the network: `tesseract.js`, its core and the language data
-come from `cdn.jsdelivr.net`. Everything else is already offline. This is the gap between
-"offline-first" and "offline, full stop".
+The engine ships beside the app in `docs/play/ocr/` (~10 MB: wrapper, worker, two LSTM-only WASM
+cores, fast English data), fetched once by `tools/fetch_ocr.py` and committed. The page reaches no
+other origin, and the CSP says so. Adding a second language is the same script with a different
+`traineddata` file — the UI already lists six.
 
-| Option | What it means | Effort | Weight |
-|---|---|---|---|
-| **A. Bundle the engine** | Inline `tesseract.js` + core + `eng.traineddata` (fast) the way pdf-lib already is. OCR works with the cable out, first try. | M | +12–14 MB on the app file |
-| **B. Ship an OCR pack** | Keep the app lean; add `ocr-eng.zip` as a **release asset**. The app asks for a local file once, caches the bytes in IndexedDB, never asks again. | M | 0 in the app, ~4 MB in the release |
-| **C. Load a `.traineddata` from disk** | The smallest step: a *Choose language file…* button. No download at all, but tesseract.js itself still needs a home. | S | 0 |
-| **D. Drop OCR from the core** | It is the one feature that is not really a PDF-toolkit job. Move it to a sibling app. | S | −40 KB |
+## 2. ~~Make the offline claim structural~~ — done in 1.5.0
 
-**Recommendation: B, then A.** B keeps the single file small and makes the offline path explicit;
-A is the honest end state for the EXE and APK, where 12 MB costs nothing.
-
-## 2. Make the offline claim structural
-
-The network panel counts requests, which is evidence. A Content-Security-Policy would make it a
-guarantee: `default-src 'self'; connect-src 'self' https://cdn.jsdelivr.net` today, and
-`connect-src 'none'` the day OCR is vendored. The CSP has to be added to the built HTML rather than
-the template, because the pdf.js worker needs a blob: origin.
-
-Effort S. Do it together with §1, not before — a CSP that has to allow the CDN is a weaker claim
-than the panel already makes.
+The built page carries a CSP with `connect-src 'self' blob: data:` and no external origin named.
+Combined with the network panel, the claim is both enforced and checkable.
 
 ## 3. Still missing from the toolkit
 
@@ -75,11 +61,13 @@ than the panel already makes.
 
 - ~~**Undo / redo across every operation.**~~ Done in 1.4.0: a 60-step stack over rotate, delete,
   duplicate, move and loading files.
-- **A resumable workspace.** Autosave the page list *and* the tool settings to IndexedDB, offer
-  *Restore* next visit, let the user discard it. The buttons exist; the tool settings are not in them.
-- **Batch mode across a folder.** One watermark, one numbering scheme or one compression preset
-  applied to many files, with a per-file result list. Effort L, and the difference between a
-  utility and a tool people keep.
+- **A resumable workspace.** The tool settings are now stored and restored (1.5.0). The page list
+  is deliberately not: keeping your documents between visits is the one thing this app promises not
+  to do.
+- ~~**Batch mode.**~~ Done in 1.5.0 as *one file per source*: the same tools, one output per loaded
+  document. What is still missing is the folder variant — pick a directory, apply a preset, get a
+  per-file result list — which needs the File System Access API and a progress UI that survives one
+  bad file in the middle.
 - **Drag-rectangle selection** and a *select every N* helper.
 
 ## 5. Big files, weak devices

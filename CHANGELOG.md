@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.5.0] — 2026-11-01
+
+The release where "offline" stopped needing a footnote.
+
+### Changed
+- **OCR no longer touches the network.** The recognition engine — the JS wrapper, its worker, two
+  LSTM-only WASM cores and the fast English language data, about 10 MB — now ships beside the app in
+  `docs/play/ocr/`. `tools/fetch_ocr.py` fetches it once, for a human with a connection, and verifies
+  every file against `SHA256SUMS`; the files are committed, so a fresh clone and every release
+  artefact carry them. The first click works with the cable out.
+- **The Content-Security-Policy lost its last exception.** `connect-src` is now `'self' blob: data:`,
+  with no external origin named anywhere. The browser refuses anything else.
+- **The network panel counts honestly**: it separates requests that left this origin from files
+  loaded beside the page, and reports `0 external`. The OCR engine appears in the list as *this
+  origin*, which is the whole point.
+
+### Added
+- **Batch save** — *one file per source*: apply the same tools to every loaded document and get one
+  output each, named after its source.
+- **Remembered tools** — the tool settings are stored on change and restored on the next visit, and
+  *Reset tools* forgets them. (The page list itself is not stored: that would mean keeping your
+  documents, which is exactly what this app refuses to do.)
+
+### Fixed
+- tesseract.js with `oem=1` asks for the **LSTM-only** cores (`tesseract-core-simd-lstm.wasm.js`),
+  not the full ones; vendoring the wrong pair made the engine fail silently with a 404. The right
+  pair is 4 MB smaller than the wrong one.
+
+### Verified
+- 9 new browser checks: the engine loads from this origin, OCR reads a page that is only a picture
+  of text ("SAMPLE DOCUMENT — NOT REAL PATIENT DATA …"), the counter reads `0 external` afterwards,
+  batch save produces one file per source, and the tool settings survive a reload.
+- Every produced PDF inspected with PyMuPDF: the batch outputs are 1 page and 3 pages with the
+  requested 12 pt trim on each.
+- The 1.3 and 1.4 suites (14 + 16 checks) and the landing page on both deployments still pass.
+
 ## [1.4.0] — 2026-11-01
 
 Everything below runs on the pdf-lib and pdf.js already inside the single file. No new library,

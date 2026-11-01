@@ -74,7 +74,8 @@ def main():
     badges = [
         ("live", "live", "online", SLATE),
         ("uploads", "uploads", "0 bytes", GREEN),
-        ("offline", "offline", "after first load", GREEN),
+        ("external", "external requests", "0", GREEN),
+        ("offline", "offline", "no network", GREEN),
         ("licence", "licence", licence, STAMP),
         ("deps", "deps", "0 installed", INK),
         ("size", "size", size, INK),

@@ -57,7 +57,7 @@ Offline PDF Toolkit
 <img src="assets/badge-size.svg" alt="size">
 <img src="assets/badge-licence.svg" alt="licence">
 </div>
-<p class="small" style="margin-top:14px">One exception, stated plainly: OCR downloads its recognition engine once (~7&nbsp;MB) and caches it. Your document is never part of that request — and the app counts every request it makes, so you can check that yourself.</p>
+<p class="small" style="margin-top:14px">There used to be one exception — OCR fetched its engine from a CDN. The engine now ships beside the app, so the page reaches no other origin at all. The app counts every request and says so, and the browser enforces it.</p>
 </div>
 <div>
 <div class="sheet" aria-hidden="true">
@@ -114,7 +114,7 @@ Offline PDF Toolkit
 <div class="card">
 <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>
 <h3>Protect, shrink, redact</h3>
-<p>AES-256 password protection with permissions; unlocking a password you already know; redaction that rebuilds the page so the covered text is gone, not just hidden; and compression that re-encodes the photographs while leaving the text selectable.</p>
+<p>AES-256 password protection with permissions; unlocking a password you already know; redaction that rebuilds the page so the covered text is gone, not just hidden; compression that re-encodes the photographs while leaving the text selectable; and OCR that runs from an engine shipped with the app.</p>
 </div>
 </div>
 <div class="tool-list" aria-label="Every tool in the app">
@@ -153,7 +153,7 @@ Offline PDF Toolkit
 <div><b>1</b><span>HTML file</span></div>
 <div><b>0</b><span>installs needed</span></div>
 <div><b>AES-256</b><span>encryption</span></div>
-<div><b>0</b><span>requests to open</span></div>
+<div><b>0</b><span>external requests</span></div>
 </div>
 </div></section>
 <section id="get"><div class="wrap">
@@ -208,7 +208,7 @@ Offline PDF Toolkit
 <details><summary>Is there a file size limit?</summary><div class="a"><p>None imposed — the ceiling is your device's memory. Very large scanned PDFs are slow in Compress mode, which renders every page.</p></div></details>
 <details><summary>What does Compress actually do?</summary><div class="a"><p>It renders each page to a JPEG at the resolution and quality you choose, then rebuilds the PDF from those images. On a scan that can shrink a file dramatically; on a text PDF it usually makes it bigger and the text stops being selectable. Keep the original.</p></div></details>
 <details><summary>Can it add or remove passwords?</summary><div class="a"><p>Yes. <b>Password protect</b> encrypts with AES-256 and sets permissions for printing, copying and modifying. <b>Unlock</b> removes a password you already know. Both happen in the tab.</p></div></details>
-<details><summary>Does OCR upload my document?</summary><div class="a"><p>No. OCR downloads the recognition engine once (~7&nbsp;MB) and caches it; after that it works offline. Only the engine is fetched — the document is read into memory and never leaves the device.</p></div></details>
+<details><summary>Does OCR need the internet?</summary><div class="a"><p>No. The recognition engine ships beside the app — about 10&nbsp;MB of WASM and language data in <code>docs/play/ocr/</code> — so the first click works with the network cable out. Nothing is downloaded, and your document is read into memory and never leaves the device.</p></div></details>
 <details><summary>How do I know it is not quietly uploading something?</summary><div class="a"><p>Three ways. The app keeps a <b>Network</b> panel that counts every <code>fetch</code> and <code>XMLHttpRequest</code> the page makes — open a fresh copy and it reads <code>0 requests</code>. The built file has no backend address in it at all. And the <b>self-test</b> in the app runs merging, rotating, cropping and AES-256 encryption on your machine and reports what happened.</p></div></details>
 <details><summary>Can I use it commercially?</summary><div class="a"><p>The app code is © Dr Sohil Momin: free for personal study, teaching and non-commercial practice; commercial use needs a licence; educational institutes free or at a discounted rate. The two bundled libraries are permissive (MIT and Apache-2.0), which is why the app can carry ordinary commercial terms at all.</p></div></details>
 </div>
@@ -220,7 +220,7 @@ Offline PDF Toolkit
 <div><h5>Project</h5><ul><li><a href="https://github.com/drsamonline/offline-pdf-toolkit">Source</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/LICENSE">Licence</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/THIRD-PARTY-NOTICES.md">Third-party notices</a></li></ul></div>
 <div><h5>Author</h5><ul><li>Dr Sohil Momin</li><li><a href="https://github.com/drsamonline">github.com/drsamonline</a></li></ul></div>
 </div>
-<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.4.0 · built 2026-11-01 · 45eb947</span></p>
+<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.5.0 · built 2026-11-01 · 7635c0e</span></p>
 </div></footer>
 <script>
 (function(){var root=document.documentElement, btn=document.getElementById('theme');
