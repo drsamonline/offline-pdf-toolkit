@@ -80,8 +80,12 @@ The same HTML in a shell, built from the same commit as the page you are reading
 | <img src="docs/assets/icon-192.png" width="26" alt=""> **Linux** | single binary, 21.4 MB | [offline-pdf-toolkit-linux](https://github.com/drsamonline/offline-pdf-toolkit/releases/latest/download/offline-pdf-toolkit-linux) |
 
 Every release carries the app icon alongside the artefacts (`icon-192.png`, `icon-512.png`), so the
-downloads identify themselves in a file manager instead of arriving as a grey box. Releases:
-<https://github.com/drsamonline/offline-pdf-toolkit/releases>
+downloads identify themselves in a file manager instead of arriving as a grey box.
+
+- **Rolling build** — <https://github.com/drsamonline/offline-pdf-toolkit/releases/tag/app-latest>,
+  rebuilt from `main` on every push; the `releases/latest/download/...` links above always point here.
+- **Versioned release** — <https://github.com/drsamonline/offline-pdf-toolkit/releases/tag/v1.3.0>
+  records what changed and why, with the icons attached.
 
 ## Files
 
