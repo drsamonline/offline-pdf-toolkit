@@ -1,6 +1,6 @@
 # Offline PDF Toolkit
 
-<img src="docs/assets/badge-live.svg" alt="live"> <img src="docs/assets/badge-uploads.svg" alt="0 bytes uploaded"> <img src="docs/assets/badge-offline.svg" alt="works offline"> <img src="docs/assets/badge-deps.svg" alt="0 runtime dependencies"> <img src="docs/assets/badge-size.svg" alt="single file"> <img src="docs/assets/badge-licence.svg" alt="licence">
+<img src="docs/assets/badge-live.svg" alt="live"> <img src="docs/assets/badge-uploads.svg" alt="0 bytes uploaded"> <img src="docs/assets/badge-offline.svg" alt="no network"> <img src="docs/assets/badge-external.svg" alt="0 external requests"> <img src="docs/assets/badge-deps.svg" alt="0 runtime dependencies"> <img src="docs/assets/badge-size.svg" alt="single file"> <img src="docs/assets/badge-licence.svg" alt="licence">
 
 **Merge, split, rotate, watermark, number, protect and compress PDFs — in one HTML file, with no
 server to send them to.** No upload, no account, no tracking, no install. Unplug the network and it
@@ -48,6 +48,8 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Signature** | Draw it with a mouse or finger, or load a picture; the empty margin is trimmed and it is stamped where you choose. |
 | **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
 | **Compress, two ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *every page* rasterises, with an optional greyscale pass. |
+| **Batch** | *One file per source* — apply the same tools to every loaded document and get one output each. |
+| **Remembered tools** | Your tool settings come back on the next visit; *Reset tools* forgets them. |
 | **Flatten & strip** | Flatten form fields, or remove the metadata before sending a file on. |
 | **Page numbers** | Four formats, four positions, starting number, size. |
 | **Metadata** | Title, author, subject, keywords. |
@@ -56,7 +58,7 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Password protect** | AES-256, with user/owner passwords and permissions for printing, copying, modifying. |
 | **Unlock** | Remove a password you already know, in the browser. |
 | **Extract text** | From a digital PDF → `.txt`. |
-| **OCR** | From a scan. Engine downloaded once (~7 MB) then cached; the document is never uploaded. |
+| **OCR** | From a scan. The engine ships beside the app, so it works offline on the first try. |
 | **Credits** | All bundled libraries credited in-app and in `THIRD-PARTY-NOTICES.md`. |
 | **Themes** | Dark, light, high-contrast. |
 | **Network counter** | Every `fetch` and `XMLHttpRequest` this page makes, listed in the app. A fresh copy reads `0 requests`. |
@@ -101,6 +103,7 @@ index.html                   landing page (root deployment)
 docs/index.html              landing page (Pages deployment)
 docs/play/index.html         the application, as Pages serves it
 docs/assets/                 badges, screenshots, icons, sample PDFs (all local)
+docs/play/ocr/               the OCR engine: wrapper, worker, two LSTM WASM cores, English data
 pipeline/app_template.html   the application source (readable)
 pipeline/landing.html        the landing page source (readable)
 pipeline/app_extras.js       the 1.3 tools (trim, impose, redaction, split, self-test…)
@@ -112,6 +115,7 @@ vendor/                      the three libraries, with SHA256SUMS checked at bui
 tools/badges.py              draws docs/assets/badge-*.svg — no image service
 tools/shot.py                takes the screenshots with headless Chromium (dev only)
 tools/make_samples.py        generates the sample PDFs the demo and screenshots use
+tools/fetch_ocr.py           fetches the OCR engine once and verifies it against SHA256SUMS
 sw.js                        offline cache (identical copy in docs/sw.js)
 ```
 
@@ -143,25 +147,28 @@ were written against the pdf-lib and pdf.js APIs already in the file.
 
 ## How to check it, rather than believe it
 
-- **Network panel** in the app: a live count and list of every request the page has made.
-  Open a fresh copy and it reads `0 requests`. Load a document and it still reads `0`.
+- **Network panel** in the app: a live count and list of every request the page has made, split by
+  whether it left this origin. Open a fresh copy, load a document, run OCR — it reads
+  **`0 external`** throughout. The engine shows up as *this origin*, which is the point.
 - **Self-test** in the app: builds three pages from nothing, rotates one, crops one, encrypts
   with AES-256, proves the file will not open without the password, and reads the text back
   through pdf.js. Every line reports pass or fail, in your tab, on your machine.
 - **The build**: `vendor/SHA256SUMS` is checked before anything is inlined, so the shipped file
   is built from the exact library bytes on record.
-- **A Content-Security-Policy** in the built page: `connect-src 'self' blob: data: https://cdn.jsdelivr.net`.
-  The browser itself refuses any other destination, so the promise is structural rather than a
-  paragraph. The one external origin left is the OCR engine's.
+- **A Content-Security-Policy** in the built page: `connect-src 'self' blob: data:` — no other
+  origin is named anywhere, so the browser itself refuses any other destination. The promise is
+  structural rather than a paragraph.
 
 ## Privacy
 
 Your documents are read into the browser's memory, processed on your own CPU, and written back to
 your disk. Nothing is uploaded, stored or logged, and closing the tab discards everything.
 
-The one exception is OCR: clicking *Load engine* downloads the recognition engine (~7 MB) from a
-public CDN and caches it. That is the only network request the app ever makes, and it carries no
-part of your document. Removing even that is the first item in [`ENHANCEMENTS.md`](ENHANCEMENTS.md).
+There is no exception any more. OCR used to fetch its recognition engine from a CDN; the engine now
+ships beside the app in `docs/play/ocr/` (about 10 MB, fetched once by a human with
+`tools/fetch_ocr.py` and committed), so **the page makes no request to any other origin at all** —
+not for your document, not for the engine. The Content-Security-Policy says `connect-src 'self'`,
+which means the browser refuses anything else even if a future change tried.
 
 ---
 

@@ -7,27 +7,37 @@
 let cancelJob=false;
 
 /* ---------- network guard: count every request this page makes ---------- */
-const NET={count:0,urls:[]};
+const NET={count:0,external:0,urls:[]};
 (function(){
+  const note = u => {
+    try{
+      const url = String(u);
+      let ext = true;
+      try{ ext = new URL(url, location.href).origin !== location.origin; }catch(e){ ext = true; }
+      NET.count++;
+      if(ext) NET.external++;
+      NET.urls.push((ext ? 'external · ' : 'this origin · ') + url);
+      netUpdate();
+    }catch(e){}
+  };
   try{
-    const f=window.fetch;
-    if(f) window.fetch=function(input){
-      try{ NET.count++; NET.urls.push(String(typeof input==='string'?input:(input&&input.url)||'')); netUpdate(); }catch(e){}
-      return f.apply(this,arguments);
+    const f = window.fetch;
+    if(f) window.fetch = function(input){
+      note(typeof input === 'string' ? input : (input && input.url) || '');
+      return f.apply(this, arguments);
     };
-    const open=XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open=function(m,u){
-      try{ NET.count++; NET.urls.push(String(u)); netUpdate(); }catch(e){}
-      return open.apply(this,arguments);
-    };
+    const open = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(m, u){ note(u); return open.apply(this, arguments); };
   }catch(e){}
 })();
 function netUpdate(){
-  const c=$('#netcount'); if(c) c.textContent=NET.count?(NET.count+(NET.count===1?' request':' requests')):'0 requests';
-  const l=$('#netlist');
-  if(l) l.innerHTML = NET.count
-    ? NET.urls.map(u=>'<div class="stat"><span style="word-break:break-all">'+esc(u)+'</span></div>').join('')
-    : '<p class="hint">No request has left this page.</p>';
+  const c = $('#netcount');
+  if(c) c.textContent = NET.external ? (NET.external + ' external') : '0 external';
+  const l = $('#netlist');
+  if(!l) return;
+  if(!NET.count){ l.innerHTML = '<p class="hint">No request has left this page.</p>'; return; }
+  l.innerHTML = NET.urls.map(u => '<div class="stat"><span style="word-break:break-all">' + esc(u) + '</span></div>').join('')
+    + '<p class="hint">“This origin” means a file beside the page — the OCR engine is one of those.</p>';
 }
 
 /* ---------- a screen-reader line, so state changes are spoken ---------- */
@@ -265,7 +275,8 @@ function extrasOpts(){
   const cmode = $('#cmode') ? $('#cmode').value : 'photos';
   const cgray = $('#cgray') ? $('#cgray').checked : false;
   return {trim,resize,impose:imp?{mode:imp,gap:+$('#imgap').value}:null,hf,bates,redact,form,sign,
-          cmode,cgray,flatten:$('#flatten').checked,stripmd:$('#stripmd').checked};
+          cmode,cgray,flatten:$('#flatten').checked,stripmd:$('#stripmd').checked,
+          batch:!!($('#batch') && $('#batch').checked)};
 }
 
 /* ---------- split & export ---------- */
@@ -847,6 +858,71 @@ function redo(){
   restorePages(redoStack.pop()); toast('Redo'); announce('Redone');
 }
 
+/* ---------- batch: one output per source document ---------- */
+async function saveBatch(o){
+  const groups = new Map();
+  pages.forEach((p, i) => {
+    if(!groups.has(p.docId)) groups.set(p.docId, []);
+    groups.get(p.docId).push(i);
+  });
+  const keep = pages;
+  let made = 0;
+  try{
+    for(const [docId, idx] of groups){
+      if(cancelJob) break;
+      prog(Math.round(100 * made / groups.size));
+      pages = idx.map(i => ({...keep[i], sel:false}));
+      let doc = await buildDoc(o);
+      if(o.secure && (o.secure.user || o.secure.owner)){
+        await doc.encrypt({
+          userPassword:o.secure.user || '',
+          ownerPassword:o.secure.owner || o.secure.user || '',
+          permissions:{printing:o.secure.print ? 'highResolution' : false, copying:o.secure.copy, modifying:o.secure.mod}
+        });
+      }
+      const bytes = await doc.save({useObjectStreams:true});
+      const src = docs.find(d => d.id === docId) || {name:'document.pdf'};
+      const base = src.name.replace(/\.pdf$/i, '') || 'document';
+      download(bytes, base + '-out.pdf');
+      made++;
+      await new Promise(r => setTimeout(r, 160));
+    }
+    prog(100);
+  } finally { pages = keep; }
+  return made;
+}
+
+/* ---------- the tool settings survive a reload ---------- */
+function settingsSnapshot(){
+  const out = {};
+  $$('#apanel input, #apanel select').forEach(el => {
+    if(!el.id) return;
+    out[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  $$('#apanel details').forEach(d => { if(d.id) out[d.id + ':open'] = d.open; });
+  return out;
+}
+function settingsRestore(){
+  const saved = LS.get('tools', null);
+  if(!saved) return;
+  Object.keys(saved).forEach(k => {
+    if(k.endsWith(':open')){
+      const d = $('#' + k.slice(0, -5)); if(d) d.open = saved[k];
+      return;
+    }
+    const el = $('#' + k); if(!el) return;
+    if(el.type === 'checkbox') el.checked = saved[k]; else el.value = saved[k];
+    if(el.tagName === 'SELECT' || el.type === 'range'){
+      const v = $('#' + k + 'v'); if(v) v.textContent = el.value;
+    }
+  });
+}
+let settingsTimer = null;
+function settingsSave(){
+  clearTimeout(settingsTimer);
+  settingsTimer = setTimeout(() => LS.set('tools', settingsSnapshot()), 400);
+}
+
 /* ---------- the rest of the 1.4 wiring ---------- */
 function initExtras14(){
   // memory readout, where the browser exposes it
@@ -899,6 +975,12 @@ function initExtras14(){
   Object.keys(labels).forEach(id => {
     const el = $('#' + id); if(el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', labels[id]);
   });
+
+  settingsRestore();
+  $('#apanel').addEventListener('input', settingsSave);
+  $('#apanel').addEventListener('change', settingsSave);
+  $('#apanel').addEventListener('toggle', settingsSave, true);
+  $('#reset').addEventListener('click', () => { try{ localStorage.removeItem('pdftk_tools'); }catch(e){} }, true);
 
   // the new buttons
   const scan = $('#scanform'); if(scan) scan.onclick = scanForms;

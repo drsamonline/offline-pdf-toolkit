@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
 <meta name="description" content="Merge, split, rotate, reorder, watermark, number and compress PDFs entirely in your browser. Nothing is ever uploaded.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; worker-src 'self' blob:; connect-src 'self' blob: data: https://cdn.jsdelivr.net; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' blob: data:; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Offline PDF Toolkit — everything stays on your device</title>
 <style>
 :root{
@@ -260,8 +260,9 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
           <button class="ibtn" id="dotext">Extract text</button>
         </div></details>
         <details class="sec" id="s-ocr"><summary>OCR <span class="lbl" id="ocrstate">not loaded</span></summary><div class="in">
-          <p class="hint">Reads text from <b>scans</b>. The recognition engine (~7 MB) is downloaded once and then
-          cached by your browser; after that it works offline. <b>Your document is never uploaded</b> — only the engine is downloaded.</p>
+          <p class="hint">Reads text from <b>scans</b>. The engine ships beside this page, so nothing is
+          downloaded and nothing is uploaded — not the engine, not your document. Open <b>Network</b>
+          above to watch that stay true.</p>
           <div class="fld"><label for="ocrlang">Language</label><select id="ocrlang">
             <option value="eng">English</option><option value="hin">Hindi</option><option value="guj">Gujarati</option>
             <option value="deu">German</option><option value="fra">French</option><option value="spa">Spanish</option></select></div>
@@ -569,6 +570,13 @@ async function save(){
   const o=toolOpts(); $('#save').disabled=true; prog(4);
   try{
     let doc;
+    if(o.batch && docs.length > 1){
+      const made = await saveBatch(o);
+      prog(100);
+      toast('Saved ' + made + ' file' + (made === 1 ? '' : 's') + ' — one per source document');
+      $('#save').disabled = false;
+      return;
+    }
     if(o.compress && o.cmode==='raster'){
       doc=await compressDoc(o.compress.dpi,o.compress.quality,o.cgray);
       if(o.trim||o.resize||o.impose||o.hf||o.bates||o.redact||o.flatten||o.stripmd||o.sign)
@@ -674,8 +682,13 @@ async function extractText(){
 }
 
 /* ---------- OCR (tesseract.js; engine downloaded once, then cached) ---------- */
-const OCR_BASE='https://cdn.jsdelivr.net/npm/';
-let ocrWorker=null, ocrLang=null;
+/* The engine lives beside the app, not on a CDN: docs/play/ocr/ holds tesseract.js,
+   its worker, both WASM cores and the English language data (tools/fetch_ocr.py
+   puts them there). Three candidates cover the Pages build, a root build and a
+   root build reading the Pages directory. Nothing here leaves this origin. */
+const OCR_CANDIDATES=['ocr/','../ocr/','docs/play/ocr/'];
+let OCR_BASE=null, ocrWorker=null, ocrLang=null;
+function ocrUrl(base,name){ return base+name; }
 function ocrState(msg){ $('#ocrstate').textContent=msg; $('#ocrmsg').textContent=msg==='ready'?'':$('#ocrmsg').textContent; }
 async function loadOcr(){
   const lang=$('#ocrlang').value;
@@ -683,16 +696,26 @@ async function loadOcr(){
   ocrState('loading');
   try{
     if(!window.Tesseract){
-      await new Promise((res,rej)=>{ const s=document.createElement('script');
-        s.src=OCR_BASE+'tesseract.js@5.1.1/dist/tesseract.min.js';
-        s.onload=res; s.onerror=()=>rej(new Error('could not download the OCR engine — are you online?')); document.head.appendChild(s); });
+      let lastErr=null;
+      for(const base of (OCR_BASE?[OCR_BASE]:OCR_CANDIDATES)){
+        try{
+          await new Promise((res,rej)=>{ const s=document.createElement('script');
+            s.src=base+'tesseract.min.js'; s.onload=res;
+            s.onerror=()=>rej(new Error('no engine at '+base)); document.head.appendChild(s); });
+          OCR_BASE=base; break;
+        }catch(e){ lastErr=e; }
+      }
+      if(!OCR_BASE){
+        throw new Error('the OCR engine is not next to this page. It ships in docs/play/ocr/ — '
+          +'if you copied only the HTML file, copy that folder too (tools/fetch_ocr.py fetches it).');
+      }
     }
     if(ocrWorker && ocrLang===lang) { ocrState('ready'); $('#ocrmsg').textContent='Engine ready.'; return ocrWorker; }
     if(ocrWorker){ try{ await ocrWorker.terminate(); }catch(e){} ocrWorker=null; }
     ocrWorker=await Tesseract.createWorker(lang,1,{
-      workerPath:OCR_BASE+'tesseract.js@5.1.1/dist/worker.min.js',
-      corePath:OCR_BASE+'tesseract.js-core@6.1.2/',
-      langPath:'https://cdn.jsdelivr.net/gh/naptha/tessdata@gh-pages/4.0.0_fast'
+      workerPath:OCR_BASE+'worker.min.js',
+      corePath:OCR_BASE,
+      langPath:OCR_BASE
     });
     ocrLang=lang; ocrState('ready'); $('#ocrmsg').textContent='Engine ready — it is now cached for offline use.';
     $('#ocrtext').disabled=!pages.length;
