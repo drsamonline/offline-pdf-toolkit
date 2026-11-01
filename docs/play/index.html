@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
 <meta name="description" content="Merge, split, rotate, reorder, watermark, number and compress PDFs entirely in your browser. Nothing is ever uploaded.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; worker-src 'self' blob:; connect-src 'self' blob: data: https://cdn.jsdelivr.net; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
-<meta name="app-version" content="1.4.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' blob: data:; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="app-version" content="1.5.0">
 <title>Offline PDF Toolkit — everything stays on your device</title>
 <style>:root{--bg:#0a0e14;--bg2:#0e141c;--panel:#121a24;--panel2:#18222e;--panel3:#1e2a38;--line:#22303f;--line2:#2c3d50;--text:#e9eff7;--dim:#93a7bd;--dim2:#6a8098;--accent:#5fa8ff;--accent2:#a78bfa;--accentInk:#04101f;--ok:#3fb950;--warn:#d6a231;--bad:#f2655c;--shadow:0 10px 34px rgba(0,0,0,.5);--shadow2:0 2px 10px rgba(0,0,0,.3);--r:12px;--r2:9px;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}body.light{--bg:#f6f8fb;--bg2:#eef2f7;--panel:#fff;--panel2:#f5f8fb;--panel3:#eaeff5;--line:#dfe6ee;--line2:#ccd6e2;--text:#0f1a26;--dim:#5a6b7e;--dim2:#8595a7;--accent:#1f6feb;--accent2:#7c3aed;--accentInk:#fff;--ok:#1a7f37;--warn:#9a6700;--bad:#c02626;--shadow:0 10px 34px rgba(20,40,70,.14);--shadow2:0 2px 10px rgba(20,40,70,.08)}body.hc{--bg:#000;--bg2:#000;--panel:#000;--panel2:#0b0b0b;--panel3:#141414;--line:#777;--line2:#999;--text:#fff;--dim:#e2e2e2;--dim2:#bdbdbd;--accent:#7fd1ff;--accent2:#d0a3ff}*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0;padding:0}a{color:var(--accent)}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid transparent;background-clip:padding-box}:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}kbd{background:var(--panel3);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:600 11px/1.4 ui-monospace,Menlo,monospace}#shell{display:flex;flex-direction:column;height:100vh;height:100dvh}header{flex:none;display:flex;align-items:center;gap:11px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;z-index:5}.brand{display:flex;align-items:center;gap:10px;flex:none}.brand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--accent),var(--accent2));display:grid;place-items:center;font:700 16px/1 var(--serif);color:#fff;box-shadow:var(--shadow2)}.brand h1{margin:0;font-size:15px;font-weight:650;white-space:nowrap}.brand small{display:block;font-size:10.5px;color:var(--dim)}.sp{flex:1}.hbtn{padding:9px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);white-space:nowrap;transition:border-color .15s,background .15s;font-size:13.5px}.hbtn:hover{border-color:var(--accent);background:var(--panel3)}.hbtn.on{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent)}.hbtn.pri{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accentInk);border:0;font-weight:650}.hbtn.pri:hover{filter:brightness(1.07)}.hbtn:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line)}main{flex:1;display:flex;min-height:0}#stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}#aside{max-width:392px;width:100%;flex:none;display:flex;flex-direction:column;min-height:0;background:var(--panel);border-left:1px solid var(--line)}@media (min-width:1700px){#aside{max-width:470px;width:100%}}.bar{flex:none;display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg2);flex-wrap:wrap}.bar .sep{width:1px;height:22px;background:var(--line)}.bar .lbl{color:var(--dim);font-size:12.5px}.ibtn{padding:7px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;white-space:nowrap}.ibtn:hover:not(:disabled){border-color:var(--accent)}.ibtn:disabled{opacity:.4;cursor:not-allowed}#drop{flex:1;overflow:auto;padding:18px;min-height:0}#drop.over{background:color-mix(in srgb,var(--accent) 8%,transparent);outline:2px dashed var(--accent);outline-offset:-12px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;align-content:start}.pg{position:relative;border:1px solid var(--line);border-radius:var(--r2);background:var(--panel);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .12s}.pg:hover{border-color:var(--line2);transform:translateY(-1px)}.pg.sel{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent)}.pg.drag{opacity:.4}.pg.tgt{outline:2px dashed var(--accent);outline-offset:2px}.pg .thumb{aspect-ratio:1/1.414;background:#fff;display:grid;place-items:center;overflow:hidden}.pg .thumb canvas,.pg .thumb img{max-width:100%;max-height:100%;display:block}.pg .thumb .ph{color:#9aa7b4;font-size:11px}.pg .cap{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:11.5px;border-top:1px solid var(--line)}.pg .cap .n{font-weight:650;font-variant-numeric:tabular-nums}.pg .cap .src{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.pg .tick{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line2);background:rgba(10,14,20,.55);display:grid;place-items:center;color:#fff;font-size:12px}.pg.sel .tick{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}.pg .rot{position:absolute;top:6px;right:6px;background:rgba(10,14,20,.55);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px}.empty{text-align:center;color:var(--dim);padding:48px 20px;max-width:560px;margin:0 auto}.empty .big{font-size:44px;display:block;margin-bottom:12px;opacity:.45}.empty h2{margin:0 0 8px;font-size:19px;font-weight:650;color:var(--text)}.empty p{margin:0 0 6px;font-size:14px}.empty .k{display:inline-block;margin-top:14px;font-size:12.5px;color:var(--dim2)}#apanel{flex:1;overflow:auto;padding:14px 16px 90px;min-height:0}.sec{border:1px solid var(--line);border-radius:var(--r2);background:var(--bg2);margin-bottom:12px;overflow:hidden}.sec>summary{padding:11px 13px;font-weight:600;font-size:13.5px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px}.sec>summary::-webkit-details-marker{display:none}.sec>summary:after{content:"+";margin-left:auto;color:var(--dim);font-weight:400}.sec[open]>summary:after{content:"−"}.sec .in{padding:0 13px 14px}.fld{display:flex;align-items:center;gap:9px;margin:9px 0;font-size:13px}.fld>label{color:var(--dim);min-width:96px}.fld input[type=text],.fld input[type=number],.fld select{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px}.fld input[type=range]{flex:1;accent-color:var(--accent)}.fld .v{min-width:38px;text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}.hint{color:var(--dim2);font-size:12px;margin:8px 0 0;line-height:1.6}.stat{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}.stat:last-child{border-bottom:0}.stat span{color:var(--dim)}.foot{flex:none;padding:9px 15px;border-top:1px solid var(--line);color:var(--dim);font-size:11.5px;background:var(--panel);display:flex;gap:12px;align-items:center;flex-wrap:wrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}.backdrop{position:fixed;inset:0;background:rgba(2,6,12,.7);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:60;padding:18px}body.light .backdrop{background:rgba(30,50,80,.35)}.backdrop.open{display:flex}.modal{background:var(--panel);border:1px solid var(--line2);border-radius:16px;box-shadow:var(--shadow);max-width:700px;width:100%;max-height:88vh;display:flex;flex-direction:column}.modal .mh{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}.modal .mh h3{margin:0;font-size:15px;flex:1;font-weight:650}.modal .mb{padding:16px 18px;overflow:auto}.modal .mf{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.modal ul,.modal ol{margin:8px 0 12px;padding-left:20px}.modal li{margin:4px 0}.modal .k{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}.modal .k:last-child{border-bottom:0}.modal .k span{color:var(--dim);font-size:12.5px}#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);background:var(--panel);border:1px solid var(--line2);padding:10px 18px;border-radius:11px;box-shadow:var(--shadow);display:none;z-index:90;font-size:13px;opacity:0;transition:opacity .2s,transform .2s;max-width:88vw;text-align:center}#toast.show{display:block;opacity:1;transform:translateX(-50%) translateY(0)}#bar2{position:fixed;left:0;right:0;top:0;height:3px;background:var(--accent);width:0;z-index:100;transition:width .2s;display:none}#mtabs{display:none}@media (max-width:920px){main{flex-direction:column}#stage,#aside{width:auto}#stage{flex:1 1 auto;min-height:0}#aside{flex:1 1 auto;max-height:none;border-left:0;border-top:1px solid var(--line)}#stage.hide,#aside.hide{display:none}.foot{padding:7px 12px;font-size:11px}.foot .only{display:none}#mtabs{display:flex;flex:none;background:var(--panel);border-bottom:1px solid var(--line)}#mtabs button{flex:1;padding:12px 8px;color:var(--dim);border-bottom:2px solid transparent;font-weight:550}#mtabs button.on{color:var(--text);border-bottom-color:var(--accent)}.brand small{display:none}header{gap:8px;padding:9px 12px}}@media (max-width:430px){.brand h1{font-size:13.5px}.hbtn{padding:8px 10px;font-size:12.5px}.grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style>
 </head>
@@ -125,8 +125,9 @@ to an image: the biggest saving on a pure scan, but the text stops being selecta
 <button class="ibtn" id="dotext">Extract text</button>
 </div></details>
 <details class="sec" id="s-ocr"><summary>OCR <span class="lbl" id="ocrstate">not loaded</span></summary><div class="in">
-<p class="hint">Reads text from <b>scans</b>. The recognition engine (~7 MB) is downloaded once and then
-cached by your browser; after that it works offline. <b>Your document is never uploaded</b> — only the engine is downloaded.</p>
+<p class="hint">Reads text from <b>scans</b>. The engine ships beside this page, so nothing is
+downloaded and nothing is uploaded — not the engine, not your document. Open <b>Network</b>
+above to watch that stay true.</p>
 <div class="fld"><label for="ocrlang">Language</label><select id="ocrlang">
 <option value="eng">English</option><option value="hin">Hindi</option><option value="guj">Gujarati</option>
 <option value="deu">German</option><option value="fra">French</option><option value="spa">Spanish</option></select></div>
@@ -192,7 +193,8 @@ afterwards, so the text underneath is really gone — without it, a box is only 
 <details class="sec" id="s-doc"><summary>Document &amp; self-test</summary><div class="in">
 <div class="fld"><label>On save</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
 <label><input type="checkbox" id="flatten"> flatten form fields</label>
-<label><input type="checkbox" id="stripmd"> remove metadata</label></span></div>
+<label><input type="checkbox" id="stripmd"> remove metadata</label>
+<label><input type="checkbox" id="batch"> one file per source</label></span></div>
 <button class="ibtn" id="selftest">Run self-test</button>
 <div id="selftestout" class="hint" aria-live="polite"></div>
 </div></details>
@@ -221,10 +223,11 @@ afterwards, so the text underneath is really gone — without it, a box is only 
 <button class="ibtn" id="doimg">Extract images</button>
 <div id="imgmsg" class="hint"></div>
 </div></details>
-<details class="sec" id="s-net"><summary>Network <span class="lbl" id="netcount">0 requests</span></summary><div class="in">
+<details class="sec" id="s-net"><summary>Network <span class="lbl" id="netcount">0 external</span></summary><div class="in">
 <div id="netlist"></div>
-<p class="hint">Every <code>fetch</code> and <code>XMLHttpRequest</code> this page makes is
-counted here. Your documents never appear in this list, because they are never in a request.</p>
+<p class="hint">Every <code>fetch</code> and <code>XMLHttpRequest</code> this page makes is counted here, and
+split by whether it left this origin. Nothing should ever say <b>external</b> — not even the OCR
+engine, which ships beside the page. Your documents never appear in this list at all.</p>
 </div></details>
 <details class="sec" id="s-info"><summary>Document</summary><div class="in" id="docinfo"></div></details>
 <details class="sec" id="s-credits"><summary>Credits &amp; licences</summary><div class="in" id="credits"></div></details>
@@ -537,6 +540,13 @@ if(!pages.length) return;
 const o=toolOpts(); $('#save').disabled=true; prog(4);
 try{
 let doc;
+if(o.batch && docs.length > 1){
+const made = await saveBatch(o);
+prog(100);
+toast('Saved ' + made + ' file' + (made === 1 ? '' : 's') + ' — one per source document');
+$('#save').disabled = false;
+return;
+}
 if(o.compress && o.cmode==='raster'){
 doc=await compressDoc(o.compress.dpi,o.compress.quality,o.cgray);
 if(o.trim||o.resize||o.impose||o.hf||o.bates||o.redact||o.flatten||o.stripmd||o.sign)
@@ -633,8 +643,9 @@ n++;
 }
 toast('Extracted text from '+n+' file'+(n>1?'s':''));
 }
-const OCR_BASE='https://cdn.jsdelivr.net/npm/';
-let ocrWorker=null, ocrLang=null;
+const OCR_CANDIDATES=['ocr/','../ocr/','docs/play/ocr/'];
+let OCR_BASE=null, ocrWorker=null, ocrLang=null;
+function ocrUrl(base,name){ return base+name; }
 function ocrState(msg){ $('#ocrstate').textContent=msg; $('#ocrmsg').textContent=msg==='ready'?'':$('#ocrmsg').textContent; }
 async function loadOcr(){
 const lang=$('#ocrlang').value;
@@ -642,16 +653,26 @@ $('#ocrmsg').textContent='Downloading the engine (~7 MB) — this happens once, 
 ocrState('loading');
 try{
 if(!window.Tesseract){
+let lastErr=null;
+for(const base of (OCR_BASE?[OCR_BASE]:OCR_CANDIDATES)){
+try{
 await new Promise((res,rej)=>{ const s=document.createElement('script');
-s.src=OCR_BASE+'tesseract.js@5.1.1/dist/tesseract.min.js';
-s.onload=res; s.onerror=()=>rej(new Error('could not download the OCR engine — are you online?')); document.head.appendChild(s); });
+s.src=base+'tesseract.min.js'; s.onload=res;
+s.onerror=()=>rej(new Error('no engine at '+base)); document.head.appendChild(s); });
+OCR_BASE=base; break;
+}catch(e){ lastErr=e; }
+}
+if(!OCR_BASE){
+throw new Error('the OCR engine is not next to this page. It ships in docs/play/ocr/ — '
++'if you copied only the HTML file, copy that folder too (tools/fetch_ocr.py fetches it).');
+}
 }
 if(ocrWorker && ocrLang===lang) { ocrState('ready'); $('#ocrmsg').textContent='Engine ready.'; return ocrWorker; }
 if(ocrWorker){ try{ await ocrWorker.terminate(); }catch(e){} ocrWorker=null; }
 ocrWorker=await Tesseract.createWorker(lang,1,{
-workerPath:OCR_BASE+'tesseract.js@5.1.1/dist/worker.min.js',
-corePath:OCR_BASE+'tesseract.js-core@6.1.2/',
-langPath:'https://cdn.jsdelivr.net/gh/naptha/tessdata@gh-pages/4.0.0_fast'
+workerPath:OCR_BASE+'worker.min.js',
+corePath:OCR_BASE,
+langPath:OCR_BASE
 });
 ocrLang=lang; ocrState('ready'); $('#ocrmsg').textContent='Engine ready — it is now cached for offline use.';
 $('#ocrtext').disabled=!pages.length;
@@ -752,27 +773,37 @@ return '<p class="hint" style="margin:0 0 12px">Version <b>'+esc(appVersion())+'
 +'<p class="hint" style="margin-top:12px">Shift-click selects a range. Drag a page onto another to reorder.</p>';
 }
 let cancelJob=false;
-const NET={count:0,urls:[]};
+const NET={count:0,external:0,urls:[]};
 (function(){
+const note = u => {
 try{
-const f=window.fetch;
-if(f) window.fetch=function(input){
-try{ NET.count++; NET.urls.push(String(typeof input==='string'?input:(input&&input.url)||'')); netUpdate(); }catch(e){}
-return f.apply(this,arguments);
+const url = String(u);
+let ext = true;
+try{ ext = new URL(url, location.href).origin !== location.origin; }catch(e){ ext = true; }
+NET.count++;
+if(ext) NET.external++;
+NET.urls.push((ext ? 'external · ' : 'this origin · ') + url);
+netUpdate();
+}catch(e){}
 };
-const open=XMLHttpRequest.prototype.open;
-XMLHttpRequest.prototype.open=function(m,u){
-try{ NET.count++; NET.urls.push(String(u)); netUpdate(); }catch(e){}
-return open.apply(this,arguments);
+try{
+const f = window.fetch;
+if(f) window.fetch = function(input){
+note(typeof input === 'string' ? input : (input && input.url) || '');
+return f.apply(this, arguments);
 };
+const open = XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open = function(m, u){ note(u); return open.apply(this, arguments); };
 }catch(e){}
 })();
 function netUpdate(){
-const c=$('#netcount'); if(c) c.textContent=NET.count?(NET.count+(NET.count===1?' request':' requests')):'0 requests';
-const l=$('#netlist');
-if(l) l.innerHTML = NET.count
-? NET.urls.map(u=>'<div class="stat"><span style="word-break:break-all">'+esc(u)+'</span></div>').join('')
-: '<p class="hint">No request has left this page.</p>';
+const c = $('#netcount');
+if(c) c.textContent = NET.external ? (NET.external + ' external') : '0 external';
+const l = $('#netlist');
+if(!l) return;
+if(!NET.count){ l.innerHTML = '<p class="hint">No request has left this page.</p>'; return; }
+l.innerHTML = NET.urls.map(u => '<div class="stat"><span style="word-break:break-all">' + esc(u) + '</span></div>').join('')
++ '<p class="hint">“This origin” means a file beside the page — the OCR engine is one of those.</p>';
 }
 let liveEl=null;
 function announce(m){ if(!liveEl) return; liveEl.textContent=m; }
@@ -983,7 +1014,8 @@ opacity:+$('#sigo').value/100, pages:selList()
 const cmode = $('#cmode') ? $('#cmode').value : 'photos';
 const cgray = $('#cgray') ? $('#cgray').checked : false;
 return {trim,resize,impose:imp?{mode:imp,gap:+$('#imgap').value}:null,hf,bates,redact,form,sign,
-cmode,cgray,flatten:$('#flatten').checked,stripmd:$('#stripmd').checked};
+cmode,cgray,flatten:$('#flatten').checked,stripmd:$('#stripmd').checked,
+batch:!!($('#batch') && $('#batch').checked)};
 }
 function parseRanges(txt,max){
 const out=[];
@@ -1506,6 +1538,67 @@ if(!redoStack.length){ toast('Nothing to redo'); return; }
 histStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
 restorePages(redoStack.pop()); toast('Redo'); announce('Redone');
 }
+async function saveBatch(o){
+const groups = new Map();
+pages.forEach((p, i) => {
+if(!groups.has(p.docId)) groups.set(p.docId, []);
+groups.get(p.docId).push(i);
+});
+const keep = pages;
+let made = 0;
+try{
+for(const [docId, idx] of groups){
+if(cancelJob) break;
+prog(Math.round(100 * made / groups.size));
+pages = idx.map(i => ({...keep[i], sel:false}));
+let doc = await buildDoc(o);
+if(o.secure && (o.secure.user || o.secure.owner)){
+await doc.encrypt({
+userPassword:o.secure.user || '',
+ownerPassword:o.secure.owner || o.secure.user || '',
+permissions:{printing:o.secure.print ? 'highResolution' : false, copying:o.secure.copy, modifying:o.secure.mod}
+});
+}
+const bytes = await doc.save({useObjectStreams:true});
+const src = docs.find(d => d.id === docId) || {name:'document.pdf'};
+const base = src.name.replace(/\.pdf$/i, '') || 'document';
+download(bytes, base + '-out.pdf');
+made++;
+await new Promise(r => setTimeout(r, 160));
+}
+prog(100);
+} finally { pages = keep; }
+return made;
+}
+function settingsSnapshot(){
+const out = {};
+$$('#apanel input, #apanel select').forEach(el => {
+if(!el.id) return;
+out[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+});
+$$('#apanel details').forEach(d => { if(d.id) out[d.id + ':open'] = d.open; });
+return out;
+}
+function settingsRestore(){
+const saved = LS.get('tools', null);
+if(!saved) return;
+Object.keys(saved).forEach(k => {
+if(k.endsWith(':open')){
+const d = $('#' + k.slice(0, -5)); if(d) d.open = saved[k];
+return;
+}
+const el = $('#' + k); if(!el) return;
+if(el.type === 'checkbox') el.checked = saved[k]; else el.value = saved[k];
+if(el.tagName === 'SELECT' || el.type === 'range'){
+const v = $('#' + k + 'v'); if(v) v.textContent = el.value;
+}
+});
+}
+let settingsTimer = null;
+function settingsSave(){
+clearTimeout(settingsTimer);
+settingsTimer = setTimeout(() => LS.set('tools', settingsSnapshot()), 400);
+}
 function initExtras14(){
 const foot = $('.foot');
 if(foot && !$('#memstat')){
@@ -1551,6 +1644,11 @@ del:'Delete selected pages', extract:'Extract selected pages into a new PDF', cl
 Object.keys(labels).forEach(id => {
 const el = $('#' + id); if(el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', labels[id]);
 });
+settingsRestore();
+$('#apanel').addEventListener('input', settingsSave);
+$('#apanel').addEventListener('change', settingsSave);
+$('#apanel').addEventListener('toggle', settingsSave, true);
+$('#reset').addEventListener('click', () => { try{ localStorage.removeItem('pdftk_tools'); }catch(e){} }, true);
 const scan = $('#scanform'); if(scan) scan.onclick = scanForms;
 const ex = $('#doimg'); if(ex) ex.onclick = extractImages;
 initSignature();
