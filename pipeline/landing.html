@@ -290,11 +290,11 @@ code{font:13.5px/1.4 var(--mono);background:var(--paper2);border:1px solid var(-
     <div class="card">
       <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>
       <h3>Protect, shrink, redact</h3>
-      <p>AES-256 password protection with permissions; unlocking a password you already know; redaction that rebuilds the page so the covered text is gone, not just hidden; compression that re-encodes the photographs while leaving the text selectable; and OCR that runs from an engine shipped with the app.</p>
+      <p>AES-256 password protection with permissions; unlocking a password you already know; redaction that rebuilds the page so the covered text is gone, not just hidden; compression that re-encodes the photographs, or runs qpdf for a lossless pass; and OCR that runs from an engine shipped with the app.</p>
     </div>
   </div>
   <div class="tool-list" aria-label="Every tool in the app">
-    <span>Merge</span><span>Split by ranges</span><span>Split every N</span><span>One file per page</span><span>Extract pages</span><span>Rotate</span><span>Reorder</span><span>Duplicate</span><span>Delete</span><span>Insert blank</span><span>Trim margins</span><span>Resize to A4</span><span>2-up</span><span>4-up</span><span>Booklet</span><span>Watermark</span><span>Page numbers</span><span>Header &amp; footer</span><span>Bates numbering</span><span>Metadata</span><span>Remove metadata</span><span>Flatten forms</span><span>Redaction</span><span>Form fields</span><span>Signature</span><span>Extract images</span><span>Compress</span><span>Greyscale</span><span>Undo / redo</span><span>Images → PDF</span><span>Export PNG</span><span>Password protect</span><span>Unlock</span><span>Extract text</span><span>OCR</span>
+    <span>Merge</span><span>Split by ranges</span><span>Split every N</span><span>One file per page</span><span>Extract pages</span><span>Rotate</span><span>Reorder</span><span>Duplicate</span><span>Delete</span><span>Insert blank</span><span>Trim margins</span><span>Resize to A4</span><span>2-up</span><span>4-up</span><span>Booklet</span><span>Watermark</span><span>Page numbers</span><span>Header &amp; footer</span><span>Bates numbering</span><span>Metadata</span><span>Remove metadata</span><span>Flatten forms</span><span>Redaction</span><span>Form fields</span><span>Signature</span><span>Extract images</span><span>Compress (3 ways)</span><span>Greyscale</span><span>Undo / redo</span><span>Images → PDF</span><span>Export PNG</span><span>Password protect</span><span>Unlock</span><span>Extract text</span><span>OCR</span>
   </div>
 </div></section>
 
@@ -323,7 +323,7 @@ code{font:13.5px/1.4 var(--mono);background:var(--paper2);border:1px solid var(-
     <div><b>Upload your file</b><p>There is no server, no bucket and no <code>fetch</code> carrying your document. It cannot leak what it never sends.</p></div>
     <div><b>Ask for an account</b><p>No sign-in, no email, no queue, no daily limit. Open it and work.</p></div>
     <div><b>Edit the text inside a page</b><p>It rearranges and annotates pages. Re-flowing someone else's layout is a different, much larger program — and the wrong promise to make.</p></div>
-    <div><b>Use Ghostscript-class compression</b><p>PDF/A conversion and AGPL components (Ghostscript, PyMuPDF, CoherentPDF) would force this app to be AGPL. Compress here means rasterise-and-rebuild, which is permissive and works well on scans.</p></div>
+    <div><b>Ship an AGPL engine</b><p>PDF/A conversion and Ghostscript-class compression need AGPL components, which would force this app to be AGPL. The one engine that is permissive enough — <b>qpdf</b>, Apache-2.0 — is included for the lossless pass.</p></div>
   </div>
   <div class="nums">
     <div><b>0</b><span>bytes uploaded</span></div>
