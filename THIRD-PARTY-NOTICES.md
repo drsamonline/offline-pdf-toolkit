@@ -34,6 +34,51 @@ Used for creating, merging, splitting, rotating, watermarking, numbering and
     Upstream: https://github.com/Hopding/pdf-lib
     Fork:     https://github.com/cantoo-scribe/pdf-lib  (adds encryption)
 
+## qpdf — Apache License 2.0
+
+Used for the **lossless** compression pass: `--object-streams=generate
+--recompress-flate --compression-level=9`. It re-writes object streams and
+re-flates the ones that are not already compressed. Nothing is rasterised and no
+text is thrown away.
+
+qpdf is Apache-2.0, not AGPL — which is the whole reason this engine is allowed
+here and Ghostscript is not. The runtime ships as WebAssembly in
+`docs/play/qpdf/` (qpdf 12.x, built by the qpdf-run project).
+
+    Copyright (c) 2005-2025 Jay Berkenbilt and contributors
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+## qpdf-run — MIT
+
+The browser wrapper that runs qpdf WASM in a Web Worker and gives it a
+`Uint8Array`-in, `Uint8Array`-out API. Vendored in `docs/play/qpdf/` with its
+licence text at `docs/play/qpdf/LICENSE-qpdf-run.txt`.
+
+    MIT License — Copyright (c) the qpdf-run authors
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
 ## pdf.js — Apache License 2.0
 
 Used for rendering PDF pages to canvas (thumbnails, compression and OCR input).

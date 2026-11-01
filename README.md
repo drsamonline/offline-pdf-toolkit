@@ -47,7 +47,7 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Form fields** | Reads the AcroForm, fills it, and flattens the values into the page so they cannot be edited back. |
 | **Signature** | Draw it with a mouse or finger, or load a picture; the empty margin is trimmed and it is stamped where you choose. |
 | **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
-| **Compress, two ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *every page* rasterises, with an optional greyscale pass. |
+| **Compress, three ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *lossless* runs qpdf over the result; *every page* rasterises, with an optional greyscale pass. |
 | **Batch** | *One file per source* — apply the same tools to every loaded document and get one output each. |
 | **Insert blank pages** | Drop an empty page after the selection, sized like the page before it. |
 | **Interface languages** | English, हिन्दी and ગુજરાતી for the interface, switched in the header and remembered. |
@@ -74,8 +74,8 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 
 - **PDF/A conversion** and **Ghostscript-class compression.** These need AGPL-licensed components
   (Ghostscript, PyMuPDF, CoherentPDF). Using them would force this app to be AGPL, which is
-  incompatible with the licence below. Compress here means rasterise-and-rebuild, which is
-  permissive and works well on scans.
+  incompatible with the licence below. The one engine that is permissive enough — **qpdf**, which is
+  Apache-2.0 — is included for the lossless pass.
 - **Editing page content.** The toolkit rearranges and annotates pages; it does not edit text inside them.
 
 ## Downloads
@@ -106,6 +106,7 @@ docs/index.html              landing page (Pages deployment)
 docs/play/index.html         the application, as Pages serves it
 docs/assets/                 badges, screenshots, icons, sample PDFs (all local)
 docs/play/ocr/               the OCR engine: wrapper, worker, two LSTM WASM cores, English data
+docs/play/qpdf/              the qpdf WASM runtime for the lossless compression pass
 pipeline/app_template.html   the application source (readable)
 pipeline/landing.html        the landing page source (readable)
 pipeline/app_extras.js       the 1.3–1.6 tools (trim, impose, redaction, split, forms, signatures…)
@@ -119,6 +120,7 @@ tools/badges.py              draws docs/assets/badge-*.svg — no image service
 tools/shot.py                takes the screenshots with headless Chromium (dev only)
 tools/make_samples.py        generates the sample PDFs the demo and screenshots use
 tools/fetch_ocr.py           fetches the OCR engine once and verifies it against SHA256SUMS
+tools/fetch_qpdf.py          the same for qpdf (Apache-2.0), the lossless compressor
 sw.js                        offline cache (identical copy in docs/sw.js)
 ```
 
@@ -137,7 +139,8 @@ this repository.
 - **App code** © Dr Sohil Momin — free for personal study, teaching and non-commercial practice;
   commercial use requires a licence; educational institutes free or at a discounted rate.
 - **pdf-lib** (Cantoo fork) — MIT · **pdf.js** — Apache-2.0 (Mozilla) ·
-  **tesseract.js** and **Tesseract OCR** — Apache-2.0. See [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+  **tesseract.js** and **Tesseract OCR** — Apache-2.0 · **qpdf** — Apache-2.0 ·
+  **qpdf-run** — MIT. See [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 - **No third-party data is bundled** — no corpora, no fonts, no text of its own.
 
 Because the bundled libraries are permissive rather than copyleft, this app can carry normal

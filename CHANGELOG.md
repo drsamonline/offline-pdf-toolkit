@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.7.0] — 2026-11-01
+
+### Added
+- **Lossless compression, with qpdf.** The third mode in the Compress panel runs the real qpdf —
+  as WebAssembly, in a worker, from `docs/play/qpdf/` — with
+  `--object-streams=generate --recompress-flate --compression-level=9`. It rewrites object streams
+  and re-flates the ones that are not already compressed. Nothing is rasterised, no text is thrown
+  away, and if the result is not smaller the app keeps the original and says so.
+- `tools/fetch_qpdf.py` fetches the runtime once and verifies it against `SHA256SUMS`.
+
+### Why this engine and not Ghostscript
+qpdf is **Apache-2.0** and the `qpdf-run` wrapper that packages it for the browser is **MIT**.
+Neither is copyleft, so bundling them does not change this app's licence — which is exactly why the
+README has always refused Ghostscript, PyMuPDF and CoherentPDF. `THIRD-PARTY-NOTICES.md` now carries
+both licences, and the in-app credits list them.
+
+### Honest expectations
+On the test document (34,123 bytes, written uncompressed) qpdf produced 31,160 bytes — 91%. Most of
+those bytes are the embedded font, which is already compressed, so the ceiling here is modest. On a
+badly generated file the saving is larger; on a well-made one it is a few percent. What it never does
+is make the file worse, and it never makes the text unselectable.
+
+### Fixed
+- The lossless path returned bytes where `save()` still expected a document, so the later
+  `doc.save()` threw and nothing was produced. The mode now ends with its own download.
+- qpdf cannot run on an encrypted file, so *lossless + a password* silently fell back to a plain
+  protected save. It still does — but the result line now says
+  `lossless skipped: it cannot run on an encrypted file` instead of leaving you to notice.
+
+### Verified
+- 6 new browser checks: the lossless pass produces a file, never grows it, names itself, runs with
+  **0 external requests**, refuses to pretend when a password is also set, and leaves the ordinary
+  path working.
+- Every produced PDF inspected with PyMuPDF: 3 pages, the heading and the body lines still
+  extractable as text after the qpdf pass.
+- The 1.3–1.6 suites (14 + 16 + 9 + 12 checks) and the landing page on both deployments still pass.
+
 ## [1.6.0] — 2026-11-01
 
 ### Added

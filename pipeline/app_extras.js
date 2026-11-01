@@ -910,6 +910,65 @@ async function saveBatch(o){
   return made;
 }
 
+/* ---------- lossless compression, through the qpdf WASM runtime ----------
+   qpdf is Apache-2.0 and the qpdf-run wrapper that packages it for the browser is
+   MIT, so this is the one compression engine this app may ship: Ghostscript and
+   friends would have forced the whole app to be AGPL. It rewrites object streams
+   and re-flates what is not already compressed — the text stays text. */
+const QPDF_CANDIDATES = ['qpdf/', '../qpdf/', 'docs/play/qpdf/'];
+let QPDF_BASE = null;
+
+function loadScriptOnce(src){
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error('no script at ' + src));
+    document.head.appendChild(s);
+  });
+}
+async function qpdfReady(){
+  if(window.QPDF && QPDF_BASE) return QPDF_BASE;
+  for(const base of (QPDF_BASE ? [QPDF_BASE] : QPDF_CANDIDATES)){
+    try{ await loadScriptOnce(base + 'qpdf.js'); QPDF_BASE = base; return base; }catch(e){}
+  }
+  throw new Error('the qpdf engine is not next to this page — it ships in docs/play/qpdf/ '
+    + '(tools/fetch_qpdf.py fetches it)');
+}
+function qpdfRun(bytes){
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const done = (err, out) => { if(settled) return; settled = true; err ? reject(err) : resolve(out); };
+    new QPDF({
+      path: QPDF_BASE, logger: () => {},
+      ready: (q) => {
+        const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+        q.save('in.pdf', buf, (err) => {
+          if(err) return done(err);
+          q.execute(['--object-streams=generate', '--recompress-flate', '--compression-level=9',
+                     '--', 'in.pdf', 'out.pdf'], (err2) => {
+            if(err2) return done(err2);
+            q.load('out.pdf', (err3, ab) => {
+              if(err3) return done(err3);
+              done(null, new Uint8Array(ab));
+            });
+          });
+        });
+      }
+    });
+  });
+}
+async function losslessCompress(doc){
+  await qpdfReady();
+  const before = await doc.save({useObjectStreams:true});
+  const after = await qpdfRun(before);
+  if(after.length >= before.length){
+    toast('qpdf: already as small as it gets · ' + fmt(before.length));
+    return before;
+  }
+  toast('qpdf · ' + fmt(before.length) + ' → ' + fmt(after.length)
+    + ' (−' + Math.round(100 - 100 * after.length / before.length) + '%), nothing lost');
+  return after;
+}
+
 /* ---------- the tool settings survive a reload ---------- */
 function settingsSnapshot(){
   const out = {};

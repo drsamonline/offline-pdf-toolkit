@@ -1,0 +1,8 @@
+# sha256 of the vendored qpdf runtime, checked by tools/fetch_qpdf.py
+# qpdf itself is Apache-2.0; the qpdf-run wrapper is MIT
+# regenerate with: python3 tools/fetch_qpdf.py --sums
+bf0ef259c7b7ede1a5944c2bcffc022916f2f4ebdca2d5f8b4c4f9afad7ca432  LICENSE-qpdf-run.txt
+bd977a81eec51a6b16c489b08c70a587e5a107f961092f5d86928ef1d0121933  qpdf-worker.js
+d7fd1cbe855da01bbe5dce183244f4c0ee3d92cf567147090cfecb404b305783  qpdf.js
+35df3cad3919f370dd86970e1ea3fc8bd57f744be23a50a773f17abcbf1d9ffc  lib/qpdf.js
+86cba3db67ce3add2dd4b3533dd0614dade0b4e98b14a229bfda90306c053dd3  lib/qpdf.wasm

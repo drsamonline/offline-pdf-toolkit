@@ -232,14 +232,17 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
         <details class="sec" id="s-cmp"><summary>Compress</summary><div class="in">
           <div class="fld"><label for="cmode">Mode</label><select id="cmode">
             <option value="photos">photos only — keeps text</option>
+            <option value="lossless">lossless — qpdf, keeps everything</option>
             <option value="raster">every page — rasterise</option></select></div>
           <div class="fld"><label for="cdpi">Resolution</label><input type="range" id="cdpi" min="72" max="200" step="8" value="120"><span class="v" id="cdpiv">120</span></div>
           <div class="fld"><label for="cq">JPEG quality</label><input type="range" id="cq" min="30" max="95" step="5" value="70"><span class="v" id="cqv">70</span></div>
           <div class="fld" id="cgrayrow"><label>Colour</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
             <label><input type="checkbox" id="cgray"> convert to greyscale</label></span></div>
           <p class="hint"><b>Photos only</b> re-encodes the JPEGs inside the file and leaves the text as
-          text — the better choice for a document with photographs. <b>Every page</b> renders each page
-          to an image: the biggest saving on a pure scan, but the text stops being selectable.</p>
+          text. <b>Lossless</b> runs qpdf over the result: it re-writes object streams and re-flates the
+          ones that are not compressed, and changes nothing else — the text stays text and nothing is
+          thrown away. <b>Every page</b> renders each page to an image: the biggest saving on a pure
+          scan, but the text stops being selectable.</p>
         </div></details>
         <details class="sec" id="s-sec"><summary>Password protect</summary><div class="in">
           <div class="fld"><label for="secuser">User password</label><input type="text" id="secuser" placeholder="needed to open the file"></div>
@@ -583,7 +586,7 @@ async function save(){
   if(!pages.length) return;
   const o=toolOpts(); $('#save').disabled=true; prog(4);
   try{
-    let doc;
+    let doc, losslessSkipped = false;
     if(o.batch && docs.length > 1){
       const made = await saveBatch(o);
       prog(100);
@@ -597,7 +600,27 @@ async function save(){
         doc=await finishDoc(doc,o);
     } else {
       doc=await buildDoc(o);
-      if(o.compress){
+      if(o.compress && o.cmode==='lossless'){
+        // qpdf runs on the finished bytes, so it cannot also be the pass that
+        // applies a password — encryption would be undone. Say so, don't guess.
+        if(o.secure && (o.secure.user || o.secure.owner)){
+          // qpdf runs on finished bytes, so it cannot be the pass that also applies
+          // a password. Say it in the result rather than in a toast that the next
+          // toast would wipe out.
+          losslessSkipped = true;
+        } else {
+          prog(70);
+          const packed = await losslessCompress(doc);
+          prog(95);
+          const name0 = (o.meta && o.meta.title)
+            ? o.meta.title.replace(/[^\w\-. ]+/g, '').trim().slice(0, 60) || 'document'
+            : (docs[0] ? docs[0].name.replace(/\.pdf$/i, '') : 'document');
+          download(packed, name0 + '-lossless.pdf');
+          prog(100);
+          $('#save').disabled = false;
+          return;
+        }
+      } else if(o.compress){
         // photos only: the text stays text, the JPEGs inside get re-encoded
         const st=await condenseDoc(doc,Math.round(o.compress.dpi*16),o.compress.quality);
         if(st.shrunk) toast('Re-encoded '+st.shrunk+' photo'+(st.shrunk===1?'':'s')
@@ -618,7 +641,8 @@ async function save(){
     const base=(o.meta&&o.meta.title)?o.meta.title.replace(/[^\w\-. ]+/g,'').trim().slice(0,60)||'document':(docs[0]?docs[0].name.replace(/\.pdf$/i,''):'document');
     download(bytes, base+(o.compress?'-compressed':'')+'.pdf');
     toast('Saved · '+fmt(bytes.length)+' · '+pages.length+(pages.length===1?' page':' pages')
-      +((o.secure&&(o.secure.user||o.secure.owner))?' · protected':''));
+      +((o.secure&&(o.secure.user||o.secure.owner))?' · protected':'')
+      +(losslessSkipped?' · lossless skipped: it cannot run on an encrypted file':''));
   }catch(e){
     if(String(e.message)==='cancelled') toast('Stopped — nothing was saved');
     else { console.error(e); toast('Could not build the PDF: '+e.message); }
@@ -762,7 +786,9 @@ function renderCredits(){
   const rows=[
     ['pdf-lib (fork by Cantoo)','MIT','Creating, merging, rotating, watermarking, numbering and <b>AES-256 encryption</b> of PDFs.'],
     ['pdf.js','Apache-2.0','Rendering PDF pages to canvas — thumbnails, compression and OCR input. Copyright Mozilla Foundation.'],
-    ['tesseract.js','Apache-2.0','Optical character recognition (loaded on demand).'],
+    ['qpdf (WASM)','Apache-2.0','Lossless compression: object streams and flate, nothing thrown away.'],
+    ['qpdf-run','MIT','Runs qpdf in a worker with a Uint8Array API.'],
+    ['tesseract.js','Apache-2.0','Optical character recognition, from an engine beside the app.'],
     ['Tesseract OCR engine','Apache-2.0','The recognition engine behind tesseract.js.'],
   ];
   $('#credits').innerHTML='<p class="hint">This toolkit is built on other people\u2019s work. Thank you to:</p>'

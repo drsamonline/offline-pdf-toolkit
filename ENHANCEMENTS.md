@@ -5,9 +5,9 @@ dependency.** No CDN, no API key, no package that has to be installed at runtime
 has to be reachable. Anything that fails that test is listed at the end as a non-goal rather than
 smuggled into the roadmap.
 
-Status as of **1.6.0**: the app makes no external request, speaks three languages, and does the
-job it claims. What is left is the larger performance work, the folder flavour of batch mode, and one
-open question about lossless compression. What is left is written down
+Status as of **1.7.0**: the app makes no external request, speaks three languages, does the job it
+claims, and compresses losslessly with qpdf. What is left is the larger performance work and the
+folder flavour of batch mode. What is left is written down
 here with the reason it is left, so the next session starts where this one stopped.
 
 ---
@@ -56,7 +56,7 @@ Combined with the network panel, the claim is both enforced and checkable.
 | Feature | Why people need it | Effort |
 |---|---|---|
 | **PDF → Word / text with layout** | Text extraction is flat today. | L |
-| **A real lossless compression pass** | The photos-only mode re-encodes JPEGs, but object streams, fonts and duplicate resources are untouched. qpdf is Apache-2.0 (unlike Ghostscript), so a WASM build of it would not change this app's licence — that is the one route worth investigating. | L |
+| ~~**A real lossless compression pass**~~ | Done in 1.7.0 with the qpdf WASM runtime. Its ceiling is modest on an already-compressed file and larger on a badly generated one; it never grows the file. | — |
 
 ## 4. Working on many pages without losing your place
 
