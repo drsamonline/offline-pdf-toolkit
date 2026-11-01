@@ -25,23 +25,26 @@ REPO = os.path.dirname(HERE)
 SRC = os.path.join(HERE, "landing.html")
 
 
-def minify_css(css):
-    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
-    css = re.sub(r"\s+", " ", css)
-    css = re.sub(r"\s*([{};:,])\s*", r"\1", css)
-    return css.replace(";}", "}").strip()
+try:                                   # one implementation, in build_pdf.py
+    from build_pdf import minify_css, minify_js, minify_html
+except Exception:                      # running from somewhere odd: keep a local copy
+    def minify_css(css):
+        css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        css = re.sub(r"\s+", " ", css)
+        css = re.sub(r"\s*([{};:,])\s*", r"\1", css)
+        return css.replace(";}", "}").strip()
 
 
-def minify_js(js):
-    js = re.sub(r"/\*.*?\*/", "", js, flags=re.S)
-    js = re.sub(r"(?m)^\s*//.*$", "", js)
-    js = re.sub(r"(?m)^[ \t]+", "", js)
-    return re.sub(r"\n{2,}", "\n", js).strip()
+    def minify_js(js):
+        js = re.sub(r"/\*.*?\*/", "", js, flags=re.S)
+        js = re.sub(r"(?m)^\s*//.*$", "", js)
+        js = re.sub(r"(?m)^[ \t]+", "", js)
+        return re.sub(r"\n{2,}", "\n", js).strip()
 
 
-def minify_html(h):
-    h = re.sub(r"(?m)^[ \t]+", "", h)
-    return re.sub(r"\n{2,}", "\n", h)
+    def minify_html(h):
+        h = re.sub(r"(?m)^[ \t]+", "", h)
+        return re.sub(r"\n{2,}", "\n", h)
 
 
 def version():

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
 <meta name="description" content="Merge, split, rotate, reorder, watermark, number and compress PDFs entirely in your browser. Nothing is ever uploaded.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; worker-src 'self' blob:; connect-src 'self' blob: data: https://cdn.jsdelivr.net; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Offline PDF Toolkit — everything stays on your device</title>
 <style>
 :root{
@@ -228,10 +229,16 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
           <div class="fld"><label for="mk">Keywords</label><input type="text" id="mk"></div>
         </div></details>
         <details class="sec" id="s-cmp"><summary>Compress</summary><div class="in">
+          <div class="fld"><label for="cmode">Mode</label><select id="cmode">
+            <option value="photos">photos only — keeps text</option>
+            <option value="raster">every page — rasterise</option></select></div>
           <div class="fld"><label for="cdpi">Resolution</label><input type="range" id="cdpi" min="72" max="200" step="8" value="120"><span class="v" id="cdpiv">120</span></div>
           <div class="fld"><label for="cq">JPEG quality</label><input type="range" id="cq" min="30" max="95" step="5" value="70"><span class="v" id="cqv">70</span></div>
-          <p class="hint">Renders each page to an image and rebuilds the PDF — the biggest saving on
-          <b>scanned</b> documents. Text stops being selectable, so keep the original.</p>
+          <div class="fld" id="cgrayrow"><label>Colour</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
+            <label><input type="checkbox" id="cgray"> convert to greyscale</label></span></div>
+          <p class="hint"><b>Photos only</b> re-encodes the JPEGs inside the file and leaves the text as
+          text — the better choice for a document with photographs. <b>Every page</b> renders each page
+          to an image: the biggest saving on a pure scan, but the text stops being selectable.</p>
         </div></details>
         <details class="sec" id="s-sec"><summary>Password protect</summary><div class="in">
           <div class="fld"><label for="secuser">User password</label><input type="text" id="secuser" placeholder="needed to open the file"></div>
@@ -438,7 +445,12 @@ async function buildDoc(opts={}){
   const out=await PDFDocument.create();
   out.setProducer('Offline PDF Toolkit'); out.setCreator('Offline PDF Toolkit');
   const cache=new Map();
-  for(const d of docs){ if(d.kind==='pdf') cache.set(d.id, await PDFDocument.load(d.bytes,{ignoreEncryption:true})); }
+  for(const d of docs){
+    if(d.kind!=='pdf') continue;
+    const src=await PDFDocument.load(d.bytes,{ignoreEncryption:true});
+    if(opts.form && Object.keys(opts.form).length) await applyFormValues(src,opts.form);
+    cache.set(d.id, src);
+  }
 
   // group consecutive pages of the same source for copyPages
   const plan=pages.map(p=>({p,d:docs.find(x=>x.id===p.docId)}));
@@ -511,18 +523,19 @@ async function buildDoc(opts={}){
   if(md.keywords) out.setKeywords(md.keywords.split(',').map(s=>s.trim()).filter(Boolean));
 
   // trim, redaction, re-layout, imposition, headers, Bates, forms, metadata
-  if(opts.trim||opts.resize||opts.impose||opts.hf||opts.bates||opts.redact||opts.flatten||opts.stripmd)
+  if(opts.trim||opts.resize||opts.impose||opts.hf||opts.bates||opts.redact||opts.flatten||opts.stripmd||opts.sign)
     return await finishDoc(out,opts);
   return out;
 }
 
-async function compressDoc(dpi,quality){
+async function compressDoc(dpi,quality,grey){
   const out=await PDFDocument.create();
   const total=pages.length;
   for(let i=0;i<total;i++){
     if(cancelJob) throw new Error('cancelled');
     const p=pages[i]; const d=docs.find(x=>x.id===p.docId); if(!d) continue;
     const canvas=await pageToCanvas(p,d,(dpi*1.0)/72);
+    if(grey) toGrey(canvas);
     const dataUrl=canvas.toDataURL('image/jpeg',quality/100);
     const jpg=Uint8Array.from(atob(dataUrl.split(',')[1]),c=>c.charCodeAt(0));
     const img=await out.embedJpg(jpg);
@@ -556,9 +569,20 @@ async function save(){
   const o=toolOpts(); $('#save').disabled=true; prog(4);
   try{
     let doc;
-    if(o.compress){ doc=await compressDoc(o.compress.dpi,o.compress.quality);
-      if(o.trim||o.resize||o.impose||o.hf||o.bates||o.redact||o.flatten||o.stripmd) doc=await finishDoc(doc,o); }
-    else { doc=await buildDoc(o); }
+    if(o.compress && o.cmode==='raster'){
+      doc=await compressDoc(o.compress.dpi,o.compress.quality,o.cgray);
+      if(o.trim||o.resize||o.impose||o.hf||o.bates||o.redact||o.flatten||o.stripmd||o.sign)
+        doc=await finishDoc(doc,o);
+    } else {
+      doc=await buildDoc(o);
+      if(o.compress){
+        // photos only: the text stays text, the JPEGs inside get re-encoded
+        const st=await condenseDoc(doc,Math.round(o.compress.dpi*16),o.compress.quality);
+        if(st.shrunk) toast('Re-encoded '+st.shrunk+' photo'+(st.shrunk===1?'':'s')
+          +' · '+fmt(st.before-st.after)+' smaller');
+        else if(st.photos) toast('Photos already small — nothing worth re-encoding');
+      }
+    }
     if(o.secure && (o.secure.user||o.secure.owner)){
       await doc.encrypt({
         userPassword:o.secure.user||'',
@@ -757,7 +781,11 @@ function helpHTML(){
   +'<li><b>Trim / resize / impose</b> — cut margins, re-lay pages onto A4, or put 2, 4 or a booklet on a sheet.</li>'
   +'<li><b>Header, footer, Bates</b> — running text and the legal numbering convention, stamped on save.</li>'
   +'<li><b>Split &amp; export</b> — every N pages, one file per page, ranges, or every page as a PNG.</li>'
-  +'<li><b>Redaction</b> — cover every match of a word, and optionally rebuild the page so the text is gone.</li></ul>'
+  +'<li><b>Redaction</b> — cover every match of a word, and optionally rebuild the page so the text is gone.</li>'
+  +'<li><b>Form fields</b> — fill an AcroForm and flatten it into the page.</li>'
+  +'<li><b>Signature</b> — draw or load one, stamp it on the pages you selected.</li>'
+  +'<li><b>Extract images</b> — recover the pictures stored inside the PDF at full resolution.</li>'
+  +'<li><b>Compress</b> — <i>photos only</i> keeps the text selectable; <i>every page</i> rasterises.</li></ul>'
   +'<p><b>Shortcuts</b></p>'
   +'<div class="k"><kbd>a</kbd><span>select all</span></div>'
   +'<div class="k"><kbd>d</kbd><span>deselect</span></div>'
@@ -765,6 +793,8 @@ function helpHTML(){
   +'<div class="k"><kbd>[</kbd> <kbd>]</kbd><span>rotate selected</span></div>'
   +'<div class="k"><kbd>t</kbd><span>theme</span></div>'
   +'<div class="k"><kbd>Ctrl</kbd> <kbd>K</kbd><span>command palette — every tool by name</span></div>'
+  +'<div class="k"><kbd>Ctrl</kbd> <kbd>Z</kbd> / <kbd>Shift</kbd> <kbd>Ctrl</kbd> <kbd>Z</kbd><span>undo / redo</span></div>'
+  +'<div class="k"><kbd>Alt</kbd> <kbd>←</kbd> <kbd>→</kbd><span>move the selected pages</span></div>'
   +'<div class="k"><kbd>Esc</kbd><span>close</span></div>'
   +'<p class="hint" style="margin-top:12px">Shift-click selects a range. Drag a page onto another to reorder.</p>';
 }

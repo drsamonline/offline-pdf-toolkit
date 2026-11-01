@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
 <meta name="description" content="Merge, split, rotate, reorder, watermark, number and compress PDFs entirely in your browser. Nothing is ever uploaded.">
-<meta name="app-version" content="1.3.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; worker-src 'self' blob:; connect-src 'self' blob: data: https://cdn.jsdelivr.net; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="app-version" content="1.4.0">
 <title>Offline PDF Toolkit — everything stays on your device</title>
 <style>:root{--bg:#0a0e14;--bg2:#0e141c;--panel:#121a24;--panel2:#18222e;--panel3:#1e2a38;--line:#22303f;--line2:#2c3d50;--text:#e9eff7;--dim:#93a7bd;--dim2:#6a8098;--accent:#5fa8ff;--accent2:#a78bfa;--accentInk:#04101f;--ok:#3fb950;--warn:#d6a231;--bad:#f2655c;--shadow:0 10px 34px rgba(0,0,0,.5);--shadow2:0 2px 10px rgba(0,0,0,.3);--r:12px;--r2:9px;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}body.light{--bg:#f6f8fb;--bg2:#eef2f7;--panel:#fff;--panel2:#f5f8fb;--panel3:#eaeff5;--line:#dfe6ee;--line2:#ccd6e2;--text:#0f1a26;--dim:#5a6b7e;--dim2:#8595a7;--accent:#1f6feb;--accent2:#7c3aed;--accentInk:#fff;--ok:#1a7f37;--warn:#9a6700;--bad:#c02626;--shadow:0 10px 34px rgba(20,40,70,.14);--shadow2:0 2px 10px rgba(20,40,70,.08)}body.hc{--bg:#000;--bg2:#000;--panel:#000;--panel2:#0b0b0b;--panel3:#141414;--line:#777;--line2:#999;--text:#fff;--dim:#e2e2e2;--dim2:#bdbdbd;--accent:#7fd1ff;--accent2:#d0a3ff}*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0;padding:0}a{color:var(--accent)}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid transparent;background-clip:padding-box}:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}kbd{background:var(--panel3);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:600 11px/1.4 ui-monospace,Menlo,monospace}#shell{display:flex;flex-direction:column;height:100vh;height:100dvh}header{flex:none;display:flex;align-items:center;gap:11px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;z-index:5}.brand{display:flex;align-items:center;gap:10px;flex:none}.brand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--accent),var(--accent2));display:grid;place-items:center;font:700 16px/1 var(--serif);color:#fff;box-shadow:var(--shadow2)}.brand h1{margin:0;font-size:15px;font-weight:650;white-space:nowrap}.brand small{display:block;font-size:10.5px;color:var(--dim)}.sp{flex:1}.hbtn{padding:9px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);white-space:nowrap;transition:border-color .15s,background .15s;font-size:13.5px}.hbtn:hover{border-color:var(--accent);background:var(--panel3)}.hbtn.on{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent)}.hbtn.pri{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accentInk);border:0;font-weight:650}.hbtn.pri:hover{filter:brightness(1.07)}.hbtn:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line)}main{flex:1;display:flex;min-height:0}#stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}#aside{max-width:392px;width:100%;flex:none;display:flex;flex-direction:column;min-height:0;background:var(--panel);border-left:1px solid var(--line)}@media (min-width:1700px){#aside{max-width:470px;width:100%}}.bar{flex:none;display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg2);flex-wrap:wrap}.bar .sep{width:1px;height:22px;background:var(--line)}.bar .lbl{color:var(--dim);font-size:12.5px}.ibtn{padding:7px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;white-space:nowrap}.ibtn:hover:not(:disabled){border-color:var(--accent)}.ibtn:disabled{opacity:.4;cursor:not-allowed}#drop{flex:1;overflow:auto;padding:18px;min-height:0}#drop.over{background:color-mix(in srgb,var(--accent) 8%,transparent);outline:2px dashed var(--accent);outline-offset:-12px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;align-content:start}.pg{position:relative;border:1px solid var(--line);border-radius:var(--r2);background:var(--panel);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .12s}.pg:hover{border-color:var(--line2);transform:translateY(-1px)}.pg.sel{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent)}.pg.drag{opacity:.4}.pg.tgt{outline:2px dashed var(--accent);outline-offset:2px}.pg .thumb{aspect-ratio:1/1.414;background:#fff;display:grid;place-items:center;overflow:hidden}.pg .thumb canvas,.pg .thumb img{max-width:100%;max-height:100%;display:block}.pg .thumb .ph{color:#9aa7b4;font-size:11px}.pg .cap{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:11.5px;border-top:1px solid var(--line)}.pg .cap .n{font-weight:650;font-variant-numeric:tabular-nums}.pg .cap .src{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.pg .tick{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line2);background:rgba(10,14,20,.55);display:grid;place-items:center;color:#fff;font-size:12px}.pg.sel .tick{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}.pg .rot{position:absolute;top:6px;right:6px;background:rgba(10,14,20,.55);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px}.empty{text-align:center;color:var(--dim);padding:48px 20px;max-width:560px;margin:0 auto}.empty .big{font-size:44px;display:block;margin-bottom:12px;opacity:.45}.empty h2{margin:0 0 8px;font-size:19px;font-weight:650;color:var(--text)}.empty p{margin:0 0 6px;font-size:14px}.empty .k{display:inline-block;margin-top:14px;font-size:12.5px;color:var(--dim2)}#apanel{flex:1;overflow:auto;padding:14px 16px 90px;min-height:0}.sec{border:1px solid var(--line);border-radius:var(--r2);background:var(--bg2);margin-bottom:12px;overflow:hidden}.sec>summary{padding:11px 13px;font-weight:600;font-size:13.5px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px}.sec>summary::-webkit-details-marker{display:none}.sec>summary:after{content:"+";margin-left:auto;color:var(--dim);font-weight:400}.sec[open]>summary:after{content:"−"}.sec .in{padding:0 13px 14px}.fld{display:flex;align-items:center;gap:9px;margin:9px 0;font-size:13px}.fld>label{color:var(--dim);min-width:96px}.fld input[type=text],.fld input[type=number],.fld select{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px}.fld input[type=range]{flex:1;accent-color:var(--accent)}.fld .v{min-width:38px;text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}.hint{color:var(--dim2);font-size:12px;margin:8px 0 0;line-height:1.6}.stat{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}.stat:last-child{border-bottom:0}.stat span{color:var(--dim)}.foot{flex:none;padding:9px 15px;border-top:1px solid var(--line);color:var(--dim);font-size:11.5px;background:var(--panel);display:flex;gap:12px;align-items:center;flex-wrap:wrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}.backdrop{position:fixed;inset:0;background:rgba(2,6,12,.7);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:60;padding:18px}body.light .backdrop{background:rgba(30,50,80,.35)}.backdrop.open{display:flex}.modal{background:var(--panel);border:1px solid var(--line2);border-radius:16px;box-shadow:var(--shadow);max-width:700px;width:100%;max-height:88vh;display:flex;flex-direction:column}.modal .mh{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}.modal .mh h3{margin:0;font-size:15px;flex:1;font-weight:650}.modal .mb{padding:16px 18px;overflow:auto}.modal .mf{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.modal ul,.modal ol{margin:8px 0 12px;padding-left:20px}.modal li{margin:4px 0}.modal .k{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}.modal .k:last-child{border-bottom:0}.modal .k span{color:var(--dim);font-size:12.5px}#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);background:var(--panel);border:1px solid var(--line2);padding:10px 18px;border-radius:11px;box-shadow:var(--shadow);display:none;z-index:90;font-size:13px;opacity:0;transition:opacity .2s,transform .2s;max-width:88vw;text-align:center}#toast.show{display:block;opacity:1;transform:translateX(-50%) translateY(0)}#bar2{position:fixed;left:0;right:0;top:0;height:3px;background:var(--accent);width:0;z-index:100;transition:width .2s;display:none}#mtabs{display:none}@media (max-width:920px){main{flex-direction:column}#stage,#aside{width:auto}#stage{flex:1 1 auto;min-height:0}#aside{flex:1 1 auto;max-height:none;border-left:0;border-top:1px solid var(--line)}#stage.hide,#aside.hide{display:none}.foot{padding:7px 12px;font-size:11px}.foot .only{display:none}#mtabs{display:flex;flex:none;background:var(--panel);border-bottom:1px solid var(--line)}#mtabs button{flex:1;padding:12px 8px;color:var(--dim);border-bottom:2px solid transparent;font-weight:550}#mtabs button.on{color:var(--text);border-bottom-color:var(--accent)}.brand small{display:none}header{gap:8px;padding:9px 12px}}@media (max-width:430px){.brand h1{font-size:13.5px}.hbtn{padding:8px 10px;font-size:12.5px}.grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style>
 </head>
@@ -93,10 +94,16 @@
 <div class="fld"><label for="mk">Keywords</label><input type="text" id="mk"></div>
 </div></details>
 <details class="sec" id="s-cmp"><summary>Compress</summary><div class="in">
+<div class="fld"><label for="cmode">Mode</label><select id="cmode">
+<option value="photos">photos only — keeps text</option>
+<option value="raster">every page — rasterise</option></select></div>
 <div class="fld"><label for="cdpi">Resolution</label><input type="range" id="cdpi" min="72" max="200" step="8" value="120"><span class="v" id="cdpiv">120</span></div>
 <div class="fld"><label for="cq">JPEG quality</label><input type="range" id="cq" min="30" max="95" step="5" value="70"><span class="v" id="cqv">70</span></div>
-<p class="hint">Renders each page to an image and rebuilds the PDF — the biggest saving on
-<b>scanned</b> documents. Text stops being selectable, so keep the original.</p>
+<div class="fld" id="cgrayrow"><label>Colour</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
+<label><input type="checkbox" id="cgray"> convert to greyscale</label></span></div>
+<p class="hint"><b>Photos only</b> re-encodes the JPEGs inside the file and leaves the text as
+text — the better choice for a document with photographs. <b>Every page</b> renders each page
+to an image: the biggest saving on a pure scan, but the text stops being selectable.</p>
 </div></details>
 <details class="sec" id="s-sec"><summary>Password protect</summary><div class="in">
 <div class="fld"><label for="secuser">User password</label><input type="text" id="secuser" placeholder="needed to open the file"></div>
@@ -189,6 +196,31 @@ afterwards, so the text underneath is really gone — without it, a box is only 
 <button class="ibtn" id="selftest">Run self-test</button>
 <div id="selftestout" class="hint" aria-live="polite"></div>
 </div></details>
+<details class="sec" id="s-form"><summary>Form fields</summary><div class="in">
+<p class="hint">Fills an AcroForm and bakes the values into the page, so they cannot be edited back.</p>
+<button class="ibtn" id="scanform">Find fields</button>
+<div id="formfields" style="margin-top:10px"></div>
+</div></details>
+<details class="sec" id="s-sign"><summary>Signature</summary><div class="in">
+<p class="hint">Draw with a mouse or a finger, or load a picture of your signature.</p>
+<canvas id="sigpad" width="600" height="180" style="width:100%;height:120px;background:var(--panel);border:1px dashed var(--line2);border-radius:8px;touch-action:none"></canvas>
+<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+<button class="ibtn" id="sigclear">Clear</button>
+<button class="ibtn" id="sigfile">Load a picture…</button>
+</div>
+<div class="fld"><label for="sigpos">Position</label><select id="sigpos">
+<option value="br">Bottom right</option><option value="bl">Bottom left</option>
+<option value="tr">Top right</option><option value="tl">Top left</option>
+<option value="bc">Bottom centre</option></select></div>
+<div class="fld"><label for="sigw">Width</label><input type="range" id="sigw" min="10" max="60" value="28"><span class="v" id="sigwv">28</span></div>
+<div class="fld"><label for="sigo">Opacity</label><input type="range" id="sigo" min="30" max="100" value="100"><span class="v" id="sigov">100</span></div>
+<p class="hint">Stamped on the selected pages, or every page when nothing is selected, when you save.</p>
+</div></details>
+<details class="sec" id="s-img"><summary>Extract images</summary><div class="in">
+<p class="hint">Recovers the pictures stored inside the PDF at their original resolution — not screenshots of the page.</p>
+<button class="ibtn" id="doimg">Extract images</button>
+<div id="imgmsg" class="hint"></div>
+</div></details>
 <details class="sec" id="s-net"><summary>Network <span class="lbl" id="netcount">0 requests</span></summary><div class="in">
 <div id="netlist"></div>
 <p class="hint">Every <code>fetch</code> and <code>XMLHttpRequest</code> this page makes is
@@ -262,8 +294,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const {PDFDocument, degrees, rgb, StandardFonts}=PDFLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob(
 [$('#pdfworker').textContent],{type:'text/javascript'}));
-let docs=[];            // {id,name,bytes,pdfjs,numPages,size}
-let pages=[];           // {id,docId,src,rot,sel}
+let docs=[];            
+let pages=[];           
 let nextId=1;
 let dragFrom=-1;
 const LS={get(k,d){try{const v=localStorage.getItem('pdftk_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
@@ -393,7 +425,12 @@ async function buildDoc(opts={}){
 const out=await PDFDocument.create();
 out.setProducer('Offline PDF Toolkit'); out.setCreator('Offline PDF Toolkit');
 const cache=new Map();
-for(const d of docs){ if(d.kind==='pdf') cache.set(d.id, await PDFDocument.load(d.bytes,{ignoreEncryption:true})); }
+for(const d of docs){
+if(d.kind!=='pdf') continue;
+const src=await PDFDocument.load(d.bytes,{ignoreEncryption:true});
+if(opts.form && Object.keys(opts.form).length) await applyFormValues(src,opts.form);
+cache.set(d.id, src);
+}
 const plan=pages.map(p=>({p,d:docs.find(x=>x.id===p.docId)}));
 for(let i=0;i<plan.length;i++){
 const {p,d}=plan[i];
@@ -456,17 +493,18 @@ if(md.title) out.setTitle(md.title);
 if(md.author) out.setAuthor(md.author);
 if(md.subject) out.setSubject(md.subject);
 if(md.keywords) out.setKeywords(md.keywords.split(',').map(s=>s.trim()).filter(Boolean));
-if(opts.trim||opts.resize||opts.impose||opts.hf||opts.bates||opts.redact||opts.flatten||opts.stripmd)
+if(opts.trim||opts.resize||opts.impose||opts.hf||opts.bates||opts.redact||opts.flatten||opts.stripmd||opts.sign)
 return await finishDoc(out,opts);
 return out;
 }
-async function compressDoc(dpi,quality){
+async function compressDoc(dpi,quality,grey){
 const out=await PDFDocument.create();
 const total=pages.length;
 for(let i=0;i<total;i++){
 if(cancelJob) throw new Error('cancelled');
 const p=pages[i]; const d=docs.find(x=>x.id===p.docId); if(!d) continue;
 const canvas=await pageToCanvas(p,d,(dpi*1.0)/72);
+if(grey) toGrey(canvas);
 const dataUrl=canvas.toDataURL('image/jpeg',quality/100);
 const jpg=Uint8Array.from(atob(dataUrl.split(',')[1]),c=>c.charCodeAt(0));
 const img=await out.embedJpg(jpg);
@@ -499,9 +537,19 @@ if(!pages.length) return;
 const o=toolOpts(); $('#save').disabled=true; prog(4);
 try{
 let doc;
-if(o.compress){ doc=await compressDoc(o.compress.dpi,o.compress.quality);
-if(o.trim||o.resize||o.impose||o.hf||o.bates||o.redact||o.flatten||o.stripmd) doc=await finishDoc(doc,o); }
-else { doc=await buildDoc(o); }
+if(o.compress && o.cmode==='raster'){
+doc=await compressDoc(o.compress.dpi,o.compress.quality,o.cgray);
+if(o.trim||o.resize||o.impose||o.hf||o.bates||o.redact||o.flatten||o.stripmd||o.sign)
+doc=await finishDoc(doc,o);
+} else {
+doc=await buildDoc(o);
+if(o.compress){
+const st=await condenseDoc(doc,Math.round(o.compress.dpi*16),o.compress.quality);
+if(st.shrunk) toast('Re-encoded '+st.shrunk+' photo'+(st.shrunk===1?'':'s')
++' · '+fmt(st.before-st.after)+' smaller');
+else if(st.photos) toast('Photos already small — nothing worth re-encoding');
+}
+}
 if(o.secure && (o.secure.user||o.secure.owner)){
 await doc.encrypt({
 userPassword:o.secure.user||'',
@@ -686,7 +734,11 @@ return '<p class="hint" style="margin:0 0 12px">Version <b>'+esc(appVersion())+'
 +'<li><b>Trim / resize / impose</b> — cut margins, re-lay pages onto A4, or put 2, 4 or a booklet on a sheet.</li>'
 +'<li><b>Header, footer, Bates</b> — running text and the legal numbering convention, stamped on save.</li>'
 +'<li><b>Split &amp; export</b> — every N pages, one file per page, ranges, or every page as a PNG.</li>'
-+'<li><b>Redaction</b> — cover every match of a word, and optionally rebuild the page so the text is gone.</li></ul>'
++'<li><b>Redaction</b> — cover every match of a word, and optionally rebuild the page so the text is gone.</li>'
++'<li><b>Form fields</b> — fill an AcroForm and flatten it into the page.</li>'
++'<li><b>Signature</b> — draw or load one, stamp it on the pages you selected.</li>'
++'<li><b>Extract images</b> — recover the pictures stored inside the PDF at full resolution.</li>'
++'<li><b>Compress</b> — <i>photos only</i> keeps the text selectable; <i>every page</i> rasterises.</li></ul>'
 +'<p><b>Shortcuts</b></p>'
 +'<div class="k"><kbd>a</kbd><span>select all</span></div>'
 +'<div class="k"><kbd>d</kbd><span>deselect</span></div>'
@@ -694,6 +746,8 @@ return '<p class="hint" style="margin:0 0 12px">Version <b>'+esc(appVersion())+'
 +'<div class="k"><kbd>[</kbd> <kbd>]</kbd><span>rotate selected</span></div>'
 +'<div class="k"><kbd>t</kbd><span>theme</span></div>'
 +'<div class="k"><kbd>Ctrl</kbd> <kbd>K</kbd><span>command palette — every tool by name</span></div>'
++'<div class="k"><kbd>Ctrl</kbd> <kbd>Z</kbd> / <kbd>Shift</kbd> <kbd>Ctrl</kbd> <kbd>Z</kbd><span>undo / redo</span></div>'
++'<div class="k"><kbd>Alt</kbd> <kbd>←</kbd> <kbd>→</kbd><span>move the selected pages</span></div>'
 +'<div class="k"><kbd>Esc</kbd><span>close</span></div>'
 +'<p class="hint" style="margin-top:12px">Shift-click selects a range. Drag a page onto another to reorder.</p>';
 }
@@ -733,7 +787,7 @@ page.setCropBox(m,m,W-2*m,H-2*m);
 function drawFitted(page,emb,X,Y,boxW,boxH,w,h,ang){
 const visW=(ang%180===90)?h:w, visH=(ang%180===90)?w:h;
 const m=Math.min(boxW/visW,boxH/visH);
-const Wl=w*m, Hl=h*m;                     // the drawing's own size after scaling
+const Wl=w*m, Hl=h*m;                     
 const cx=X+(boxW-visW*m)/2, cy=Y+(boxH-visH*m)/2;
 const opts={width:Wl,height:Hl};
 if(ang===90) page.drawPage(emb,{x:cx+Hl,y:cy,...opts,rotate:degrees(90)});
@@ -766,8 +820,8 @@ const sheets=[];
 if(mode==='bk'){
 const m=Math.ceil(n/4)*4;
 for(let s=0;s<m/4;s++){
-sheets.push([m-1-2*s, 2*s]);       // front: last page, first page
-sheets.push([2*s+1, m-2-2*s]);     // back:  second page, second-last
+sheets.push([m-1-2*s, 2*s]);       
+sheets.push([2*s+1, m-2-2*s]);     
 }
 } else {
 const per=mode==='4'?4:2;
@@ -781,7 +835,7 @@ const cw=(W-gap*(cols+1))/cols, ch=(H-gap*(rows+1))/rows;
 for(const sheet of sheets){
 const page=out.addPage([W,H]);
 sheet.forEach((idx,k)=>{
-if(idx<0||idx>=src.length) return;   // padding in a booklet falls off the sheet
+if(idx<0||idx>=src.length) return;   
 const col=k%cols, row=Math.floor(k/cols);
 const cx=gap+col*(cw+gap), cy=H-gap-(row+1)*ch-row*gap;
 const sp=src[idx];
@@ -896,6 +950,10 @@ let out=doc;
 if(o.trim>0) trimPages(out,o.trim);
 let redacted=0;
 if(o.redact&&o.redact.words.length) redacted=await drawRedactions(out,o.redact);
+if(o.sign&&o.sign.dataUrl){
+const n=await drawSignature(out,o.sign);
+if(n) toast('Signature on '+n+' page'+(n===1?'':'s'));
+}
 if(o.resize) out=await resizeDoc(out,o.resize);
 if(o.impose) out=await imposeDoc(out,o.impose.mode,o.impose.gap);
 if(o.hf) await drawHeaderFooter(out,o.hf);
@@ -917,8 +975,15 @@ const bates=$('#s-bates').open?{prefix:$('#btp').value,start:+$('#bts').value||0
 digits:Math.max(1,+$('#btd').value||6),pos:$('#btpos').value}:null;
 const words=$('#rdt').value.split(',').map(s=>s.trim()).filter(Boolean);
 const redact=(words.length&&$('#s-redact').open)?{words,raster:$('#rdraster').checked}:null;
-return {trim,resize,impose:imp?{mode:imp,gap:+$('#imgap').value}:null,hf,bates,redact,
-flatten:$('#flatten').checked,stripmd:$('#stripmd').checked};
+const form = ($('#s-form') && $('#s-form').open && formFound.length) ? readFormValues() : null;
+const sign = (sigDataUrl && $('#s-sign') && $('#s-sign').open) ? {
+dataUrl:sigDataUrl, pos:$('#sigpos').value, width:+$('#sigw').value,
+opacity:+$('#sigo').value/100, pages:selList()
+} : null;
+const cmode = $('#cmode') ? $('#cmode').value : 'photos';
+const cgray = $('#cgray') ? $('#cgray').checked : false;
+return {trim,resize,impose:imp?{mode:imp,gap:+$('#imgap').value}:null,hf,bates,redact,form,sign,
+cmode,cgray,flatten:$('#flatten').checked,stripmd:$('#stripmd').checked};
 }
 function parseRanges(txt,max){
 const out=[];
@@ -957,7 +1022,7 @@ const bytes=await doc.save({useObjectStreams:true});
 const nm=chunks.length===1?'part':(mode==='1'?('page-'+(chunks[k][0]+1)):('part-'+(k+1)));
 download(bytes,'split-'+nm+'.pdf');
 made++;
-await new Promise(r=>setTimeout(r,120));   // let the browser take each file
+await new Promise(r=>setTimeout(r,120));   
 }
 prog(100);
 toast('Split into '+made+' file'+(made===1?'':'s'));
@@ -1113,6 +1178,387 @@ announce(pages.length?(pages.length+' pages, '+selList().length+' selected'):'no
 netUpdate();
 }
 initExtras();
+let formFound = [];
+async function scanForms(){
+const box = $('#formfields'); if(!box) return;
+box.innerHTML = '<p class="hint">Reading…</p>';
+formFound = [];
+for(const d of docs){
+if(d.kind !== 'pdf') continue;
+let doc, form;
+try{ doc = await PDFDocument.load(d.bytes, {ignoreEncryption:true}); }catch(e){ continue; }
+try{ form = doc.getForm(); }catch(e){ continue; }
+let fields = [];
+try{ fields = form.getFields(); }catch(e){ continue; }
+for(const f of fields){
+let options = null, value = '', type = 'text';
+if(typeof f.getOptions === 'function'){
+type = 'dropdown';
+try{ options = f.getOptions(); }catch(e){ options = null; }
+} else if(typeof f.check === 'function' && typeof f.isChecked === 'function'){
+type = 'checkbox';
+try{ value = f.isChecked(); }catch(e){}
+} else if(typeof f.getText === 'function'){
+try{ value = f.getText() || ''; }catch(e){}
+}
+formFound.push({name:f.getName(), type, value, options});
+}
+}
+if(!formFound.length){
+box.innerHTML = '<p class="hint">No form fields in the loaded files. A flat PDF has none — '
++ 'this only does something on a file with an AcroForm.</p>';
+return;
+}
+box.innerHTML = formFound.map((f, i) => {
+const id = 'ff' + i, label = esc(f.name.length > 24 ? f.name.slice(0, 22) + '…' : f.name);
+const attr = 'id="' + id + '" data-field="' + esc(f.name) + '"';
+if(f.options && f.options.length)
+return '<div class="fld"><label for="' + id + '">' + label + '</label><select ' + attr + '>'
++ f.options.map(o => '<option>' + esc(o) + '</option>').join('') + '</select></div>';
+if(f.type === 'checkbox')
+return '<div class="fld"><label for="' + id + '">' + label + '</label><input type="checkbox" ' + attr + '></div>';
+return '<div class="fld"><label for="' + id + '">' + label + '</label><input type="text" '
++ attr + ' value="' + esc(f.value) + '"></div>';
+}).join('') + '<p class="hint">' + formFound.length + ' field' + (formFound.length === 1 ? '' : 's')
++ ' — filled and flattened when you save.</p>';
+}
+function readFormValues(){
+const out = {};
+$$('#formfields [data-field]').forEach(el => {
+out[el.getAttribute('data-field')] = el.type === 'checkbox' ? el.checked : el.value;
+});
+return out;
+}
+async function applyFormValues(doc, values){
+try{
+const form = doc.getForm();
+let font = null;
+try{ font = await doc.embedFont(StandardFonts.Helvetica); }catch(e){}
+for(const f of form.getFields()){
+const name = f.getName();
+if(!(name in values)) continue;
+const v = values[name];
+try{
+if(typeof f.setText === 'function'){
+f.setText(String(v == null ? '' : v));
+if(font && f.updateAppearances) f.updateAppearances(font);
+} else if(typeof f.check === 'function' && typeof f.isChecked === 'function'){
+v ? f.check() : f.uncheck();
+} else if(typeof f.select === 'function'){
+if(v) f.select(String(v));
+if(font && f.updateAppearances) f.updateAppearances(font);
+}
+}catch(e){ console.warn('field', name, e); }
+}
+form.flatten();
+}catch(e){ console.warn('form flatten', e); }
+}
+let sigDataUrl = null;
+function trimCanvasToInk(c){
+const ctx = c.getContext('2d');
+const {data, width, height} = ctx.getImageData(0, 0, c.width, c.height);
+let minX = width, minY = height, maxX = -1, maxY = -1;
+for(let y = 0; y < height; y++){
+for(let x = 0; x < width; x++){
+if(data[(y * width + x) * 4 + 3] > 8){
+if(x < minX) minX = x; if(x > maxX) maxX = x;
+if(y < minY) minY = y; if(y > maxY) maxY = y;
+}
+}
+}
+if(maxX < 0) return null;
+const w = maxX - minX + 1, h = maxY - minY + 1;
+const out = document.createElement('canvas');
+out.width = w; out.height = h;
+out.getContext('2d').drawImage(c, minX, minY, w, h, 0, 0, w, h);
+return out.toDataURL('image/png');
+}
+function initSignature(){
+const c = $('#sigpad'); if(!c) return;
+const ctx = c.getContext('2d');
+ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#101010';
+let drawing = false;
+const at = e => {
+const r = c.getBoundingClientRect();
+return {x:(e.clientX - r.left) * c.width / r.width, y:(e.clientY - r.top) * c.height / r.height};
+};
+c.addEventListener('pointerdown', e => {
+drawing = true; try{ c.setPointerCapture(e.pointerId); }catch(err){}
+const p = at(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+});
+c.addEventListener('pointermove', e => {
+if(!drawing) return;
+const p = at(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+});
+const stop = () => { if(!drawing) return; drawing = false; sigDataUrl = trimCanvasToInk(c); };
+c.addEventListener('pointerup', stop);
+c.addEventListener('pointercancel', stop);
+c.addEventListener('pointerleave', stop);
+$('#sigclear').onclick = () => {
+ctx.clearRect(0, 0, c.width, c.height); sigDataUrl = null; toast('Signature cleared');
+};
+$('#sigfile').onclick = () => {
+const input = document.createElement('input');
+input.type = 'file'; input.accept = 'image/*';
+input.onchange = async () => {
+const f = input.files && input.files[0]; if(!f) return;
+try{
+const bmp = await createImageBitmap(f);
+ctx.clearRect(0, 0, c.width, c.height);
+const s = Math.min(c.width / bmp.width, c.height / bmp.height);
+const w = bmp.width * s, h = bmp.height * s;
+ctx.drawImage(bmp, (c.width - w) / 2, (c.height - h) / 2, w, h);
+sigDataUrl = trimCanvasToInk(c);
+toast(sigDataUrl ? 'Signature loaded' : 'That picture is empty');
+}catch(e){ toast('Could not read that image'); }
+};
+input.click();
+};
+}
+async function drawSignature(doc, o){
+if(!o.dataUrl) return 0;
+const png = Uint8Array.from(atob(o.dataUrl.split(',')[1]), ch => ch.charCodeAt(0));
+const img = await doc.embedPng(png);
+const all = doc.getPages();
+const idx = (o.pages && o.pages.length) ? o.pages : all.map((_, i) => i);
+let n = 0;
+for(const i of idx){
+const page = all[i]; if(!page) continue;
+const {width:W, height:H} = page.getSize();
+const w = W * (o.width / 100), h = w * img.height / img.width, m = 24;
+let x, y;
+if(o.pos === 'br'){ x = W - m - w; y = m; }
+else if(o.pos === 'bl'){ x = m; y = m; }
+else if(o.pos === 'tr'){ x = W - m - w; y = H - m - h; }
+else if(o.pos === 'tl'){ x = m; y = H - m - h; }
+else { x = (W - w) / 2; y = m; }
+page.drawImage(img, {x, y, width:w, height:h, opacity:o.opacity});
+n++;
+}
+return n;
+}
+function saveBlob(blob, name){
+const u = URL.createObjectURL(blob);
+const a = document.createElement('a'); a.href = u; a.download = name; a.click();
+setTimeout(() => URL.revokeObjectURL(u), 5000);
+}
+async function imageObjectFrom(page, name){
+for(let attempt = 0; attempt < 15; attempt++){
+try{ const o = page.objs.get(name); if(o) return o; }catch(e){}
+try{ const o = page.commonObjs.get(name); if(o) return o; }catch(e){}
+await new Promise(r => setTimeout(r, 120));
+}
+return null;
+}
+function imageToCanvas(ob){
+const w = ob.width | 0, h = ob.height | 0;
+if(!w || !h) return null;
+const c = document.createElement('canvas'); c.width = w; c.height = h;
+const ctx = c.getContext('2d');
+if(ob.bitmap){
+ctx.drawImage(ob.bitmap, 0, 0); return c;
+}
+const data = ob.data; if(!data) return null;
+const n = w * h;
+const img = ctx.createImageData(w, h);
+if(ob.kind === 3 && data.length >= n * 4){ img.data.set(data.subarray(0, n * 4)); }
+else if(ob.kind === 2 && data.length >= n * 3){
+for(let i = 0; i < n; i++){
+img.data[i * 4] = data[i * 3];
+img.data[i * 4 + 1] = data[i * 3 + 1];
+img.data[i * 4 + 2] = data[i * 3 + 2];
+img.data[i * 4 + 3] = 255;
+}
+} else if(ob.kind === 1){
+const row = (w + 7) >> 3;
+for(let y = 0; y < h; y++){
+for(let x = 0; x < w; x++){
+const bit = (data[y * row + (x >> 3)] >> (7 - (x & 7))) & 1;
+const v = bit ? 0 : 255, o = (y * w + x) * 4;
+img.data[o] = img.data[o + 1] = img.data[o + 2] = v; img.data[o + 3] = 255;
+}
+}
+} else return null;
+ctx.putImageData(img, 0, 0);
+return c;
+}
+async function extractImages(){
+if(!pages.length){ toast('Add a PDF first'); return; }
+const sel = selList(), base = sel.length ? sel : pages.map((_, i) => i);
+const msg = $('#imgmsg');
+const OPS = pdfjsLib.OPS;
+let made = 0, seen = 0;
+cancelJob = false; $('#save').disabled = true;
+try{
+for(let k = 0; k < base.length; k++){
+if(cancelJob) break;
+const i = base[k], p = pages[i], d = docs.find(x => x.id === p.docId);
+if(!d || d.kind !== 'pdf') continue;
+prog(Math.round(100 * k / base.length));
+msg.textContent = 'Scanning page ' + (i + 1) + '…';
+let pg, ol;
+try{ pg = await d.pdfjs.getPage(p.src + 1); ol = await pg.getOperatorList(); }catch(e){ continue; }
+try{
+const vp = pg.getViewport({scale:0.3});
+const cv = document.createElement('canvas');
+cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+await pg.render({canvasContext:cv.getContext('2d'), viewport:vp}).promise;
+}catch(e){}
+const names = [];
+for(let j = 0; j < ol.fnArray.length; j++){
+const f = ol.fnArray[j];
+if(f === OPS.paintImageXObject || f === OPS.paintInlineImageXObject ||
+f === OPS.paintImageMaskXObject || f === OPS.paintJpegXObject){
+const a = ol.argsArray[j]; if(a && a[0] !== undefined) names.push(a[0]);
+}
+}
+for(const name of names){
+if(typeof name !== 'string' && typeof name !== 'number') continue;
+seen++;
+const ob = await imageObjectFrom(pg, name);
+if(!ob) continue;
+let c = null;
+try{ c = imageToCanvas(ob); }catch(e){ c = null; }
+if(!c) continue;
+const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+if(!blob) continue;
+made++;
+saveBlob(blob, 'page-' + String(i + 1).padStart(3, '0') + '-image-' + made + '.png');
+await new Promise(r => setTimeout(r, 140));
+}
+}
+prog(100);
+msg.textContent = made ? (made + ' image' + (made === 1 ? '' : 's') + ' recovered.')
+: (seen ? 'Found ' + seen + ' image reference' + (seen === 1 ? '' : 's') + ' but could not decode them.'
+: 'No embedded images in these pages — this file is probably all text or a pure scan flattened to one picture per page.');
+toast(made ? ('Extracted ' + made + ' image' + (made === 1 ? '' : 's')) : 'No images found');
+announce(msg.textContent);
+}catch(e){ toast('Extraction failed: ' + e.message); }
+$('#save').disabled = false;
+}
+async function condenseDoc(doc, maxDim, quality){
+const {PDFRawStream, PDFName} = PDFLib;
+const ctx = doc.context;
+const stats = {photos:0, shrunk:0, skipped:0, before:0, after:0};
+for(const [ref, obj] of ctx.enumerateIndirectObjects()){
+let dict = null;
+try{ dict = obj.dict; }catch(e){ continue; }
+if(!dict) continue;
+let sub; try{ sub = dict.get(PDFName.of('Subtype')); }catch(e){ continue; }
+if(!sub || String(sub) !== '/Image') continue;
+const filt = dict.get(PDFName.of('Filter'));
+if(!filt || String(filt) !== '/DCTDecode'){ stats.skipped++; continue; }
+if(dict.get(PDFName.of('SMask')) || dict.get(PDFName.of('Mask'))){ stats.skipped++; continue; }
+let bytes = null;
+try{ bytes = obj.getContents ? obj.getContents() : obj.contents; }catch(e){}
+if(!bytes || !bytes.length){ stats.skipped++; continue; }
+stats.photos++;
+try{
+const bmp = await createImageBitmap(new Blob([bytes], {type:'image/jpeg'}));
+const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
+const c = document.createElement('canvas');
+c.width = Math.max(1, Math.round(bmp.width * scale));
+c.height = Math.max(1, Math.round(bmp.height * scale));
+c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+if(bmp.close) bmp.close();
+const data = c.toDataURL('image/jpeg', quality / 100);
+const nb = Uint8Array.from(atob(data.split(',')[1]), ch => ch.charCodeAt(0));
+if(nb.length >= bytes.length){ stats.skipped++; continue; }
+const nd = ctx.obj({
+Type:'XObject', Subtype:'Image', Width:c.width, Height:c.height,
+ColorSpace:'DeviceRGB', BitsPerComponent:8, Filter:'DCTDecode'
+});
+ctx.assign(ref, PDFRawStream.of(nd, nb));
+stats.shrunk++; stats.before += bytes.length; stats.after += nb.length;
+prog(null);
+}catch(e){ stats.skipped++; }
+}
+return stats;
+}
+function toGrey(canvas){
+const ctx = canvas.getContext('2d');
+const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const d = img.data;
+for(let i = 0; i < d.length; i += 4){
+const v = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) | 0;
+d[i] = d[i + 1] = d[i + 2] = v;
+}
+ctx.putImageData(img, 0, 0);
+return canvas;
+}
+let histStack = [], redoStack = [];
+function snapshotPages(){
+histStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
+if(histStack.length > 60) histStack.shift();
+redoStack.length = 0;
+}
+function restorePages(json){
+pages = JSON.parse(json).map(p => ({...p, id:nextId++}));
+thumbCache.clear(); render(); renderFiles(); updateDoc();
+}
+function undo(){
+if(!histStack.length){ toast('Nothing to undo'); return; }
+redoStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
+restorePages(histStack.pop()); toast('Undo'); announce('Undone');
+}
+function redo(){
+if(!redoStack.length){ toast('Nothing to redo'); return; }
+histStack.push(JSON.stringify(pages.map(p => ({docId:p.docId, src:p.src, rot:p.rot, sel:p.sel}))));
+restorePages(redoStack.pop()); toast('Redo'); announce('Redone');
+}
+function initExtras14(){
+const foot = $('.foot');
+if(foot && !$('#memstat')){
+const s = document.createElement('span');
+s.id = 'memstat'; s.className = 'only'; s.style.marginLeft = 'auto';
+foot.appendChild(s);
+}
+const mem = () => {
+const el = $('#memstat'); if(!el) return;
+const m = performance.memory;
+el.textContent = m ? ('≈ ' + Math.round(m.usedJSHeapSize / 1048576) + ' MB heap') : '';
+};
+const _updateBar = window.updateBar;
+window.updateBar = function(){ _updateBar.apply(this, arguments); mem(); };
+for(const fn of ['rotate', 'removeSel', 'duplicateSel', 'moveSel']){
+const orig = window[fn];
+if(typeof orig !== 'function') continue;
+window[fn] = function(){ snapshotPages(); return orig.apply(this, arguments); };
+}
+const _addFiles = window.addFiles;
+if(typeof _addFiles === 'function')
+window.addFiles = function(){ snapshotPages(); return _addFiles.apply(this, arguments); };
+const _clear = $('#clear');
+if(_clear) _clear.addEventListener('click', () => snapshotPages(), true);
+addEventListener('keydown', e => {
+const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || '') || (e.target || {}).isContentEditable;
+if(typing) return;
+const k = e.key.toLowerCase();
+if((e.ctrlKey || e.metaKey) && k === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); }
+else if((e.ctrlKey || e.metaKey) && k === 'y'){ e.preventDefault(); redo(); }
+else if(e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')){
+if(selList().length){ e.preventDefault(); moveSel(e.key === 'ArrowLeft' ? -1 : 1); }
+}
+});
+const grid = $('#grid');
+if(grid){ grid.setAttribute('role', 'listbox'); grid.setAttribute('aria-multiselectable', 'true');
+grid.setAttribute('aria-label', 'Pages in the output'); }
+const labels = {add:'Add PDF files', addimg:'Add images', save:'Build and download the PDF',
+help:'Help and shortcuts', theme:'Switch theme', selall:'Select every page',
+selnone:'Clear the selection', rotl:'Rotate selected pages left', rotr:'Rotate selected pages right',
+left:'Move selected pages earlier', right:'Move selected pages later', dup:'Duplicate selected pages',
+del:'Delete selected pages', extract:'Extract selected pages into a new PDF', clear:'Remove every page'};
+Object.keys(labels).forEach(id => {
+const el = $('#' + id); if(el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', labels[id]);
+});
+const scan = $('#scanform'); if(scan) scan.onclick = scanForms;
+const ex = $('#doimg'); if(ex) ex.onclick = extractImages;
+initSignature();
+for(const [id, vid] of [['sigw', 'sigwv'], ['sigo', 'sigov']]){
+const el = $('#' + id); if(el) el.oninput = () => { $('#' + vid).textContent = el.value; };
+}
+}
+initExtras14();
 $('#add').onclick=()=>$('#fpick').click();
 $('#addimg').onclick=()=>$('#ipick').click();
 $('#fpick').onchange=e=>{ addFiles(e.target.files); e.target.value=''; };
