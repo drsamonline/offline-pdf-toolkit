@@ -106,7 +106,9 @@ app.html                     the application shell (~110 KB; the engines live in
 index.html                   landing page (root deployment)
 docs/index.html              landing page (Pages deployment)
 docs/play/index.html         the application, as Pages serves it
-docs/assets/                 badges, screenshots, icons, sample PDFs (all local)
+docs/assets/                 badges, screenshots, icons, sample PDFs (all local):
+                               two text documents, a photograph page, and one written
+                               uncompressed so the lossless pass has something to prove
 docs/play/lib/               pdf.js, pdf-lib and the pdf.js worker, loaded on demand
 docs/play/ocr/               the OCR engine: wrapper, worker, two LSTM WASM cores, English data
 docs/play/qpdf/              the qpdf WASM runtime for the lossless compression pass
