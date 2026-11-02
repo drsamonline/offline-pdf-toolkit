@@ -42,10 +42,15 @@ panel — shipped in 1.14.0.
 - **Lite vs Full builds** — dropping the 10 MB OCR engine from the APK. The packaging lives in the
   shared app-builder kit, so it is a second pipeline there, not a change here.
 
-## Left to someone else
+## Read by a person
 
-- **A native read of the Hindi and Gujarati interface strings.** A person, not a model. The strings
-  are one file of pairs (`pipeline/app_i18n.js`).
+- **The Hindi and Gujarati interface strings** were read by a native speaker on 2 November 2026
+  against a numbered review sheet (100 pairs, the real screens in both languages, and the
+  translations flagged where they run long for their button). No corrections were needed. This is
+  the one item on this list that a model could not close on its own.
+- **47 labels added after 1.6.0 are still English** — the folder panel, Share locked, page labels,
+  Compare, the redaction patterns. They arrived after the translation pass and need a second one,
+  with the same review sheet treatment rather than a silent machine pass.
 
 ## Refused, with the evidence
 
