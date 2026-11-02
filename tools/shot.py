@@ -11,6 +11,7 @@ same-origin iframe behave as they do on Pages.
 
     pip install websocket-client           # a dev tool only; the app has no deps
     python3 tools/shot.py landing          # docs/assets/landing-{desktop,mobile}.png
+    python3 tools/shot.py home             # docs/assets/app-home-{desktop,mobile}.png
     python3 tools/shot.py app              # docs/assets/app-{desktop,mobile}.png
     python3 tools/shot.py all
 
@@ -167,6 +168,12 @@ def main():
         if what in ("landing", "all"):
             capture(base + "docs/index.html", os.path.join(assets, "landing-desktop.png"), 1280, 900, full=True)
             capture(base + "docs/index.html", os.path.join(assets, "landing-mobile.png"), 430, 900, full=True)
+        if what in ("home", "all"):
+            # the launcher is the empty state: nothing loaded, so it shoots itself
+            capture(base + "docs/play/index.html", os.path.join(assets, "app-home-desktop.png"), 1280, 1000,
+                    wait="document.querySelectorAll('#home-grid .tcard').length>=4")
+            capture(base + "docs/play/index.html", os.path.join(assets, "app-home-mobile.png"), 430, 860,
+                    wait="document.querySelectorAll('#home-grid .tcard').length>=4")
         if what in ("app", "all"):
             capture(base + "docs/play/index.html", os.path.join(assets, "app-desktop.png"), 1280, 1000,
                     inject=APP_JS, wait="document.querySelectorAll('#grid .thumb img').length>=5")

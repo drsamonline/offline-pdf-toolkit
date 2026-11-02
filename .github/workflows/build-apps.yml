@@ -49,17 +49,29 @@ jobs:
   # The app shell was 2,093 KB until 1.9.0 took it to 118 KB by moving the engines
   # out of the HTML. That win is easy to lose by inlining one library again, so it
   # is guarded here rather than remembered.
+  #
+  # 1.15.0 raised the raw ceiling from 150 KB to 160 KB, deliberately, for the
+  # launcher: the empty state became a front door (hero, session list, core tool
+  # cards, an all-tools sheet) instead of a paragraph. That is new interface, not
+  # an engine drifting back in, and it cost 5 KB gzipped. The gzipped cap is the
+  # one that matters for a reader on a phone, so it is checked too — and it is the
+  # tighter of the two.
   budget:
     name: Shell size budget
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: app.html must stay under 150 KB
+      - name: app.html must stay under 160 KB, and under 52 KB gzipped
         run: |
           size=$(stat -c%s app.html)
-          echo "app.html is $size bytes ($((size/1024)) KB)"
-          if [ "$size" -gt 153600 ]; then
-            echo "::error::app.html grew past 150 KB ($size bytes) - the engines belong in docs/play/lib/, not inline"
+          gz=$(gzip -9c app.html | wc -c)
+          echo "app.html is $size bytes ($((size/1024)) KB), $gz gzipped"
+          if [ "$size" -gt 163840 ]; then
+            echo "::error::app.html grew past 160 KB ($size bytes) - the engines belong in docs/play/lib/, not inline"
+            exit 1
+          fi
+          if [ "$gz" -gt 53248 ]; then
+            echo "::error::app.html is $gz bytes gzipped, past the 52 KB ceiling"
             exit 1
           fi
           echo "within budget"

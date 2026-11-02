@@ -1,5 +1,61 @@
 # Changelog
 
+## [1.15.0] — 2026-11-02
+
+The front door. Nothing new to do with a PDF — everything about the first ten seconds, which were
+the worst part of the app: the empty state was a paragraph of apology and the tools were 26
+collapsed sections in a sidebar.
+
+### Added
+- **A launcher in place of the empty state.** A hero card you can drop a file on, the four tools a
+  report actually needs in one tap (Merge, Compress, Redaction, Extract text), a "more tools" row,
+  and the session list. The workspace below it is untouched — the moment a document opens, the
+  launcher steps aside and the app is exactly what it was.
+- **One catalogue, in data.** `pipeline/app_launcher.js` holds every tool as a record — category,
+  icon, one-line blurb, and the sidebar panel it opens. The launcher, the all-tools sheet and the
+  category dot beside each sidebar section all read from it. A tool's *name* is read from its own
+  panel summary, so the sheet cannot drift from the sidebar, and it follows the interface language
+  for free.
+- **An all-tools sheet** — 27 tools grouped Edit / Optimize / Secure / Convert / Trust, with search,
+  reachable from the launcher or the row under it.
+- **A cold start that does not dead-end.** Choosing a tool with no document loaded asks for the file
+  and then opens that tool by itself, instead of opening a panel whose controls cannot do anything.
+- **The session list.** Every file the app writes is one line on the launcher — name, the tool that
+  made it, the size — held in `sessionStorage`, so it is gone when the tab is, and **the bytes are
+  never kept**. It is a memory of what you just did, not a store of what you did it to.
+- **Category tints** — rose for Edit, amber for Optimize, indigo for Secure, teal for Convert, grey
+  for Trust — on the cards and as a dot on each sidebar section. The brand accent stays blue, so
+  every control the user presses is still the app's own colour.
+- **27 icons drawn inline**, in a 20×20 stroke set, so the app keeps its 0-request promise.
+
+### Changed
+- The page bar hides its twelve disabled buttons until there are pages, keeping only its label and —
+  while a job runs — Cancel.
+- **A spacing pass over the whole shell.** The first cut had every border sitting on its contents:
+  card padding 14 → 17 px, grid gaps 10 → 13–15 px, sidebar rows 11 → 14 px, page-bar and header
+  padding up, section margins 12 → 14 px, and one card radius (12 px) shared by page tiles, sidebar
+  panels and tool cards instead of three different ones.
+- The shell-size budget moved from 150 KB to 160 KB **deliberately, for this**: a new interface
+  surface, not an engine drifting back inline. A second ceiling was added at 52 KB gzipped, which is
+  what a reader on a phone actually pays, and which is the tighter of the two.
+
+### Not taken, from the app this was read against
+PaperKnife (`potatameister/PaperKnife`, `PaperKnifePlus`) was the reference for the structure: a
+tool-first entry, one catalogue, a category per family, a session list. **No code was copied — it is
+AGPL-3.0/GPL-3.0 and this app is PolyForm Noncommercial, so a copied fragment would make the
+combination undistributable.** Not adopted, with reasons: their webfont (breaks `default-src 'self'`
+and the 0-external-requests badge), React + Tailwind (this is one file with no build step), and a
+five-item bottom nav (the workspace already has a keyboard/ARIA grid that a new nav bar would
+compete with; deferred rather than rushed).
+
+### Verified
+- A new suite, `tools/test/test_app12.py` — 24 checks: the launcher draws four core tools with their
+  categories; the catalogue covers all 24 panels and its names match the sidebar's own summaries;
+  the sheet lists 27 tools, groups them, and searches down to one; a tool chosen cold asks for a file
+  and then opens itself; a saved file lands in the session list with its tool and size, in
+  `sessionStorage` and with no bytes; clear empties it.
+- All twelve suites green (15 + 11 + 7 + 24 + 16 + 9 + 12 + 6 + 7 + 6 + 5 + 6 = 124 checks).
+
 ## [1.14.0] — 2026-11-02
 
 The three items the roadmap called cheap. Nothing left on that list now.
