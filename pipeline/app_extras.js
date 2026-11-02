@@ -135,6 +135,8 @@ async function imposeDoc(doc,mode,gap){
    guarantee: it only sees text this app can read. */
 const REDACT_PATTERNS = {
   aadhaar: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
+  date:    /\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b/g,
+  ifsc:    /\b[A-Z]{4}0[A-Z0-9]{6}\b/g,
   phone:   /(?:\+?91[\s-]?)?\b[6-9]\d{9}\b/g,
   email:   /[\w.+-]+@[\w-]+\.[\w.-]+/g,
   pan:     /\b[A-Z]{5}\d{4}[A-Z]\b/g
@@ -293,7 +295,7 @@ function extrasOpts(){
   const bates=$('#s-bates').open?{prefix:$('#btp').value,start:+$('#bts').value||0,
     digits:Math.max(1,+$('#btd').value||6),pos:$('#btpos').value}:null;
   const words=$('#rdt').value.split(',').map(s=>s.trim()).filter(Boolean);
-  const pats=['rdaadhaar','rdphone','rdemail','rdpan'].filter(id=>$('#'+id)&&$('#'+id).checked)
+  const pats=['rdaadhaar','rdphone','rdemail','rdpan','rddate','rdifsc'].filter(id=>$('#'+id)&&$('#'.concat(id))&&$('#'+id).checked)
     .map(id=>id.slice(2));
   const redact=((words.length||pats.length)&&$('#s-redact').open)
     ?{words,patterns:pats,raster:$('#rdraster').checked}:null;
@@ -325,13 +327,56 @@ async function buildFrom(indexes){
   pages=indexes.map(i=>({...keep[i],sel:false}));
   try{ return await buildDoc({}); } finally { pages=keep; }
 }
+/* top-level bookmarks, resolved to page numbers — the shape a split needs */
+async function bookmarkStarts(d){
+  try{
+    const outline=await d.pdfjs.getOutline();
+    if(!outline||!outline.length) return null;
+    const out=[];
+    for(const item of outline){
+      let page=null;
+      try{
+        const dest=typeof item.dest==='string' ? await d.pdfjs.getDestination(item.dest) : item.dest;
+        if(dest&&dest[0]) page=await d.pdfjs.getPageIndex(dest[0]);
+      }catch(e){}
+      if(page!=null) out.push({title:item.title||'bookmark',page});
+    }
+    out.sort((a,b)=>a.page-b.page);
+    return out;
+  }catch(e){ return null; }
+}
+
 async function splitNow(){
   if(!pages.length){ toast('Add a PDF first'); return; }
   const sel=selList();
   const base=sel.length?sel:pages.map((_,i)=>i);
   const mode=$('#splitmode').value;
   let chunks=[];
-  if(mode==='ranges'){ const r=parseRanges($('#splitr').value,pages.length);
+  if(mode==='bookmark'){
+    // prefer the document the selection came from, then the first one that actually
+    // has bookmarks — not simply the first PDF that happens to be loaded
+    const prefer = sel.length ? pages[sel[0]].docId : null;
+    const pdfs = docs.filter(x=>x.kind==='pdf'&&x.pdfjs);
+    let d = prefer ? pdfs.find(x=>x.id===prefer) : null;
+    let marks = d ? await bookmarkStarts(d) : null;
+    if(!marks || marks.length<2){
+      for(const c of pdfs){
+        if(c===d) continue;
+        const m = await bookmarkStarts(c);
+        if(m && m.length>=2){ d=c; marks=m; break; }
+      }
+    }
+    if(!d) d = pdfs[0];
+    if(!d){ toast('Load a PDF first'); return; }
+    if(!marks || marks.length<2){ toast('That document has no bookmarks to split on'); return; }
+    if(!marks||marks.length<2){ toast('That document has no bookmarks to split on'); return; }
+    for(let k=0;k<marks.length;k++){
+      const from=marks[k].page, to=(k+1<marks.length?marks[k+1].page:d.numPages);
+      const idx=[]; for(let p=from;p<to;p++) idx.push(p);
+      if(idx.length) chunks.push(idx);
+    }
+  }
+  else if(mode==='ranges'){ const r=parseRanges($('#splitr').value,pages.length);
     if(!r.length){ toast('Give ranges like 1-3, 5'); return; } chunks=[r]; }
   else if(mode==='1'){ chunks=base.map(i=>[i]); }
   else { const n=Math.max(1,+$('#splitn').value||1);
@@ -440,6 +485,7 @@ const ACTIONS=[
   ['Insert a blank page','pages',insertBlank],
   ['Process a folder of PDFs','tools',()=>openSec('s-folder')],
   ['Share as a PIN-locked HTML','tools',()=>openSec('s-lock')],
+  ['Compare two documents','tools',()=>openSec('s-compare')],
   ['Delete selected','pages',removeSel],
   ['Extract selected to a new PDF','pages',extract],
   ['Watermark','tools',()=>openSec('s-wm')],
@@ -659,13 +705,37 @@ function initSignature(){
     if(!drawing) return;
     const p = at(e); ctx.lineTo(p.x, p.y); ctx.stroke();
   });
-  const stop = () => { if(!drawing) return; drawing = false; sigDataUrl = trimCanvasToInk(c); };
+  const stop = () => { if(!drawing) return; drawing = false; sigDataUrl = trimCanvasToInk(c); rememberSignature(); };
+  function rememberSignature(){
+    const box = $('#sigremember');
+    if(!box || !box.checked) return;
+    try{ if(sigDataUrl) localStorage.setItem('pdftk_sig', sigDataUrl); else localStorage.removeItem('pdftk_sig'); }
+    catch(e){}
+  }
+  function restoreSignature(){
+    let saved = null;
+    try{ saved = localStorage.getItem('pdftk_sig'); }catch(e){}
+    if(!saved) return;
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, c.width, c.height);
+      const s2 = Math.min(c.width / img.width, c.height / img.height);
+      ctx.drawImage(img, 0, 0, img.width * s2, img.height * s2);
+      sigDataUrl = trimCanvasToInk(c);
+      const box = $('#sigremember'); if(box) box.checked = true;
+      if(sigDataUrl) toast('Signature restored from this device');
+    };
+    img.src = saved;
+  }
+  setTimeout(restoreSignature, 300);
   c.addEventListener('pointerup', stop);
   c.addEventListener('pointercancel', stop);
   c.addEventListener('pointerleave', stop);
 
   $('#sigclear').onclick = () => {
-    ctx.clearRect(0, 0, c.width, c.height); sigDataUrl = null; toast('Signature cleared');
+    ctx.clearRect(0, 0, c.width, c.height); sigDataUrl = null;
+    try{ localStorage.removeItem('pdftk_sig'); }catch(e){}
+    toast('Signature cleared');
   };
   $('#sigfile').onclick = () => {
     const input = document.createElement('input');
@@ -679,6 +749,7 @@ function initSignature(){
         const w = bmp.width * s, h = bmp.height * s;
         ctx.drawImage(bmp, (c.width - w) / 2, (c.height - h) / 2, w, h);
         sigDataUrl = trimCanvasToInk(c);
+        try{ if(sigDataUrl && $('#sigremember') && $('#sigremember').checked) localStorage.setItem('pdftk_sig', sigDataUrl); }catch(e){}
         toast(sigDataUrl ? 'Signature loaded' : 'That picture is empty');
       }catch(e){ toast('Could not read that image'); }
     };
@@ -1285,6 +1356,47 @@ function gridA11y(){
   }
 }
 
+/* ---------- compare two documents by their text ----------
+   Not a visual diff and not a claim about provenance: it reads what each page says
+   and reports the pages whose text differs, with the first line that differs. */
+async function pageText(d, src){
+  try{
+    const pg = await d.pdfjs.getPage(src + 1);
+    const tc = await pg.getTextContent();
+    return (tc.items || []).map(i => i.str).join(' ').replace(/\s+/g, ' ').trim();
+  }catch(e){ return ''; }
+}
+async function compareDocs(){
+  const out = $('#cmpout');
+  const pdfs = docs.filter(d => d.kind === 'pdf');
+  if(pdfs.length < 2){ out.textContent = 'Load two PDFs to compare.'; return; }
+  const [a, b] = pdfs;
+  out.textContent = 'Reading…';
+  const rows = [];
+  const n = Math.max(a.numPages, b.numPages);
+  let differing = 0;
+  for(let i = 0; i < n; i++){
+    const ta = i < a.numPages ? await pageText(a, i) : '';
+    const tb = i < b.numPages ? await pageText(b, i) : '';
+    if(ta !== tb){
+      differing++;
+      const wa = ta.split(' '), wb = tb.split(' ');
+      let k = 0;
+      while(k < wa.length && k < wb.length && wa[k] === wb[k]) k++;
+      rows.push('page ' + (i + 1)
+        + '\n  ' + (a.name) + ': …' + wa.slice(Math.max(0, k - 4), k + 8).join(' ') + '…'
+        + '\n  ' + (b.name) + ': …' + wb.slice(Math.max(0, k - 4), k + 8).join(' ') + '…');
+    }
+  }
+  const head = differing
+    ? differing + ' of ' + n + ' pages differ'
+    : 'The text is identical on all ' + n + ' pages';
+  out.textContent = head;
+  const report = a.name + '  vs  ' + b.name + '\n' + head + '\n\n' + rows.join('\n\n') + '\n';
+  download(new Blob([report], {type:'text/plain'}), 'compare.txt');
+  announce(head);
+}
+
 /* ---------- the tool settings survive a reload ---------- */
 function settingsSnapshot(){
   const out = {};
@@ -1380,6 +1492,7 @@ function initExtras14(){
   const bl = $('#blank'); if(bl) bl.onclick = insertBlank;
   const fol = $('#dofolder'); if(fol) fol.onclick = processFolder;
   const lk = $('#dolock'); if(lk) lk.onclick = shareLocked;
+  const cp = $('#docompare'); if(cp) cp.onclick = compareDocs;
   // the grid is rebuilt on every render, so the labels and roving tabindex follow it
   const _render = window.render;
   window.render = function(){ const r = _render.apply(this, arguments); try{ gridA11y(); }catch(e){} return r; };

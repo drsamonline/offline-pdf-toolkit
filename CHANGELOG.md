@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.12.0] — 2026-11-02
+
+### Added
+- **The test suites now live in the repo and run in CI.** Ten suites, 93 checks, driving the real
+  page in a real browser over the DevTools protocol — `tools/test/`, one entry point
+  (`run_all.py`), a `browser-tests` job on every push and PR. They check what a user gets, not a
+  model of it, and they no longer exist only on the machine that wrote them.
+- **Split by bookmark.** Top-level outline entries become page ranges, resolved through pdf.js's
+  destination table; each becomes its own file. It picks the document the selection came from, then
+  the first one that actually has bookmarks — and says which of the two reasons it stopped for.
+- **Compare two documents** by their text: which pages differ, and the first line that differs, with
+  a `compare.txt` report. It compares text, not appearance — a re-scan of the same letter will look
+  completely different and the panel says so.
+- **A remembered signature**, behind an explicit checkbox, with the warning in the panel that it is
+  stored unencrypted in this browser's local storage.
+- **Two more redaction patterns**: dates and IFSC codes, alongside 12-digit numbers, phones, emails
+  and PAN.
+
+### Also
+- `tools/make_samples.py` gains `sample-outline.pdf`, four pages with a bookmark each — the fixture
+  the split test needs, and the only shipped sample with an outline.
+
 ## [1.11.0] — 2026-11-02
 
 ### Added

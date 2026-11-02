@@ -51,6 +51,7 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Compress, three ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *lossless* runs qpdf over the result; *every page* rasterises, with an optional greyscale pass. |
 | **Batch** | *One file per source* — the same tools on every loaded document, one output each. |
 | **Share locked** | Wrap the finished PDF in a single HTML file that asks for a PIN — AES-256-GCM, the same container [LockHTML](https://github.com/drsamonline/lockhtml) writes, so either viewer opens either file. |
+| **Compare** | Reads the text of the first two documents and reports the pages that differ, with the first line that changed. |
 | **A whole folder** | Pick a folder, and every PDF in it is processed and written to an `out` folder beside it. Chrome, Edge and Android Chrome only — the button says so when the browser cannot. |
 | **Insert blank pages** | Drop an empty page after the selection, sized like the page before it. |
 | **Interface languages** | English, हिन्दी and ગુજરાતી for the interface, switched in the header and remembered. |
@@ -126,6 +127,7 @@ vendor/                      the three libraries, with SHA256SUMS checked at bui
 tools/badges.py              draws docs/assets/badge-*.svg — no image service
 tools/shot.py                takes the screenshots with headless Chromium (dev only)
 tools/make_samples.py        generates the sample PDFs the demo and screenshots use
+tools/test/                  the browser suites (93 checks) and run_all.py — run in CI on every push
 tools/fetch_ocr.py           fetches the OCR engine once and verifies it against SHA256SUMS
 tools/fetch_qpdf.py          the same for qpdf (Apache-2.0), the lossless compressor
 sw.js                        offline cache (identical copy in docs/sw.js)
