@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.10.0] — 2026-11-02
+
+### Added
+- **Share locked.** Wrap the finished PDF in a single `.html` file that asks for a PIN before it
+  opens — AES-256-GCM, PBKDF2-SHA256 at 250,000 rounds, a fresh salt and IV per file. The container
+  is the one **LockHTML** (this estate's own tool, same licence) writes: `v:2`, `kdf:"pbkdf2"`,
+  `kdfparams:{iter}`, `salt`, `iv`, `ct` in a `<script id="payload">` block. A file locked here opens
+  in LockHTML's viewer and the reverse — checked against *their* template, not mine, in the suite.
+  Optional one-time view, enforced by `localStorage` and therefore one-time on that browser, not on
+  the planet. The plaintext never leaves the tab.
+- **The page grid is now usable without a mouse.** It is a `listbox` of `option` tiles with one
+  roving tabindex, arrow keys move between pages, space selects, and every tile carries a "Page N"
+  label for a screen reader.
+
+### Removed, with the evidence in `ENHANCEMENTS.md`
+- **A Repair button.** qpdf looks like it should rebuild a damaged PDF; in this build it refuses the
+  two cases the button would exist for — `xref not found` when `startxref` points at the wrong
+  offset, `can't find startxref` when the tail is truncated, and `--ignore-xref-streams` does not
+  help. It was written, tested, and taken out rather than shipped greyed out with an apology.
+
+### Added to the pipeline
+- **A shell size budget in CI.** `app.html` fails the build above 150 KB, so the 118 KB win from
+  1.9.0 cannot be quietly lost by inlining a library again.
+
+### Verified
+- 11 new browser checks: the locked file is produced and its payload matches LockHTML's shape, the
+  plaintext is not in it, a wrong PIN is refused, the right one opens it, **LockHTML's own viewer
+  opens it too**, and the grid exposes listbox/option/roving-tabindex/arrow-keys/space correctly.
+- All eight suites green (15 + 16 + 9 + 12 + 6 + 7 + 6 + 5 checks) and the landing page on both
+  deployments.
+
 ## [1.9.1] — 2026-11-02
 
 ### Added

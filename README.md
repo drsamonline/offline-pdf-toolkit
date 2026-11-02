@@ -50,6 +50,7 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
 | **Compress, three ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *lossless* runs qpdf over the result; *every page* rasterises, with an optional greyscale pass. |
 | **Batch** | *One file per source* — the same tools on every loaded document, one output each. |
+| **Share locked** | Wrap the finished PDF in a single HTML file that asks for a PIN — AES-256-GCM, the same container [LockHTML](https://github.com/drsamonline/lockhtml) writes, so either viewer opens either file. |
 | **A whole folder** | Pick a folder, and every PDF in it is processed and written to an `out` folder beside it. Chrome, Edge and Android Chrome only — the button says so when the browser cannot. |
 | **Insert blank pages** | Drop an empty page after the selection, sized like the page before it. |
 | **Interface languages** | English, हिन्दी and ગુજરાતી for the interface, switched in the header and remembered. |
@@ -169,6 +170,20 @@ were written against the pdf-lib and pdf.js APIs already in the file.
 - **A Content-Security-Policy** in the built page: `connect-src 'self' blob: data:` — no other
   origin is named anywhere, so the browser itself refuses any other destination. The promise is
   structural rather than a paragraph.
+
+## Handing a document to someone else
+
+A PDF with a password needs a viewer that asks for one, and most phones will just refuse to open it.
+*Share locked* writes something simpler: one `.html` file that opens in any browser, asks for a PIN,
+and then shows the PDF. AES-256-GCM with a PBKDF2-SHA256 key (250,000 rounds), a random 16-byte salt
+and a 12-byte IV per file, and the plaintext never leaves the tab.
+
+The container is the one [LockHTML](https://github.com/drsamonline/lockhtml) defines — same payload
+shape, same key derivation — so a file locked here opens in that viewer and the reverse. Only the PIN
+path is implemented here; LockHTML's shares, recipients and decoys are not.
+
+Two honest limits: a one-time view is enforced by `localStorage`, so it is one-time *on that
+browser*, not on the planet; and a six-character PIN is the floor, not a recommendation.
 
 ## Languages
 
