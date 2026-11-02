@@ -83,6 +83,29 @@ category dot beside each sidebar section all read from it.
 | **Keyboard** | `Alt-←` / `Alt-→` moves the selected pages; the grid is a labelled listbox for screen readers. |
 | **Shortcuts** | `a` select all · `d` deselect · `[` `]` rotate · `Delete` remove · `t` theme · `Ctrl-K` commands · `Ctrl-Z` undo · `Alt-←/→` move pages · `?` help |
 
+## Command line
+
+The same two engines, without the browser. `pdfkit` loads pdf.js and pdf-lib from `vendor/` — the
+exact bytes the page inlines — so a file merged in a shell and a file merged in the app are written
+by the same writer.
+
+```sh
+node cli/pdfkit.mjs info  report.pdf
+node cli/pdfkit.mjs merge a.pdf b.pdf -o merged.pdf
+node cli/pdfkit.mjs split merged.pdf --every 10 -o chunk
+node cli/pdfkit.mjs watermark merged.pdf --text CONFIDENTIAL --opacity .12 -o marked.pdf
+cat report.pdf | pdfkit info - --json | jq .pages
+```
+
+Twelve commands — `info text merge split rotate delete order watermark number meta labels impose` —
+plus `-` for stdin, `-o -` for stdout, `--json`, `--quiet` and `--locale`. Node 18+, no dependencies,
+no network. Rasterising (PNG export, compress-by-rendering, redaction rebuild, OCR) stays in the app,
+because those need a canvas.
+
+**[cli/README.md](cli/README.md)** — the commands, the pipes, and why CLDR is used through `Intl`
+instead of being vendored. Also the one thing worth knowing if you want to launch it from the
+[drsamonline/CLDR](https://github.com/drsamonline/CLDR) tray launcher.
+
 ## Not included, deliberately
 
 - **PDF/A conversion** and **Ghostscript-class compression.** These need AGPL-licensed components
@@ -129,6 +152,8 @@ pipeline/app_extras.js       the 1.3–1.6 tools (trim, impose, redaction, split
 pipeline/app_i18n.js         the हिन्दी and ગુજરાતી interface tables
 pipeline/app_extras_ui.html  the panels for them
 pipeline/app_launcher.js      the tool catalogue, the launcher and the all-tools sheet
+cli/pdfkit.mjs                the command line over the same two engines
+cli/test/run.py               the CLI suite: 37 checks, every file read back with PyMuPDF
 pipeline/kit_extras.html     export / restore / undo / keyboard, kept in the source
 pipeline/build_pdf.py        inlines the libraries + minifies → app.html
 pipeline/build_landing.py    emits index.html + docs/index.html from landing.html

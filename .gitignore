@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+dist/
+pdfkit-cli-*.tar.gz
+pdfkit-cli-*.sha256

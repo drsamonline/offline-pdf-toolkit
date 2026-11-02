@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.16.0] — 2026-11-02
+
+`pdfkit` — the toolkit in a terminal. The same two engines the page uses, with a shell in front of
+them, so a batch job no longer needs a browser.
+
+### Added
+- **`cli/pdfkit.mjs`** — twelve commands: `info`, `text`, `merge`, `split`, `rotate`, `delete`,
+  `order`, `watermark`, `number`, `meta`, `labels`, `impose`. It loads **pdf.js and pdf-lib from
+  `vendor/`**, the exact bytes the page inlines, so the two shells cannot disagree about what a
+  rotation is. No new dependencies, no network.
+- **`-` and `-o -`** for stdin and stdout, `--json` for machines (prose moves to stderr so the pipe
+  stays parseable), `--quiet`, and honest exit codes: `0` done, `1` failed, `2` usage.
+- **`--locale`** — the `{date}` token and the numbers in `info` come from `Intl`, which *is* CLDR,
+  compiled into the runtime. Nothing is vendored for locale data; `cli/README.md` says why, and
+  what would change that.
+- **`cli/test/run.py`** — 37 checks that read every written file back with PyMuPDF instead of
+  trusting the CLI's own report: page counts, rotation values, text present and absent, the
+  `/PageLabels` tree, sheet sizes, JSON purity, exit codes.
+- **A `cli` CI job** — runs the suite, packages `pdfkit-cli-<version>.tar.gz` (cli + vendor +
+  licence), uploads it as an artifact, and attaches it to the rolling `app-latest` release on main.
+
+### Not included, deliberately
+- **Rasterising** — pages to PNG, compress-by-rendering, redaction rebuild, OCR. All four need a
+  canvas or a WASM engine that Node does not have without a native module. The help text and the
+  README say so plainly rather than failing halfway through a job.
+
+### Checked, and not adopted
+- **CLDR (the tray launcher, `drsamonline/CLDR`)** was evaluated as a front door. It works — `alias.pdf
+  = /run x-terminal-emulator -e pdfkit` — but its `/run` spawns detached with stdout discarded, so it
+  can start a job and cannot show the answer. The recipe and that limitation are written down in
+  `cli/README.md` rather than left to be discovered.
+
+### Verified
+- `python3 cli/test/run.py` — 37/37. `python3 tools/test/run_all.py` — all twelve app suites green.
+
 ## [1.15.0] — 2026-11-02
 
 The front door. Nothing new to do with a PDF — everything about the first ten seconds, which were
