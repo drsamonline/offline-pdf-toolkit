@@ -193,6 +193,10 @@ footer a:hover{color:var(--stamp)}
 .fine{border-top:1px solid var(--rule);padding-top:18px;font-size:12.5px;color:var(--ink3);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
 code{font:13.5px/1.4 var(--mono);background:var(--paper2);border:1px solid var(--rule);padding:1px 6px;border-radius:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+  .newlist{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:12px}
+  .newlist li{position:relative;padding-left:22px;line-height:1.55}
+  .newlist li:before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;border-radius:2px;background:var(--stamp,#b3402a)}
+  .newlist b{font-weight:650}
 </style>
 </head>
 <body>
@@ -361,6 +365,13 @@ code{font:13.5px/1.4 var(--mono);background:var(--paper2);border:1px solid var(-
     </a>
   </div>
   <p class="small" style="margin-top:16px">Every build comes from the same commit as the page you are reading, so the demo and the download can never disagree. Licence: free for personal study, teaching and non-commercial practice.</p>
+</div></section>
+
+<section class="rule" id="new"><div class="wrap">
+  <p class="eyebrow">What's new</p>
+  <h2 id="newtitle">The latest changes.</h2>
+  <ul id="newlist" class="newlist"></ul>
+  <p class="small"><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/CHANGELOG.md">The whole changelog</a> — every version, including the things that were removed and why.</p>
 </div></section>
 
 <section class="rule" id="credits"><div class="wrap">

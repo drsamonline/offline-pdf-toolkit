@@ -1397,6 +1397,20 @@ async function compareDocs(){
   announce(head);
 }
 
+
+/* Once a document is open the writer is certainly next, so fetch it in the
+   background instead of at the moment Save is pressed. */
+function prefetchWriter(){
+  if(window.__prefetchedWriter || window.PDFLib) return;
+  window.__prefetchedWriter = true;
+  try{
+    const l = document.createElement('link');
+    l.rel = 'prefetch'; l.as = 'script';
+    l.href = (ENGINE_BASE || 'lib/') + 'pdf-lib.min.js';
+    document.head.appendChild(l);
+  }catch(e){}
+}
+
 /* ---------- the tool settings survive a reload ---------- */
 function settingsSnapshot(){
   const out = {};
@@ -1494,6 +1508,8 @@ function initExtras14(){
   const lk = $('#dolock'); if(lk) lk.onclick = shareLocked;
   const cp = $('#docompare'); if(cp) cp.onclick = compareDocs;
   // the grid is rebuilt on every render, so the labels and roving tabindex follow it
+  const _render0 = window.render;
+  window.render = function(){ const r = _render0.apply(this, arguments); if(pages.length) prefetchWriter(); return r; };
   const _render = window.render;
   window.render = function(){ const r = _render.apply(this, arguments); try{ gridA11y(); }catch(e){} return r; };
   try{ gridA11y(); }catch(e){}
