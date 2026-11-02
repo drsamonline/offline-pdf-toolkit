@@ -88,3 +88,27 @@ jobs:
           sha256sum offline-pdf-toolkit* > SHA256SUMS
           cat SHA256SUMS
           gh release upload app-latest SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
+
+  # The suites drive the real page in a real browser over the DevTools protocol, so
+  # they check what a user gets. They live in tools/test/ and run here on every push
+  # and PR — a test that only runs on one machine is a memory, not a check.
+  browser-tests:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+      - name: Install the driver
+        run: pip install websocket-client
+      - name: The LockHTML viewer, for the interop check
+        run: git clone --depth 1 https://github.com/drsamonline/lockhtml.git "$RUNNER_TEMP/lockhtml"
+      - name: Run every suite
+        env:
+          CHROME: ${{ steps.chrome.outputs.chrome-path }}
+          LOCKHTML: ${{ runner.temp }}/lockhtml
+        run: python tools/test/run_all.py

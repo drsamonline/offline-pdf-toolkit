@@ -199,3 +199,18 @@ def build_uncompressed_sample(path):
                              "with enough repetition to make a stream worth deflating." % y, fontsize=9)
     doc.save(path, deflate=False, garbage=0, clean=False)
     print("wrote", path, os.path.getsize(path), "bytes")
+
+def build_outline_sample(path):
+    """Four pages with a bookmark for each — the shape 'split by bookmark' needs."""
+    import pymupdf
+    doc = pymupdf.open()
+    titles = ["Cover", "Findings", "Plan", "Appendix"]
+    for i, t in enumerate(titles):
+        page = doc.new_page(width=595, height=842)
+        page.insert_text((56, 90), t, fontsize=22)
+        page.insert_text((56, 120), "Section %d of the sample document." % (i + 1), fontsize=10)
+        page.insert_text((56, 760), "SAMPLE DOCUMENT  ·  NOT REAL PATIENT DATA", fontsize=7.5,
+                         color=(0.45, 0.42, 0.38))
+    doc.set_toc([[1, titles[i], i + 1] for i in range(len(titles))])
+    doc.save(path)
+    print("wrote", path, os.path.getsize(path), "bytes")
