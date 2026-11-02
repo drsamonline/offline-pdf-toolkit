@@ -76,6 +76,48 @@ jobs:
           fi
           echo "within budget"
 
+  # The CLI is the same two engines with a terminal in front of them: no webview,
+  # no signing, no kit — so it is tested and packaged here. The tarball carries
+  # cli/ and vendor/ together, because the CLI is useless without the engines it
+  # loads, and shipping them apart is how the two versions drift.
+  cli:
+    name: CLI (pdfkit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the independent checker
+        run: pip install pymupdf
+      - name: Run the CLI suite
+        run: python3 cli/test/run.py
+      - name: Package
+        run: |
+          ver=$(cat VERSION)
+          mkdir -p dist/pdfkit-$ver
+          cp -r cli vendor VERSION LICENSE README.md dist/pdfkit-$ver/
+          tar -C dist -czf pdfkit-cli-$ver.tar.gz pdfkit-$ver
+          sha256sum pdfkit-cli-$ver.tar.gz > pdfkit-cli-$ver.tar.gz.sha256
+          ls -l pdfkit-cli-$ver.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pdfkit-cli
+          path: |
+            pdfkit-cli-*.tar.gz
+            pdfkit-cli-*.tar.gz.sha256
+      - name: Attach to the rolling release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload app-latest pdfkit-cli-*.tar.gz pdfkit-cli-*.tar.gz.sha256 \
+            --repo "$GITHUB_REPOSITORY" --clobber \
+            || echo "::notice::no app-latest release yet — the artifact is still attached to this run"
+
   # Every release should say what is in it, byte for byte. The three artefacts are
   # published by the kit's `app` job; this one reads them back, hashes them, and
   # attaches SHA256SUMS so a download can be checked without trusting the network.
