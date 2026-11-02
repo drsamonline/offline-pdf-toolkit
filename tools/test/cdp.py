@@ -36,16 +36,26 @@ class Server:
 class Browser:
     def __init__(self, width, height):
         self.profile = tempfile.mkdtemp(prefix="cdp-")
-        self.proc = subprocess.Popen(
-            [CHROME, "--headless=new", "--no-sandbox", "--disable-gpu", "--hide-scrollbars",
-             "--disable-dev-shm-usage", "--remote-debugging-port=0", "--remote-allow-origins=*",
-             "--user-data-dir=" + self.profile, "about:blank"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.args = [CHROME, "--headless=new", "--no-sandbox", "--disable-gpu", "--hide-scrollbars",
+                     "--disable-dev-shm-usage", "--remote-debugging-port=0", "--remote-allow-origins=*",
+                     "--user-data-dir=" + self.profile, "about:blank"]
+        self.proc = subprocess.Popen(self.args,
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # A cold CI runner can take several seconds to start Chrome, and the first
+        # version gave up after 10 — which is how the browser-tests job failed the
+        # first time it ran anywhere but this machine. Wait properly, and say what
+        # happened if the process dies instead of dying on a bare FileNotFoundError.
         portfile = os.path.join(self.profile, "DevToolsActivePort")
-        for _ in range(200):
-            if os.path.exists(portfile):
+        deadline = time.time() + 45
+        while time.time() < deadline:
+            if os.path.exists(portfile) and os.path.getsize(portfile) > 4:
                 break
-            time.sleep(0.05)
+            if self.proc.poll() is not None:
+                raise RuntimeError("Chrome exited before it opened a debugging port (code %s). "
+                                   "Command: %s" % (self.proc.returncode, " ".join(self.args[:3])))
+            time.sleep(0.1)
+        if not os.path.exists(portfile):
+            raise RuntimeError("Chrome did not open a debugging port within 45 s")
         port = int(open(portfile).read().split("\n")[0])
         for _ in range(200):
             try:
