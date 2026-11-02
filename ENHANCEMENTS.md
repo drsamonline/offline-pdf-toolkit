@@ -25,14 +25,12 @@ proves it.
 | 1.11.0 | Open a protected PDF and keep its protection, redaction by shape, SHA256SUMS per release |
 | 1.12.0 | The suites live in the repo and run in CI, split by bookmark, compare, remembered signature |
 | 1.13.0 | What's-new band on the landing page, skip link and focus ring, the writer prefetched |
+| 1.14.0 | Logical page labels (i, ii then 1, 2), labelled-ID redaction, About panel in the app |
 
 ## Open, and cheap
 
-- **Logical page labels** (i, ii, iii then 1, 2, 3) — a catalog dict through pdf-lib. Small, but it
-  touches the page pipeline, so it wants the suites to be green first.
-- **More redaction shapes** — MRV/OPD number formats, addresses, insurance policy numbers. Each is a
-  regex and a checkbox; the caveat stays the same.
-- **A "what's new" panel inside the app**, reading the same changelog the landing page does.
+Nothing. The three that were here — page labels, labelled-ID redaction and the in-app what's-new
+panel — shipped in 1.14.0.
 
 ## Open, and not cheap
 

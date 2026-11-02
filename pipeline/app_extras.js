@@ -137,6 +137,7 @@ const REDACT_PATTERNS = {
   aadhaar: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
   date:    /\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b/g,
   ifsc:    /\b[A-Z]{4}0[A-Z0-9]{6}\b/g,
+  labelled:/(?:MRN|UHID|OPD|IPD|MR|Policy|Policy\s?No)[\s.:#-]*[A-Z0-9][A-Z0-9\/-]{3,19}/gi,
   phone:   /(?:\+?91[\s-]?)?\b[6-9]\d{9}\b/g,
   email:   /[\w.+-]+@[\w-]+\.[\w.-]+/g,
   pan:     /\b[A-Z]{5}\d{4}[A-Z]\b/g
@@ -295,7 +296,7 @@ function extrasOpts(){
   const bates=$('#s-bates').open?{prefix:$('#btp').value,start:+$('#bts').value||0,
     digits:Math.max(1,+$('#btd').value||6),pos:$('#btpos').value}:null;
   const words=$('#rdt').value.split(',').map(s=>s.trim()).filter(Boolean);
-  const pats=['rdaadhaar','rdphone','rdemail','rdpan','rddate','rdifsc'].filter(id=>$('#'+id)&&$('#'.concat(id))&&$('#'+id).checked)
+  const pats=['rdaadhaar','rdphone','rdemail','rdpan','rddate','rdifsc','rdlabelled'].filter(id=>$('#'+id)&&$('#'.concat(id))&&$('#'+id).checked)
     .map(id=>id.slice(2));
   const redact=((words.length||pats.length)&&$('#s-redact').open)
     ?{words,patterns:pats,raster:$('#rdraster').checked}:null;
@@ -1411,6 +1412,55 @@ function prefetchWriter(){
   }catch(e){}
 }
 
+/* ---------- page labels: what the reader sees, not what the file counts ----------
+   A PDF number tree under /PageLabels in the catalog. The style letters are the
+   ones the format defines: D decimal, R/r roman, A/a letters, with St for the
+   starting number. Nothing about the pages themselves changes. */
+async function applyPageLabels(doc, mode, front){
+  if(!doc || mode === 'none') return false;
+  const {PDFName, PDFNumber} = PDFLib;
+  const ctx = doc.context;
+  const total = doc.getPageCount();
+  const n = Math.max(0, Math.min(front, total));
+  const nums = ctx.obj([]);
+  const put = (start, style, st) => {
+    nums.push(PDFNumber.of(start));
+    const d = {S: PDFName.of(style)};
+    if(st != null) d.St = PDFNumber.of(st);
+    nums.push(ctx.obj(d));
+  };
+  if(mode === 'decimal'){
+    put(0, 'D', 1);
+  } else if(n === 0){
+    put(0, 'D', 1);
+  } else {
+    put(0, mode === 'roman' ? 'r' : 'a', 1);
+    if(n < total) put(n, 'D', 1);
+  }
+  doc.catalog.set(PDFName.of('PageLabels'), ctx.obj({Nums: nums}));
+  return true;
+}
+
+
+/* ---------- what's new, from the changelog the build inlined ---------- */
+function showAbout(){
+  const box = $('#whatsnew'), ver = $('#aboutver');
+  if(!box) return;
+  if(ver) ver.textContent = (document.querySelector('meta[name=app-version]') || {}).content || '—';
+  let items = [];
+  try{
+    const el = document.getElementById('changelog-data');
+    if(el) items = JSON.parse(el.textContent) || [];
+  }catch(e){}
+  box.innerHTML = '';
+  for(const t of items){
+    const li = document.createElement('li');
+    li.innerHTML = t;
+    box.appendChild(li);
+  }
+  if(!items.length) box.innerHTML = '<li>The changelog ships with the repository.</li>';
+}
+
 /* ---------- the tool settings survive a reload ---------- */
 function settingsSnapshot(){
   const out = {};
@@ -1507,6 +1557,7 @@ function initExtras14(){
   const fol = $('#dofolder'); if(fol) fol.onclick = processFolder;
   const lk = $('#dolock'); if(lk) lk.onclick = shareLocked;
   const cp = $('#docompare'); if(cp) cp.onclick = compareDocs;
+  try{ showAbout(); }catch(e){}
   // the grid is rebuilt on every render, so the labels and roving tabindex follow it
   const _render0 = window.render;
   window.render = function(){ const r = _render0.apply(this, arguments); if(pages.length) prefetchWriter(); return r; };
