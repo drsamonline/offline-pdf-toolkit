@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.13.0] — 2026-11-02
+
+A polish release: nothing new to learn, three things that were slightly wrong.
+
+### Added
+- **A "what's new" band on the landing page**, filled at build time from the top section of
+  `CHANGELOG.md`. The page cannot claim a version the changelog does not have, and shipping a release
+  updates it for free.
+- **A skip link** and a visible **`:focus-visible` ring** — the two cheapest accessibility wins the
+  app was missing. The ring is on the accent colour, so it is visible against both the dark panels
+  and the paper-white page canvas.
+
+### Changed
+- **The writer is prefetched** as soon as a document is open. pdf-lib used to arrive at the moment
+  Save was pressed, which is the worst moment to wait; now it is already there.
+- **`ENHANCEMENTS.md` rewritten** to say what is true: a shipped table from 1.2.0 to 1.13.0, the
+  open items split into cheap and not cheap, the refusals with their evidence, and the ziptastic
+  analysis in one place.
+
+### Verified
+- All ten suites green (15 + 11 + 16 + 9 + 12 + 6 + 7 + 6 + 5 + 6 checks), the landing page on both
+  deployments, and the kit's parity check.
+
 ## [1.12.0] — 2026-11-02
 
 ### Added

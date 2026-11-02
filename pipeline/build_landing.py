@@ -25,6 +25,60 @@ REPO = os.path.dirname(HERE)
 SRC = os.path.join(HERE, "landing.html")
 
 
+
+def whats_new(limit=4):
+    """The top section of CHANGELOG.md, as a list of points for the landing page.
+
+    Reading it at build time is the point: the page cannot claim a version the
+    changelog does not have, and shipping a release updates the page for free.
+    """
+    path = os.path.join(REPO, "CHANGELOG.md")
+    try:
+        text = open(path, encoding="utf-8").read()
+    except OSError:
+        return None, []
+    m = re.search(r"^## \[([^\]]+)\][^\n]*$", text, re.M)
+    if not m:
+        return None, []
+    version = m.group(1)
+    body = text[m.end():]
+    nxt = re.search(r"^## \[", body, re.M)
+    if nxt:
+        body = body[:nxt.start()]
+    items, buf = [], None
+    for line in body.splitlines():
+        if line.startswith("- "):
+            if buf:
+                items.append(buf)
+            buf = line[2:].strip()
+        elif buf and line.startswith("  ") and line.strip():
+            buf += " " + line.strip()
+        elif not line.strip() and buf:
+            items.append(buf)
+            buf = None
+    if buf:
+        items.append(buf)
+
+    def fmt(t):
+        t = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
+        t = re.sub(r"`(.+?)`", r"<code>\1</code>", t)
+        t = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', t)
+        return t
+    return version, [fmt(i) for i in items[:limit]]
+
+
+def inject_whats_new(html):
+    version, items = whats_new()
+    if not items:
+        return html
+    lis = "".join("  <li>%s</li>\n" % i for i in items)
+    html = html.replace(
+        '<h2 id="newtitle">The latest changes.</h2>',
+        '<h2 id="newtitle">Version %s — the latest changes.</h2>' % version, 1)
+    html = html.replace('<ul id="newlist" class="newlist"></ul>',
+                        '<ul id="newlist" class="newlist">\n%s</ul>' % lis, 1)
+    return html
+
 try:                                   # one implementation, in build_pdf.py
     from build_pdf import minify_css, minify_js, minify_html
 except Exception:                      # running from somewhere odd: keep a local copy
@@ -71,7 +125,7 @@ def stamp():
 
 def build(quiet=False):
     src = open(SRC, encoding="utf-8").read()
-    land = src.replace("__BUILD__", stamp())
+    land = inject_whats_new(src).replace("__BUILD__", stamp())
 
     style = re.search(r"<style>(.*?)</style>", land, re.S)
     script = re.search(r"<script>\n\(function\(\)\{(.*?)</script>", land, re.S)

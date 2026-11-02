@@ -140,9 +140,14 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
 }
 @media (max-width:430px){ .brand h1{font-size:13.5px} .hbtn{padding:8px 10px;font-size:12.5px} .grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))} }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .skip{position:absolute;left:-9999px;top:8px;z-index:99;background:var(--panel);color:var(--ink);
+    padding:10px 14px;border:1px solid var(--line2);border-radius:8px;font-size:13px}
+  .skip:focus{left:8px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
+<a href="#grid" class="skip">Skip to the pages</a>
 <div id="bar2"></div>
 <div id="shell">
   <header>
