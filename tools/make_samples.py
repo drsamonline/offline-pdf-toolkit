@@ -144,3 +144,58 @@ if __name__ == "__main__":
         shutil.copyfile(os.path.join(root, "docs/assets", n), os.path.join(root, "assets", n))
     print("wrote sample-discharge-summary.pdf", a, "bytes")
     print("wrote sample-lab-report.pdf", b, "bytes")
+
+def build_photo_sample(path):
+    """A page whose bytes are almost all one JPEG.
+
+    It exists to make a point measurable rather than arguable: on a file like
+    this, a lossless pass has nothing to win, because the image is already
+    compressed. The picture is a synthetic colour grid — a test pattern, not a
+    photograph — so no real person or place is implied.
+    """
+    import io, random
+    import pymupdf
+    from PIL import Image, ImageDraw
+    im = Image.new("RGB", (1400, 1000))
+    d = ImageDraw.Draw(im)
+    random.seed(3)
+    for y in range(0, 1000, 32):
+        for x in range(0, 1400, 32):
+            d.rectangle([x, y, x + 32, y + 32],
+                        fill=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+    for _ in range(4000):                      # speckle, so the JPEG has real detail to carry
+        d.point((random.randint(0, 1399), random.randint(0, 999)))
+    import tempfile
+    fd, jpg = tempfile.mkstemp(suffix=".jpg")
+    os.close(fd)
+    im.save(jpg, "JPEG", quality=95)
+    doc = pymupdf.open()
+    page = doc.new_page(width=595, height=842)
+    page.insert_text((56, 62), "Photograph page", fontsize=17, color=(0.08, 0.07, 0.05))
+    page.insert_text((56, 82), "One image, one caption — the case where a lossless pass cannot help.",
+                     fontsize=8.5, color=(0.35, 0.32, 0.28))
+    page.insert_image(pymupdf.Rect(56, 100, 539, 700), filename=jpg)
+    os.remove(jpg)
+    page.insert_text((56, 725), "SAMPLE DOCUMENT  ·  NOT REAL PATIENT DATA", fontsize=7.5,
+                     color=(0.45, 0.42, 0.38))
+    doc.save(path)
+    print("wrote", path, os.path.getsize(path), "bytes")
+
+def build_uncompressed_sample(path):
+    """A page written with the streams left uncompressed.
+
+    This is the other half of the compression story: a file whose producer did
+    not deflate properly. It is the case where the lossless pass pays, and the
+    shipped demo PDFs are all written deflated, so without this there would be
+    nothing to measure against.
+    """
+    import pymupdf
+    doc = pymupdf.open()
+    for i in range(3):
+        page = doc.new_page(width=595, height=842)
+        page.insert_text((60, 100), "Uncompressed report page %d" % (i + 1), fontsize=18)
+        for y in range(140, 760, 16):
+            page.insert_text((60, y), "Line %d of body text that has to survive compression intact, "
+                             "with enough repetition to make a stream worth deflating." % y, fontsize=9)
+    doc.save(path, deflate=False, garbage=0, clean=False)
+    print("wrote", path, os.path.getsize(path), "bytes")
