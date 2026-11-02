@@ -186,12 +186,12 @@ PIN-locked HTML page anyone can open in a browser; unlocking a password you alre
 </div></section>
 <section class="rule" id="new"><div class="wrap">
 <p class="eyebrow">What's new</p>
-<h2 id="newtitle">Version 1.15.0 — the latest changes.</h2>
+<h2 id="newtitle">Version 1.16.0 — the latest changes.</h2>
 <ul id="newlist" class="newlist">
-<li><b>A launcher in place of the empty state.</b> A hero card you can drop a file on, the four tools a report actually needs in one tap (Merge, Compress, Redaction, Extract text), a "more tools" row, and the session list. The workspace below it is untouched — the moment a document opens, the launcher steps aside and the app is exactly what it was.</li>
-<li><b>One catalogue, in data.</b> <code>pipeline/app_launcher.js</code> holds every tool as a record — category, icon, one-line blurb, and the sidebar panel it opens. The launcher, the all-tools sheet and the category dot beside each sidebar section all read from it. A tool's *name* is read from its own panel summary, so the sheet cannot drift from the sidebar, and it follows the interface language for free.</li>
-<li><b>An all-tools sheet</b> — 27 tools grouped Edit / Optimize / Secure / Convert / Trust, with search, reachable from the launcher or the row under it.</li>
-<li><b>A cold start that does not dead-end.</b> Choosing a tool with no document loaded asks for the file and then opens that tool by itself, instead of opening a panel whose controls cannot do anything.</li>
+<li><b><code>cli/pdfkit.mjs</code></b> — twelve commands: <code>info</code>, <code>text</code>, <code>merge</code>, <code>split</code>, <code>rotate</code>, <code>delete</code>, <code>order</code>, <code>watermark</code>, <code>number</code>, <code>meta</code>, <code>labels</code>, <code>impose</code>. It loads <b>pdf.js and pdf-lib from <code>vendor/</code></b>, the exact bytes the page inlines, so the two shells cannot disagree about what a rotation is. No new dependencies, no network.</li>
+<li><b><code>-</code> and <code>-o -</code></b> for stdin and stdout, <code>--json</code> for machines (prose moves to stderr so the pipe stays parseable), <code>--quiet</code>, and honest exit codes: <code>0</code> done, <code>1</code> failed, <code>2</code> usage.</li>
+<li><b><code>--locale</code></b> — the <code>{date}</code> token and the numbers in <code>info</code> come from <code>Intl</code>, which *is* CLDR, compiled into the runtime. Nothing is vendored for locale data; <code>cli/README.md</code> says why, and what would change that.</li>
+<li><b><code>cli/test/run.py</code></b> — 37 checks that read every written file back with PyMuPDF instead of trusting the CLI's own report: page counts, rotation values, text present and absent, the <code>/PageLabels</code> tree, sheet sizes, JSON purity, exit codes.</li>
 </ul>
 <p class="small"><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/CHANGELOG.md">The whole changelog</a> — every version, including the things that were removed and why.</p>
 </div></section>
@@ -234,7 +234,7 @@ PIN-locked HTML page anyone can open in a browser; unlocking a password you alre
 <div><h5>Project</h5><ul><li><a href="https://github.com/drsamonline/offline-pdf-toolkit">Source</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/LICENSE">Licence</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/THIRD-PARTY-NOTICES.md">Third-party notices</a></li></ul></div>
 <div><h5>Author</h5><ul><li>Dr Sohil Momin</li><li><a href="https://github.com/drsamonline">github.com/drsamonline</a></li></ul></div>
 </div>
-<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.15.0 · built 2026-11-02 · 760cff9</span></p>
+<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.16.0 · built 2026-11-02 · abe37dc</span></p>
 </div></footer>
 <script>
 (function(){var root=document.documentElement, btn=document.getElementById('theme');
