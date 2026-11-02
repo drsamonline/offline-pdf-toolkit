@@ -104,7 +104,7 @@ jobs:
       - uses: browser-actions/setup-chrome@v1
         id: chrome
       - name: Install the driver
-        run: pip install websocket-client pymupdf
+        run: pip install websocket-client pymupdf pillow
       - name: The LockHTML viewer, for the interop check
         run: git clone --depth 1 https://github.com/drsamonline/lockhtml.git "$RUNNER_TEMP/lockhtml"
       - name: Run every suite
