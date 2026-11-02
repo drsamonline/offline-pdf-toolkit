@@ -53,10 +53,16 @@
 
 <details class="sec" id="s-redact"><summary>Redaction</summary><div class="in">
   <div class="fld"><label for="rdt">Words</label><input type="text" id="rdt" placeholder="surname, account no"></div>
+  <div class="fld"><label>Also match</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
+    <label><input type="checkbox" id="rdaadhaar"> 12-digit numbers</label>
+    <label><input type="checkbox" id="rdphone"> phone numbers</label>
+    <label><input type="checkbox" id="rdemail"> emails</label>
+    <label><input type="checkbox" id="rdpan"> PAN</label></span></div>
   <div class="fld"><label>Mode</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
     <label><input type="checkbox" id="rdraster" checked> rebuild pages as images</label></span></div>
-  <p class="hint">Every match is covered on save. With <b>rebuild</b> on, the page is rasterised
-  afterwards, so the text underneath is really gone — without it, a box is only a box.</p>
+  <p class="hint"><b>Patterns are a helper, not a guarantee</b> — they catch those shapes in text this
+  app can read, and see nothing inside a picture. Check the result. With <b>rebuild</b> on, the page
+  is rasterised afterwards, so the text underneath is really gone; without it, a box is only a box.</p>
 </div></details>
 
 <details class="sec" id="s-doc"><summary>Document &amp; self-test</summary><div class="in">
