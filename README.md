@@ -3,7 +3,7 @@
 <img src="docs/assets/badge-live.svg" alt="live"> <img src="docs/assets/badge-uploads.svg" alt="0 bytes uploaded"> <img src="docs/assets/badge-offline.svg" alt="no network"> <img src="docs/assets/badge-external.svg" alt="0 external requests"> <img src="docs/assets/badge-deps.svg" alt="0 runtime dependencies"> <img src="docs/assets/badge-size.svg" alt="single file"> <img src="docs/assets/badge-licence.svg" alt="licence">
 
 **Merge, split, rotate, watermark, number, protect and compress PDFs — in one small page, with no
-server to send them to.** The page itself is about **36 KB gzipped**; the PDF engines load only when
+server to send them to.** The page itself is about **49 KB gzipped**; the PDF engines load only when
 you open a document, and the OCR and qpdf engines only when you ask for them. No upload, no account,
 no tracking, no install. Unplug the network and it still works.
 
@@ -25,14 +25,21 @@ patient reports, contracts, statements, identity documents. Every "free PDF tool
 your file. This one cannot: the PDF engine is compiled into a single HTML file and there is no
 backend to send anything to. The proof is that it runs with the cable pulled out.
 
-| | |
-|---|---|
-| ![The app with five sample pages loaded](docs/assets/app-desktop.png) | ![The same app on a phone](docs/assets/app-mobile.png) |
+| | | |
+|---|---|---|
+| ![The launcher, with no document open](docs/assets/app-home-desktop.png) | ![The launcher on a phone](docs/assets/app-home-mobile.png) | ![The app with five sample pages loaded](docs/assets/app-desktop.png) |
+
+The empty state is the front door: drop a file on the hero, or take one of the four tools a report
+usually needs. Every tool in the app is in one catalogue — the launcher, the all-tools sheet and the
+category dot beside each sidebar section all read from it.
 
 ## Features
 
 | | |
 |---|---|
+| **Launcher** | The empty state offers a drop target, the last files this tab wrote, and four core tools in one tap. Choose a tool with nothing open and it asks for the file, then opens itself. |
+| **All tools** | 27 tools in one sheet, grouped Edit / Optimize / Secure / Convert / Trust, with search. |
+| **Session list** | Every file the app writes, with the tool that made it and its size — in `sessionStorage`, so it dies with the tab, and the bytes are never kept. |
 | **Merge** | Add several PDFs; they lay out in order. Drag any page to reorder. |
 | **Split / extract** | Select pages (shift-click for a range) and pull them into a new PDF. |
 | **Rotate** | 90° steps, left or right, per page or for a whole selection. |
@@ -106,7 +113,7 @@ downloads identify themselves in a file manager instead of arriving as a grey bo
 ## Files
 
 ```
-app.html                     the application shell (~110 KB; the engines live in lib/)
+app.html                     the application shell (~156 KB; the engines live in lib/)
 index.html                   landing page (root deployment)
 docs/index.html              landing page (Pages deployment)
 docs/play/index.html         the application, as Pages serves it
@@ -121,6 +128,7 @@ pipeline/landing.html        the landing page source (readable)
 pipeline/app_extras.js       the 1.3–1.6 tools (trim, impose, redaction, split, forms, signatures…)
 pipeline/app_i18n.js         the हिन्दी and ગુજરાતી interface tables
 pipeline/app_extras_ui.html  the panels for them
+pipeline/app_launcher.js      the tool catalogue, the launcher and the all-tools sheet
 pipeline/kit_extras.html     export / restore / undo / keyboard, kept in the source
 pipeline/build_pdf.py        inlines the libraries + minifies → app.html
 pipeline/build_landing.py    emits index.html + docs/index.html from landing.html
@@ -128,7 +136,7 @@ vendor/                      the three libraries, with SHA256SUMS checked at bui
 tools/badges.py              draws docs/assets/badge-*.svg — no image service
 tools/shot.py                takes the screenshots with headless Chromium (dev only)
 tools/make_samples.py        generates the sample PDFs the demo and screenshots use
-tools/test/                  the browser suites (93 checks) and run_all.py — run in CI on every push
+tools/test/                  the browser suites (124 checks) and run_all.py — run in CI on every push
 tools/fetch_ocr.py           fetches the OCR engine once and verifies it against SHA256SUMS
 tools/fetch_qpdf.py          the same for qpdf (Apache-2.0), the lossless compressor
 sw.js                        offline cache (identical copy in docs/sw.js)

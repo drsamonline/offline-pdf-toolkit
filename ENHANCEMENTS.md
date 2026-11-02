@@ -4,7 +4,7 @@ What this app could still gain, what it has already gained, and what was refused
 A refusal is a decision, not a gap — the point of writing it down is that nobody re-litigates it from
 memory.
 
-Status: **1.13.0**. The app is a small page (about 40 KB gzipped) plus the engines it loads on demand:
+Status: **1.15.0**. The app is a small page (about 40 KB gzipped) plus the engines it loads on demand:
 pdf.js, pdf-lib, qpdf and OCR. Everything runs in the tab; nothing is uploaded, and the network panel
 proves it.
 
@@ -26,11 +26,24 @@ proves it.
 | 1.12.0 | The suites live in the repo and run in CI, split by bookmark, compare, remembered signature |
 | 1.13.0 | What's-new band on the landing page, skip link and focus ring, the writer prefetched |
 | 1.14.0 | Logical page labels (i, ii then 1, 2), labelled-ID redaction, About panel in the app |
+| 1.15.0 | The front door: launcher in the empty state, one tool catalogue in data, all-tools sheet, session list, category tints |
 
 ## Open, and cheap
 
 Nothing. The three that were here — page labels, labelled-ID redaction and the in-app what's-new
 panel — shipped in 1.14.0.
+
+## Open, and cheap
+
+- **A five-item bottom nav on the phone** (Home · Pages · Tools · Session · More). The launcher made
+  Home unnecessary as a tab for now — it is where the pages grid already is when it is empty — but a
+  real tab bar would let a thumb move between the grid and the panels without the current
+  `Pages │ Tools` strip. It waits because the grid is a labelled listbox with its own focus order,
+  and a new bar is exactly the thing that breaks that quietly.
+- **A success screen instead of a toast.** The session list is the first half; the second is the
+  screen that shows what was written — name, pages, before/after size, Save · Share · Start over —
+  and gives Compress somewhere to say "declined, 0.1 %" rather than returning a same-size file
+  silently.
 
 ## Open, and not cheap
 
