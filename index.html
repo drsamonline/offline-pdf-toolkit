@@ -120,7 +120,7 @@ PIN-locked HTML page anyone can open in a browser; unlocking a password you alre
 </div>
 </div>
 <div class="tool-list" aria-label="Every tool in the app">
-<span>Merge</span><span>Split by ranges</span><span>Split every N</span><span>One file per page</span><span>Extract pages</span><span>Rotate</span><span>Reorder</span><span>Duplicate</span><span>Delete</span><span>Insert blank</span><span>Trim margins</span><span>Resize to A4</span><span>2-up</span><span>4-up</span><span>Booklet</span><span>Watermark</span><span>Page numbers</span><span>Header &amp; footer</span><span>Bates numbering</span><span>Metadata</span><span>Remove metadata</span><span>Flatten forms</span><span>Redaction</span><span>Form fields</span><span>Signature</span><span>Extract images</span><span>Compress (3 ways)</span><span>Greyscale</span><span>Undo / redo</span><span>Images → PDF</span><span>Export PNG</span><span>Password protect</span><span>PIN-locked HTML</span><span>Unlock</span><span>Extract text</span><span>OCR</span>
+<span>Launcher</span><span>All tools</span><span>Session list</span><span>Merge</span><span>Split by ranges</span><span>Split every N</span><span>One file per page</span><span>Extract pages</span><span>Rotate</span><span>Reorder</span><span>Duplicate</span><span>Delete</span><span>Insert blank</span><span>Trim margins</span><span>Resize to A4</span><span>2-up</span><span>4-up</span><span>Booklet</span><span>Watermark</span><span>Page numbers</span><span>Header &amp; footer</span><span>Bates numbering</span><span>Metadata</span><span>Remove metadata</span><span>Flatten forms</span><span>Redaction</span><span>Form fields</span><span>Signature</span><span>Extract images</span><span>Compress (3 ways)</span><span>Greyscale</span><span>Undo / redo</span><span>Images → PDF</span><span>Export PNG</span><span>Password protect</span><span>PIN-locked HTML</span><span>Unlock</span><span>Extract text</span><span>OCR</span>
 </div>
 </div></section>
 <section class="rule"><div class="wrap">
@@ -186,12 +186,12 @@ PIN-locked HTML page anyone can open in a browser; unlocking a password you alre
 </div></section>
 <section class="rule" id="new"><div class="wrap">
 <p class="eyebrow">What's new</p>
-<h2 id="newtitle">Version 1.14.0 — the latest changes.</h2>
+<h2 id="newtitle">Version 1.15.0 — the latest changes.</h2>
 <ul id="newlist" class="newlist">
-<li><b>Page labels</b> — the numbers a reader *sees*, which need not be the numbers the file counts. Set the front matter to i, ii, iii and the body to start at 1, and the app writes the <code>/PageLabels</code> number tree the reader honours. Verified by reading the labels back with an independent library: <code>['i', 'ii', '1', '2']</code>.</li>
-<li><b>Labelled-identifier redaction</b> — one pattern for the shapes that carry their own name: <code>MRN</code>, <code>UHID</code>, <code>OPD</code>, <code>IPD</code>, <code>MR</code>, <code>Policy</code>, followed by a value. It is deliberately anchored on the label rather than guessing at digit counts, and it is checked not to fire on ordinary prose.</li>
-<li><b>An About panel inside the app</b> — the running version and the newest changelog points, inlined by the build from <code>CHANGELOG.md</code>, so the app and its release notes cannot disagree.</li>
-<li><code>build_pdf.py</code> gained <code>changelog_json()</code>, the sibling of the landing page's <code>whats_new()</code>: same reading, one for the page and one for the app.</li>
+<li><b>A launcher in place of the empty state.</b> A hero card you can drop a file on, the four tools a report actually needs in one tap (Merge, Compress, Redaction, Extract text), a "more tools" row, and the session list. The workspace below it is untouched — the moment a document opens, the launcher steps aside and the app is exactly what it was.</li>
+<li><b>One catalogue, in data.</b> <code>pipeline/app_launcher.js</code> holds every tool as a record — category, icon, one-line blurb, and the sidebar panel it opens. The launcher, the all-tools sheet and the category dot beside each sidebar section all read from it. A tool's *name* is read from its own panel summary, so the sheet cannot drift from the sidebar, and it follows the interface language for free.</li>
+<li><b>An all-tools sheet</b> — 27 tools grouped Edit / Optimize / Secure / Convert / Trust, with search, reachable from the launcher or the row under it.</li>
+<li><b>A cold start that does not dead-end.</b> Choosing a tool with no document loaded asks for the file and then opens that tool by itself, instead of opening a panel whose controls cannot do anything.</li>
 </ul>
 <p class="small"><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/CHANGELOG.md">The whole changelog</a> — every version, including the things that were removed and why.</p>
 </div></section>
@@ -234,7 +234,7 @@ PIN-locked HTML page anyone can open in a browser; unlocking a password you alre
 <div><h5>Project</h5><ul><li><a href="https://github.com/drsamonline/offline-pdf-toolkit">Source</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/LICENSE">Licence</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/THIRD-PARTY-NOTICES.md">Third-party notices</a></li></ul></div>
 <div><h5>Author</h5><ul><li>Dr Sohil Momin</li><li><a href="https://github.com/drsamonline">github.com/drsamonline</a></li></ul></div>
 </div>
-<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.14.0 · built 2026-11-02 · 39c3ef8</span></p>
+<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.15.0 · built 2026-11-02 · 50d0cb6</span></p>
 </div></footer>
 <script>
 (function(){var root=document.documentElement, btn=document.getElementById('theme');
