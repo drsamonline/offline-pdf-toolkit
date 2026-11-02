@@ -35,7 +35,7 @@ def main():
         # ---- the About panel carries the changelog ----
         items = br.ev("document.querySelectorAll('#whatsnew li').length")
         note("the About panel lists the newest changes", items >= 3, "%d items" % items)
-        note("it shows the running version", br.ev("document.querySelector('#aboutver').textContent") == "1.16.0",
+        note("it shows the running version", br.ev("document.querySelector('#aboutver').textContent") == "1.16.1",
              br.ev("document.querySelector('#aboutver').textContent"))
 
         # ---- page labels ----

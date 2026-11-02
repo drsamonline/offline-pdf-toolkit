@@ -112,7 +112,7 @@ function parseArgs(argv) {
 
 /* ---------- page selections ----------
    "1-3,5" → [1,2,3,5]; "all" and "" → every page; 1-based in, 0-based out. */
-function pick(spec, total, { sorted = true } = {}) {
+function pick(spec, total, { sorted = true, keepRepeats = false } = {}) {
   if (!spec || spec === 'all') return [...Array(total).keys()];
   const idx = [];
   for (const part of String(spec).split(',')) {
@@ -131,8 +131,8 @@ function pick(spec, total, { sorted = true } = {}) {
       die(`"${s}" is not a page or a range like 1-3`, 2);
     }
   }
-  const uniq = [...new Set(idx)];
-  return sorted ? uniq.sort((a, b) => a - b) : uniq;
+  const out = keepRepeats ? idx : [...new Set(idx)];
+  return sorted ? out.sort((a, b) => a - b) : out;
 }
 
 /* ---------- io ---------- */
@@ -146,15 +146,52 @@ function readIn(p) {
 
 function writeOut(bytes, dest, fallbackName) {
   const target = dest || fallbackName;
-  if (!target || target === '-') { process.stdout.write(Buffer.from(bytes)); return '-'; }
+  if (!target || target === '-') {
+    if (process.stdout.isTTY) die('refusing to write binary to a terminal — use -o <file> or pipe it', 2);
+    process.stdout.write(Buffer.from(bytes));
+    return '-';
+  }
   fs.mkdirSync(path.dirname(path.resolve(target)), { recursive: true });
   fs.writeFileSync(target, Buffer.from(bytes));
   return target;
 }
 
 async function open(bytes) {
-  try { return await lib().PDFDocument.load(bytes, { ignoreEncryption: true }); }
+  let doc;
+  try { doc = await lib().PDFDocument.load(bytes, { ignoreEncryption: true }); }
   catch (e) { die('this file did not open as a PDF — ' + (e.message || e), 1); }
+  // ignoreEncryption reads the structure but not the streams: writing a merged or
+  // split file from it produces garbage that still opens. Refuse instead.
+  if (doc.isEncrypted) {
+    die('this PDF is encrypted, and pdfkit cannot decrypt one — open it in the app '
+      + '(Unlock a PDF) or run `qpdf --decrypt in.pdf out.pdf` first', 1);
+  }
+  return doc;
+}
+
+/* The standard fonts are WinAnsi — CP1252, which is Latin-1 plus twenty-seven
+   typographic marks. Anything outside it is written as "?" without an error from
+   the library, which is silently wrong on a document that matters, so the table is
+   spelled out here and the text is refused instead. */
+const WINANSI_EXTRA = new Set([
+  0x20ac, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021, 0x02c6, 0x2030, 0x0160,
+  0x2039, 0x0152, 0x017d, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
+  0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x017e, 0x0178,
+]);
+
+function winAnsiOk(ch) {
+  const c = ch.codePointAt(0);
+  if (c >= 0x20 && c <= 0x7e) return true;
+  if (c >= 0xa0 && c <= 0xff) return true;
+  return WINANSI_EXTRA.has(c);
+}
+
+function needEncodable(text, where) {
+  const bad = [...String(text)].find((ch) => !winAnsiOk(ch));
+  if (!bad) return;
+  die(`${where} cannot draw "${bad}" — the built-in font is WinAnsi (Latin-1 and a few marks), `
+    + 'so the library would write "?" there without complaining. Use Latin text; the app has the '
+    + 'same limit.', 1);
 }
 
 const save = async (doc) => {
@@ -285,12 +322,13 @@ CMD.split = {
       for (const part of String(f.ranges).split(',')) if (part.trim()) groups.push(pick(part, total));
     } else die('say how to split: --ranges 1-3,5 · --every 10 · --each', 2);
 
+    const exact = groups.length === 1 && /\.pdf$/i.test(f.out || '') ? f.out : null;
     const written = [];
     for (let g = 0; g < groups.length; g++) {
       const doc = await PDFDocument.create();
       const copied = await doc.copyPages(src, groups[g]);
       copied.forEach((pg) => doc.addPage(pg));
-      const name = `${base}-${String(g + 1).padStart(String(groups.length).length, '0')}.pdf`;
+      const name = exact || `${base}-${String(g + 1).padStart(String(groups.length).length, '0')}.pdf`;
       written.push(writeOut(await save(doc), name));
     }
     say(`${fmtNum(written.length)} file${written.length === 1 ? '' : 's'} from ${fmtNum(total)} pages`);
@@ -349,9 +387,10 @@ CMD.order = {
     if (!f.pages) die('say the new order: --pages 3,1,2', 2);
     const { PDFDocument } = lib();
     const src = await open(readIn(input));
-    const seq = pick(f.pages, src.getPageCount(), { sorted: false });
+    const seq = pick(f.pages, src.getPageCount(), { sorted: false, keepRepeats: true });
     const out = await PDFDocument.create();
-    (await out.copyPages(src, seq)).forEach((pg) => out.addPage(pg));
+    // one copy per entry, so a repeated index really duplicates the page
+    for (const i of seq) (await out.copyPages(src, [i])).forEach((pg) => out.addPage(pg));
     const dest = writeOut(await save(out), f.out, 'ordered.pdf');
     say(`${fmtNum(seq.length)} pages in the new order → ${dest}`);
     return result({ out: dest, pages: seq.length });
@@ -377,17 +416,22 @@ CMD.watermark = {
   async run({ _: [input], f }) {
     if (!f.text) die('say what to write: --text "CONFIDENTIAL"', 2);
     const { degrees, StandardFonts } = lib();
+    needEncodable(f.text, '--text');
     const doc = await open(readIn(input));
     const font = await doc.embedFont(StandardFonts.HelveticaBold);
     const size = parseFloat(f.size || 48);
     const opacity = f.opacity == null ? 0.18 : parseFloat(f.opacity);
     const angle = f.angle == null ? 45 : parseFloat(f.angle);
     const colour = hexToRgb(f.colour || f.color, lib().rgb);
-    let drawn = 0;
+    let drawn = 0, warned = false;
     for (const page of doc.getPages()) {
       const { width, height } = page.getSize();
       const text = String(f.text);
       const tw = font.widthOfTextAtSize(text, size);
+      if (!warned && !f.tiled && tw > width * 1.05) {
+        warned = true;
+        warn(`“${text}” is ${Math.round(tw)} pt wide and the page is ${Math.round(width)} pt — part of it will fall off. Try --size ${Math.max(8, Math.floor(size * width / tw))}.`);
+      }
       if (f.tiled) {
         const stepX = Math.max(tw + size * 1.5, width / 2), stepY = Math.max(size * 4, height / 5);
         for (let y = stepY * 0.5; y < height; y += stepY) {
@@ -424,6 +468,7 @@ CMD.number = {
     const start = parseInt(f.start || 1, 10);
     const size = parseFloat(f.size || 10);
     const tpl = f.format || '{n} / {total}';
+    needEncodable(tpl.replace(/\{(n|total|date|file)\}/g, '1'), '--format');
     const file = input && input !== '-' ? path.basename(input) : '';
     const pages = doc.getPages();
     pages.forEach((page, i) => {
@@ -540,6 +585,20 @@ CMD.impose = {
         sheets.push(s);
       }
     }
+    // A page can carry /Rotate. pdf-lib bakes that rotation into the embedded page,
+    // so the drawing must NOT be rotated again — but it must be *sized* by what the
+    // reader sees (a 90° page is landscape), or it overflows its cell. Measured, not
+    // assumed: fitting by the media box put ink outside the sheet on a rotated source.
+    const placeFitted = (page, emb, X, Y, boxW, boxH, w, h, ang) => {
+      const visW = ang % 180 === 90 ? h : w, visH = ang % 180 === 90 ? w : h;
+      const m = Math.min(boxW / visW, boxH / visH);
+      page.drawPage(emb, {
+        x: X + (boxW - visW * m) / 2,
+        y: Y + (boxH - visH * m) / 2,
+        width: visW * m,
+        height: visH * m,
+      });
+    };
     const cols = 2, rows = per === 4 ? 2 : 1;
     const cw = (W - gap * (cols + 1)) / cols, ch = (H - gap * (rows + 1)) / rows;
     for (const sheet of sheets) {
@@ -550,8 +609,8 @@ CMD.impose = {
         const x = gap + col * (cw + gap);
         const y = H - gap - (row + 1) * ch - row * gap;
         const { width: w, height: h } = pages[idx].getSize();
-        const scale = Math.min(cw / w, ch / h);
-        page.drawPage(emb[idx], { x: x + (cw - w * scale) / 2, y: y + (ch - h * scale) / 2, width: w * scale, height: h * scale });
+        const ang = ((pages[idx].getRotation().angle || 0) % 360 + 360) % 360;
+        placeFitted(page, emb[idx], x, y, cw, ch, w, h, ang);
         page.drawRectangle({ x, y, width: cw, height: ch, borderColor: rgb(0.75, 0.75, 0.75), borderWidth: 0.5 });
       });
     }

@@ -175,6 +175,42 @@ def main():
     note("the booklet's first sheet is last-page then first-page",
          pymupdf().open(bk)[0].get_text().strip() != "" )
 
+    # ---- the audit's rules: refusals that would otherwise be silent ----
+    enc = os.path.join(OUT, "enc.pdf")
+    d = pymupdf().open()
+    d.new_page().insert_text((72, 72), "secret")
+    d.save(enc, encryption=pymupdf().PDF_ENCRYPT_AES_256, owner_pw="o", user_pw="u")
+    r = run("info", enc)
+    note("an encrypted file is refused, not half-read",
+         r.returncode == 1 and b"encrypted" in r.stderr, r.stderr.decode()[:60])
+
+    r = run("watermark", A, "--text", "\u0917\u094b\u092a\u0928\u0940\u092f", "-o", os.path.join(OUT, "u.pdf"))
+    note("text the built-in font cannot draw is refused",
+         r.returncode == 1 and b"WinAnsi" in r.stderr, r.stderr.decode()[:60])
+    latin = os.path.join(OUT, "lat.pdf")
+    r = run("watermark", A, "--text", "\u00e9t\u00e9 \u2014 \u201cquoted\u201d", "--size", "12", "-o", latin)
+    note("WinAnsi's own marks still go through", r.returncode == 0, r.stderr.decode()[:60])
+    note("and they land on the page",
+         "\u00e9t\u00e9" in pymupdf().open(latin)[0].get_text())
+
+    dup = os.path.join(OUT, "dup.pdf")
+    ok("order", A, "--pages", "1,1,2", "-o", dup)
+    note("order repeats a page when asked", pymupdf().open(dup).page_count == 3,
+         pymupdf().open(dup).page_count)
+
+    one = os.path.join(OUT, "only.pdf")
+    ok("split", A, "--ranges", "1", "-o", one)
+    note("a single split honours the exact -o name", os.path.exists(one))
+
+    rot_src = os.path.join(OUT, "rot-src.pdf")
+    ok("rotate", A, "--right", "--pages", "1", "-o", rot_src)
+    imp_rot = os.path.join(OUT, "imp-rot.pdf")
+    ok("impose", rot_src, "--nup", "2", "-o", imp_rot)
+    dirs = [line["dir"] for b in pymupdf().open(imp_rot)[0].get_text("dict")["blocks"]
+            if b["type"] == 0 for line in b["lines"]][:6]
+    note("impose honours the source page's own rotation",
+         bool(dirs) and all(abs(d[0] - 1) < 0.01 and abs(d[1]) < 0.01 for d in dirs), dirs[:3])
+
     # ---- stdout, json, quiet ----
     r = subprocess.run(["node", CLI, "merge", A, B, "-o", "-"], capture_output=True)
     note("a PDF can go to stdout", r.returncode == 0 and r.stdout[:5] == b"%PDF-", r.stdout[:5])

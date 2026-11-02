@@ -68,6 +68,9 @@ no dependencies. So four things stay in the app:
 
 - **Pages → PNG**, **compress by rasterising**, **redaction rebuild**, **OCR**.
 
+It also will not decrypt a password-protected file: it refuses one rather than writing a merge of
+ciphertext that still opens. Use the app's *Unlock*, or `qpdf --decrypt`.
+
 Everything else — the whole structural and annotation surface — is here, because pdf-lib does it
 without pixels. If you need those four from a terminal, drive the app in a headless browser; that is
 the honest boundary, and the help text says so rather than failing halfway.
@@ -118,7 +121,7 @@ integration, and it is the right size for both.
 ## Tests
 
 ```sh
-python3 cli/test/run.py        # 37 checks; needs node and pymupdf
+python3 cli/test/run.py        # 44 checks; needs node and pymupdf
 ```
 
 Every check reads the written file back with an independent library rather than trusting the CLI's

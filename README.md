@@ -136,7 +136,7 @@ downloads identify themselves in a file manager instead of arriving as a grey bo
 ## Files
 
 ```
-app.html                     the application shell (~156 KB; the engines live in lib/)
+app.html                     the application shell (~160 KB; the engines live in lib/)
 index.html                   landing page (root deployment)
 docs/index.html              landing page (Pages deployment)
 docs/play/index.html         the application, as Pages serves it
@@ -153,7 +153,7 @@ pipeline/app_i18n.js         the हिन्दी and ગુજરાતી in
 pipeline/app_extras_ui.html  the panels for them
 pipeline/app_launcher.js      the tool catalogue, the launcher and the all-tools sheet
 cli/pdfkit.mjs                the command line over the same two engines
-cli/test/run.py               the CLI suite: 37 checks, every file read back with PyMuPDF
+cli/test/run.py               the CLI suite: 44 checks, every file read back with PyMuPDF
 pipeline/kit_extras.html     export / restore / undo / keyboard, kept in the source
 pipeline/build_pdf.py        inlines the libraries + minifies → app.html
 pipeline/build_landing.py    emits index.html + docs/index.html from landing.html
@@ -161,7 +161,7 @@ vendor/                      the three libraries, with SHA256SUMS checked at bui
 tools/badges.py              draws docs/assets/badge-*.svg — no image service
 tools/shot.py                takes the screenshots with headless Chromium (dev only)
 tools/make_samples.py        generates the sample PDFs the demo and screenshots use
-tools/test/                  the browser suites (124 checks) and run_all.py — run in CI on every push
+tools/test/                  the browser suites (126 checks) and run_all.py — run in CI on every push
 tools/fetch_ocr.py           fetches the OCR engine once and verifies it against SHA256SUMS
 tools/fetch_qpdf.py          the same for qpdf (Apache-2.0), the lossless compressor
 sw.js                        offline cache (identical copy in docs/sw.js)

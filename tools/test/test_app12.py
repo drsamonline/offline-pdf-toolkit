@@ -95,6 +95,21 @@ def main():
              br.ev("localStorage.getItem('pdftk_session_output')") is None)
         note("no bytes are kept", rec and "b64" not in rec[0] and "bytes" not in rec[0])
 
+        # a text/OCR/locked output is a Blob, not an array: its size must still land
+        br.ev("download(new Blob(['hello there'],{type:'text/plain'}),'notes.txt')")
+        rec2 = json.loads(br.ev("JSON.stringify(recentsList())"))
+        note("a Blob output keeps its size", rec2 and rec2[0]["size"] == 11,
+             rec2[0]["size"] if rec2 else "empty")
+
+        # a tool that is waiting for a file must stop waiting if none arrives
+        br.ev("pages.length=0; docs.length=0; render()")
+        br.ev("launchTool('cmp')")
+        waiting = br.ev("pendingTool")
+        br.ev("(async()=>{ await addFiles([]); })()")
+        note("a cancelled picker drops the wait",
+             waiting == "cmp" and br.ev("pendingTool") is None,
+             "was %s, now %s" % (waiting, br.ev("pendingTool")))
+
         br.ev("render()")  # back to the launcher, since the grid still holds pages
         br.ev("pages.length=0; docs.length=0; render()")
         br.wait("document.querySelector('#empty').style.display!=='none'", 20, "launcher")

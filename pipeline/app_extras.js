@@ -56,16 +56,14 @@ function trimPages(doc,pt){
 }
 
 /* place one source page inside a box, scaled to fit and rotated as it was */
+/* Fit a source page into a cell.
+   pdf-lib bakes a page's /Rotate into the embedded page, so rotating it again here
+   turned a rotated page sideways and pushed its ink outside the cell. Size by what
+   the reader sees (a 90° page is landscape) and draw it plainly. */
 function drawFitted(page,emb,X,Y,boxW,boxH,w,h,ang){
   const visW=(ang%180===90)?h:w, visH=(ang%180===90)?w:h;
   const m=Math.min(boxW/visW,boxH/visH);
-  const Wl=w*m, Hl=h*m;                     // the drawing's own size after scaling
-  const cx=X+(boxW-visW*m)/2, cy=Y+(boxH-visH*m)/2;
-  const opts={width:Wl,height:Hl};
-  if(ang===90) page.drawPage(emb,{x:cx+Hl,y:cy,...opts,rotate:degrees(90)});
-  else if(ang===180) page.drawPage(emb,{x:cx+Wl,y:cy+Hl,...opts,rotate:degrees(180)});
-  else if(ang===270) page.drawPage(emb,{x:cx,y:cy+Wl,...opts,rotate:degrees(270)});
-  else page.drawPage(emb,{x:cx,y:cy,...opts});
+  page.drawPage(emb,{x:X+(boxW-visW*m)/2, y:Y+(boxH-visH*m)/2, width:visW*m, height:visH*m});
 }
 
 async function resizeDoc(doc,key){

@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.16.1] — 2026-11-02
+
+An audit of both shells, and the six things it found. Four of them were silent — the kind that
+produce a file which opens and is wrong.
+
+### Fixed — the CLI
+- **An encrypted PDF was half-read.** `ignoreEncryption` reads the structure but not the streams, so
+  `info` reported pages and `merge` wrote a file whose content was ciphertext. It is now refused with
+  the next step named (the app's *Unlock*, or `qpdf --decrypt`).
+- **Text the built-in font cannot draw was written as `?`.** The library substitutes without an error:
+  a Devanagari watermark came out as `??????`. Text outside WinAnsi is now refused, with the
+  character named. WinAnsi's own marks — `—`, `“ ”`, `é` — still pass, which the first cut of this
+  check got wrong in the other direction.
+- **`order --pages 1,1,2` silently dropped the repeat**, though the help promised a duplicate. Each
+  entry is now copied on its own, so a repeated page really repeats.
+- **`impose` overflowed the sheet on a rotated source.** pdf-lib bakes a page's `/Rotate` into the
+  embedded page; rotating it again here turned it sideways and pushed its ink outside the cell.
+  Measured, then fixed by fitting the *visible* box and drawing plainly.
+- `split --ranges 1 -o only.pdf` now writes exactly `only.pdf` instead of `only-1.pdf`.
+- `-o -` refuses to write binary to a terminal, and a stamp wider than the page says so and suggests
+  a size, instead of silently running off the edge.
+
+### Fixed — the app
+- **The same rotated-page bug in `impose`**, in `drawFitted`. Same cause, same correction.
+- **The session list showed `0 B` for every text, OCR and locked-HTML output** — those are Blobs,
+  which have `.size` and no `.length`. Only PDFs were sized correctly.
+- **A waiting tool could hijack a later file.** If the picker was cancelled after choosing a tool, the
+  next file the user added anywhere opened that panel. The wait now expires and is dropped when a
+  load yields nothing.
+
+### Verified
+- `python3 cli/test/run.py` — **44 checks** (seven new: the encrypted refusal, the font refusal in
+  both directions, the repeat, the exact split name, the rotated impose reading back with horizontal
+  text, and the two above).
+- `python3 tools/test/run_all.py` — **126 checks** across twelve suites, two new in the launcher suite
+  (a Blob's size in the session list, and the expired wait).
+
 ## [1.16.0] — 2026-11-02
 
 `pdfkit` — the toolkit in a terminal. The same two engines the page uses, with a shell in front of

@@ -4,7 +4,7 @@ What this app could still gain, what it has already gained, and what was refused
 A refusal is a decision, not a gap — the point of writing it down is that nobody re-litigates it from
 memory.
 
-Status: **1.16.0**. The app is a small page (about 40 KB gzipped) plus the engines it loads on demand:
+Status: **1.16.1**. The app is a small page (about 40 KB gzipped) plus the engines it loads on demand:
 pdf.js, pdf-lib, qpdf and OCR. Everything runs in the tab; nothing is uploaded, and the network panel
 proves it.
 
@@ -27,7 +27,8 @@ proves it.
 | 1.13.0 | What's-new band on the landing page, skip link and focus ring, the writer prefetched |
 | 1.14.0 | Logical page labels (i, ii then 1, 2), labelled-ID redaction, About panel in the app |
 | 1.15.0 | The front door: launcher in the empty state, one tool catalogue in data, all-tools sheet, session list, category tints |
-| 1.16.0 | `pdfkit`, a CLI over the same vendored engines — twelve commands, stdin/stdout, `--json`, 37 checks, a packaged tarball |
+| 1.16.0 | `pdfkit`, a CLI over the same vendored engines — twelve commands, stdin/stdout, `--json`, a packaged tarball |
+| 1.16.1 | Audit: encrypted input refused, unencodable text refused, `order` repeats, rotated impose fixed in both shells, Blob sizes in the session list, an expiring tool wait |
 
 ## Open, and cheap
 

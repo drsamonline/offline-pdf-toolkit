@@ -161,9 +161,10 @@ function drawLauncher(){
 
 /* A tool that needs a document asks for one first, then opens itself when
    the file has landed — so the card is never a dead end. */
-let pendingTool = null;
+let pendingTool = null, pendingToolAt = 0;
 function needFile(id){
   pendingTool = id;
+  pendingToolAt = Date.now();
   toast('Choose a file first — it stays in this tab');
   $('#fpick').click();
 }
@@ -250,11 +251,15 @@ function initLauncher(){
     return _openSec.apply(this, arguments);
   };
 
-  /* a file that lands while a tool is waiting opens that tool */
+  /* a file that lands while a tool is waiting opens that tool — and a cancelled
+     picker or a file that would not open drops the wait, so the next file the user
+     adds does not open a panel they stopped asking for */
   const _addFiles = window.addFiles;
   window.addFiles = async function(){
     const r = await _addFiles.apply(this, arguments);
-    if (pendingTool && pages.length) { const id = pendingTool; pendingTool = null; launchTool(id); }
+    const fresh = pendingTool && (Date.now() - pendingToolAt) < 120000;
+    if (fresh && pages.length) { const id = pendingTool; pendingTool = null; launchTool(id); }
+    else if (pendingTool && !pages.length) pendingTool = null;
     return r;
   };
 

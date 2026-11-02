@@ -768,8 +768,9 @@ function toolOpts(){
 }
 function download(bytes,name){
   // one funnel for every file the app writes, so the session list cannot miss one
-  try{ if(window.recentAdd) recentAdd(name||'output.pdf', window.currentToolName?currentToolName():'Saved',
-    (bytes&&bytes.length)||0); }catch(e){}
+  // a Blob has .size, an array has .length — text, OCR and locked-HTML outputs are Blobs
+  const n = bytes && bytes.size != null ? bytes.size : (bytes && bytes.length) || 0;
+  try{ if(window.recentAdd) recentAdd(name||'output.pdf', window.currentToolName?currentToolName():'Saved', n); }catch(e){}
   const b=new Blob([bytes],{type:'application/pdf'}), u=URL.createObjectURL(b);
   const a=document.createElement('a'); a.href=u; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(u),4000);
 }
