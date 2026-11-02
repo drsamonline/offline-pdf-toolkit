@@ -44,7 +44,7 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Bates numbering** | Prefix, start, zero-padded digits, four positions. |
 | **Split** | Every N pages, one file per page, or ranges (`1-3, 4, 8-10`). |
 | **Export images** | Every page as a PNG at the DPI you choose. |
-| **Redaction** | Cover every match of a word; with *rebuild* on, the page is rasterised so the text underneath is really gone. |
+| **Redaction** | Cover every match of a word — or of a shape: 12-digit numbers, phone numbers, emails, PAN. With *rebuild* on the page is rasterised, so the text underneath is really gone. |
 | **Form fields** | Reads the AcroForm, fills it, and flattens the values into the page so they cannot be edited back. |
 | **Signature** | Draw it with a mouse or finger, or load a picture; the empty margin is trimmed and it is stamped where you choose. |
 | **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
@@ -60,6 +60,7 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Metadata** | Title, author, subject, keywords. |
 | **Compress** | Renders each page to JPEG at a chosen DPI and quality, then rebuilds. |
 | **Images → PDF** | PNG and JPEG, one image per page. |
+| **Open a protected PDF** | Asks for the password, then lets you edit it — and keeps the protection on the way out unless you set a new one. |
 | **Password protect** | AES-256, with user/owner passwords and permissions for printing, copying, modifying. |
 | **Unlock** | Remove a password you already know, in the browser. |
 | **Extract text** | From a digital PDF → `.txt`. |

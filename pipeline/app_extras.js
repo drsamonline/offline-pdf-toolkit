@@ -131,9 +131,32 @@ async function imposeDoc(doc,mode,gap){
    pdf.js reports text positions in the page's own content space, which is the
    same space pdf-lib draws in — so the boxes land where the words are, rotated
    pages included, without any coordinate gymnastics. */
+/* Shapes worth offering, with the honest caveat that a regex is not a data-loss
+   guarantee: it only sees text this app can read. */
+const REDACT_PATTERNS = {
+  aadhaar: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
+  phone:   /(?:\+?91[\s-]?)?\b[6-9]\d{9}\b/g,
+  email:   /[\w.+-]+@[\w-]+\.[\w.-]+/g,
+  pan:     /\b[A-Z]{5}\d{4}[A-Z]\b/g
+};
+function patternRanges(str, names){
+  const out = [];
+  for(const n of (names || [])){
+    const re = REDACT_PATTERNS[n];
+    if(!re) continue;
+    re.lastIndex = 0;
+    let m;
+    while((m = re.exec(str)) !== null){
+      out.push([m.index, m.index + m[0].length]);
+      if(m.index === re.lastIndex) re.lastIndex++;
+    }
+  }
+  return out;
+}
+
 async function drawRedactions(doc,r){
   const words=(r.words||[]).filter(Boolean).map(w=>w.toLowerCase());
-  if(!words.length) return 0;
+  if(!words.length && !(r.patterns||[]).length) return 0;
   const outPages=doc.getPages(); let hits=0;
   for(let i=0;i<outPages.length;i++){
     const p=pages[i]; if(!p) continue;
@@ -144,16 +167,19 @@ async function drawRedactions(doc,r){
     for(const item of (tc.items||[])){
       const str=item.str||''; if(!str.trim()) continue;
       const low=str.toLowerCase();
+      const spans=[];
       for(const w of words){
         let at=low.indexOf(w);
-        while(at!==-1){
-          const iw=item.width||0, ih=item.height||10;
-          const f0=at/str.length, f1=(at+w.length)/str.length;
-          const x=item.transform[4]+iw*f0, wd=Math.max(iw*(f1-f0),2);
-          const y=item.transform[5]-ih*0.22, ht=ih*1.15;
-          page.drawRectangle({x,y,width:wd,height:ht,color:rgb(0,0,0)});
-          hits++; at=low.indexOf(w,at+w.length);
-        }
+        while(at!==-1){ spans.push([at,at+w.length]); at=low.indexOf(w,at+w.length); }
+      }
+      for(const sp of patternRanges(str, r.patterns)) spans.push(sp);
+      for(const [a,b] of spans){
+        const iw=item.width||0, ih=item.height||10;
+        const f0=a/str.length, f1=b/str.length;
+        const x=item.transform[4]+iw*f0, wd=Math.max(iw*(f1-f0),2);
+        const y=item.transform[5]-ih*0.22, ht=ih*1.15;
+        page.drawRectangle({x,y,width:wd,height:ht,color:rgb(0,0,0)});
+        hits++;
       }
     }
   }
@@ -267,7 +293,10 @@ function extrasOpts(){
   const bates=$('#s-bates').open?{prefix:$('#btp').value,start:+$('#bts').value||0,
     digits:Math.max(1,+$('#btd').value||6),pos:$('#btpos').value}:null;
   const words=$('#rdt').value.split(',').map(s=>s.trim()).filter(Boolean);
-  const redact=(words.length&&$('#s-redact').open)?{words,raster:$('#rdraster').checked}:null;
+  const pats=['rdaadhaar','rdphone','rdemail','rdpan'].filter(id=>$('#'+id)&&$('#'+id).checked)
+    .map(id=>id.slice(2));
+  const redact=((words.length||pats.length)&&$('#s-redact').open)
+    ?{words,patterns:pats,raster:$('#rdraster').checked}:null;
   const form = ($('#s-form') && $('#s-form').open && formFound.length) ? readFormValues() : null;
   const sign = (sigDataUrl && $('#s-sign') && $('#s-sign').open) ? {
     dataUrl:sigDataUrl, pos:$('#sigpos').value, width:+$('#sigw').value,

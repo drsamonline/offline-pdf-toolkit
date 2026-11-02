@@ -373,8 +373,20 @@ async function addFiles(list){
         const d={id:nextId++,name:f.name,bytes,size:bytes.length,kind:'image',mime,numPages:1};
         docs.push(d); pages.push({id:nextId++,docId:d.id,src:0,rot:0,sel:false});
       } else {
-        const pdfjs=await pdfjsLib.getDocument({data:bytes.slice(0)}).promise;
-        const d={id:nextId++,name:f.name,bytes,size:bytes.length,kind:'pdf',pdfjs,numPages:pdfjs.numPages};
+        let pdfjs;
+        try{
+          pdfjs=await pdfjsLib.getDocument({data:bytes.slice(0)}).promise;
+        }catch(err){
+          // a protected file is not an error, it is a question
+          if(!err || !/password/i.test((err.name||'')+(err.message||''))) throw err;
+          const pw=window.prompt('“'+f.name+'” is password-protected.\n\nEnter its password to open it '
+            +'here — it is used in this tab only and never stored or sent.', '');
+          if(pw===null) throw err;
+          pdfjs=await pdfjsLib.getDocument({data:bytes.slice(0),password:pw}).promise;
+          pdfjs.__pw=pw;
+        }
+        const d={id:nextId++,name:f.name,bytes,size:bytes.length,kind:'pdf',pdfjs,numPages:pdfjs.numPages,
+                 password:pdfjs.__pw||null};
         docs.push(d);
         for(let p=1;p<=pdfjs.numPages;p++) pages.push({id:nextId++,docId:d.id,src:p-1,rot:0,sel:false});
       }
@@ -498,7 +510,7 @@ async function buildDoc(opts={}){
   const cache=new Map();
   for(const d of docs){
     if(d.kind!=='pdf') continue;
-    const src=await PDFDocument.load(d.bytes,{ignoreEncryption:true});
+    const src=await PDFDocument.load(d.bytes,{ignoreEncryption:true,password:d.password||undefined});
     if(opts.form && Object.keys(opts.form).length) await applyFormValues(src,opts.form);
     cache.set(d.id, src);
   }
@@ -672,11 +684,18 @@ async function save(){
         else if(st.photos) toast('Photos already small — nothing worth re-encoding');
       }
     }
-    if(o.secure && (o.secure.user||o.secure.owner)){
+    // If the source was password-protected and the user did not ask for a new
+    // password, keep the old one. Silently handing back an unprotected copy of a
+    // protected document is the kind of surprise that ends up in an inbox.
+    const srcPw=(docs.map(d=>d.password).find(Boolean))||null;
+    const keepPw=!(o.secure&&(o.secure.user||o.secure.owner))&&!!srcPw;
+    const effSecure = (o.secure&&(o.secure.user||o.secure.owner)) ? o.secure
+      : (srcPw ? {user:srcPw,owner:srcPw,print:true,copy:true,mod:true} : null);
+    if(effSecure){
       await doc.encrypt({
-        userPassword:o.secure.user||'',
-        ownerPassword:o.secure.owner||o.secure.user||'',
-        permissions:{printing:o.secure.print?'highResolution':false,copying:o.secure.copy,modifying:o.secure.mod}
+        userPassword:effSecure.user||'',
+        ownerPassword:effSecure.owner||effSecure.user||'',
+        permissions:{printing:effSecure.print?'highResolution':false,copying:effSecure.copy,modifying:effSecure.mod}
       });
     }
     prog(88);
@@ -685,7 +704,7 @@ async function save(){
     const base=(o.meta&&o.meta.title)?o.meta.title.replace(/[^\w\-. ]+/g,'').trim().slice(0,60)||'document':(docs[0]?docs[0].name.replace(/\.pdf$/i,''):'document');
     download(bytes, base+(o.compress?'-compressed':'')+'.pdf');
     toast('Saved · '+fmt(bytes.length)+' · '+pages.length+(pages.length===1?' page':' pages')
-      +((o.secure&&(o.secure.user||o.secure.owner))?' · protected':'')
+      +(effSecure?(' · protected'+(keepPw?' (kept from the source)':'')):'')
       +(losslessSkipped?' · lossless skipped: it cannot run on an encrypted file':''));
   }catch(e){
     if(String(e.message)==='cancelled') toast('Stopped — nothing was saved');

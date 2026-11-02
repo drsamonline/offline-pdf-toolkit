@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.11.0] — 2026-11-02
+
+### Added
+- **A password-protected PDF can be opened and edited.** The loader asks for the password instead of
+  failing, and remembers it for the writer. If you save without setting a new password, **the old
+  one is kept** — handing back an unprotected copy of a protected document is the kind of surprise
+  that ends up in the wrong inbox, so the toast says `protected (kept from the source)`.
+- **Redaction by shape**, on top of redaction by word: 12-digit numbers (Aadhaar-style, with or
+  without spaces), Indian mobile numbers with an optional `+91`, email addresses, and PAN. The panel
+  says plainly that a pattern is a helper and not a guarantee — it sees text this app can read, and
+  nothing inside a picture.
+- **`SHA256SUMS` on every release**, computed from the published artefacts by a new CI job, so a
+  download can be verified without trusting the network.
+
+### Verified
+- 6 new browser checks: a protected PDF is built, refusing the password loads nothing (and does not
+  crash), the right password opens it, the password is kept for the writer, a protected file can be
+  edited and re-saved — and the saved copy still needs its password — plus a pattern-redaction run
+  whose output contains none of the identifiers it was given.
+- Every produced PDF inspected with PyMuPDF: the redacted page carries no text at all, and the
+  re-saved protected file reports `needs_pass`.
+
 ## [1.10.0] — 2026-11-02
 
 ### Added

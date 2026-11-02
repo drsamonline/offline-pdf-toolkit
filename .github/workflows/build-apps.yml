@@ -63,3 +63,28 @@ jobs:
             exit 1
           fi
           echo "within budget"
+
+  # Every release should say what is in it, byte for byte. The three artefacts are
+  # published by the kit's `app` job; this one reads them back, hashes them, and
+  # attaches SHA256SUMS so a download can be checked without trusting the network.
+  checksums:
+    name: Release checksums
+    needs: app
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hash the published artefacts and attach SHA256SUMS
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eu
+          mkdir -p dl
+          gh release download app-latest --repo "$GITHUB_REPOSITORY" \
+             --pattern 'offline-pdf-toolkit*' --dir dl --clobber
+          cd dl
+          sha256sum offline-pdf-toolkit* > SHA256SUMS
+          cat SHA256SUMS
+          gh release upload app-latest SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
