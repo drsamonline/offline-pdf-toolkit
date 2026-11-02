@@ -132,9 +132,6 @@ def verify_vendor():
 def main():
     verify_vendor()
     tpl = open(TPL, encoding="utf-8").read()
-    for ph in LIBS:
-        if ph not in tpl:
-            sys.exit("placeholder %s missing from template" % ph)
 
     for ph, f in (("<!--APPEXTRAS_UI-->", "app_extras_ui.html"), ("/*__APPEXTRAS__*/", "app_extras.js"),
                                  ("/*__I18N__*/", "app_i18n.js")):
@@ -157,11 +154,21 @@ def main():
     html = minify_html(html)
     after = len(html)
 
-    for ph, path in LIBS.items():
-        code = open(path, encoding="utf-8").read()
-        if "</script" in code:
-            sys.exit("%s contains </script — needs escaping" % path)
-        html = html.replace(ph, code, 1)
+    # The engines are no longer inlined: they are written beside the app and
+    # fetched on demand. That took the first load from 654 KB gzipped to about
+    # 30 KB, and the 1 MB pdf.js worker is now a real file the browser caches
+    # instead of a blob rebuilt from HTML text on every visit.
+    libdir = os.path.join(HERE, "docs", "play", "lib")
+    os.makedirs(libdir, exist_ok=True)
+    for name, path in (("pdf-lib.min.js", LIBS["__PDFLIB__"]),
+                       ("pdf.min.js", LIBS["__PDFJS__"]),
+                       ("pdf.worker.min.js", LIBS["__PDFWORKER__"])):
+        data = open(path, "rb").read()
+        open(os.path.join(libdir, name), "wb").write(data)
+        print("  lib %-18s %8d bytes -> docs/play/lib/%s" % (name, len(data), name))
+    for ph in LIBS:
+        if ph in html:
+            sys.exit("placeholder %s still in the template — the engines are side files now" % ph)
 
     extras = os.path.join(HERE, "pipeline", "kit_extras.html")
     if os.path.exists(extras):

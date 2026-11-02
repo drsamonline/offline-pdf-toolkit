@@ -162,6 +162,7 @@ async function drawRedactions(doc,r){
 
 /* rebuild every page as an image, so nothing under a box survives as text */
 async function rasteriseDoc(doc,dpi,quality){
+  await ensurePdfLib();
   const bytes=await doc.save({useObjectStreams:true});
   const pdf=await pdfjsLib.getDocument({data:bytes.slice(0)}).promise;
   const out=await PDFDocument.create();
@@ -350,6 +351,7 @@ async function exportPng(){
 
 /* ---------- self-test: prove the build works, without a document ---------- */
 async function selfTest(){
+  await ensurePdfLib();
   const out=$('#selftestout'); const rows=[];
   const t=(name,fn)=>rows.push([name,fn]);
   const ok=(n,cond,extra)=>n+' — '+(cond?'pass':'FAIL')+(extra?' ('+extra+')':'');
@@ -510,6 +512,7 @@ initExtras();
 let formFound = [];
 async function scanForms(){
   const box = $('#formfields'); if(!box) return;
+  await ensurePdfLib();
   box.innerHTML = '<p class="hint">Reading…</p>';
   formFound = [];
   for(const d of docs){
@@ -728,6 +731,7 @@ function imageToCanvas(ob){
   return c;
 }
 async function extractImages(){
+  await ensurePdfjs();
   if(!pages.length){ toast('Add a PDF first'); return; }
   const sel = selList(), base = sel.length ? sel : pages.map((_, i) => i);
   const msg = $('#imgmsg');
@@ -916,7 +920,7 @@ async function saveBatch(o){
    MIT, so this is the one compression engine this app may ship: Ghostscript and
    friends would have forced the whole app to be AGPL. It rewrites object streams
    and re-flates what is not already compressed — the text stays text. */
-const QPDF_CANDIDATES = ['qpdf/', '../qpdf/', 'docs/play/qpdf/'];
+const QPDF_CANDIDATES = ['qpdf/', 'docs/play/qpdf/'];
 let QPDF_BASE = null;
 
 function loadScriptOnce(src){
@@ -945,6 +949,7 @@ function qpdfRun(bytes){
         q.save('in.pdf', buf, (err) => {
           if(err) return done(err);
           q.execute(['--object-streams=generate', '--recompress-flate', '--compression-level=9',
+                     '--remove-unreferenced-resources=yes',
                      '--', 'in.pdf', 'out.pdf'], (err2) => {
             if(err2) return done(err2);
             q.load('out.pdf', (err3, ab) => {

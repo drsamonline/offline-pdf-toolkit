@@ -264,9 +264,11 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
           <button class="ibtn" id="dotext">Extract text</button>
         </div></details>
         <details class="sec" id="s-ocr"><summary>OCR <span class="lbl" id="ocrstate">not loaded</span></summary><div class="in">
-          <p class="hint">Reads text from <b>scans</b>. The engine ships beside this page, so nothing is
-          downloaded and nothing is uploaded — not the engine, not your document. Open <b>Network</b>
-          above to watch that stay true.</p>
+          <p class="hint">Reads text from <b>scans</b>. The engine is about <b>10&nbsp;MB</b> — two
+          WASM cores and the English language data — and it ships <b>beside this page</b>, so loading it
+          is not a download: it comes off your own disk, and your document never leaves the tab. It is
+          only read when you press the button, which is why opening the app stays instant. Open
+          <b>Network</b> above to watch that stay true.</p>
           <div class="fld"><label for="ocrlang">Language</label><select id="ocrlang">
             <option value="eng">English</option><option value="hin">Hindi</option><option value="guj">Gujarati</option>
             <option value="deu">German</option><option value="fra">French</option><option value="spa">Spanish</option></select></div>
@@ -293,18 +295,52 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
 </div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<script>__PDFLIB__</script>
-<script>__PDFJS__</script>
-<script id="pdfworker" type="text/plain">__PDFWORKER__</script>
+<!-- the engines load on demand from lib/ — see ensurePdfjs() / ensurePdfLib() -->
 <script>
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const {PDFDocument, degrees, rgb, StandardFonts}=PDFLib;
+/* The engines are loaded on demand, so the first paint costs a fraction of what
+   it did: pdf.js when a document is opened, pdf-lib when one is written. */
+let PDFDocument=null, degrees=null, rgb=null, StandardFonts=null;
+const ENGINE_PATHS=['lib/','docs/play/lib/'];   // relative to this page, then the repo root copy
+let ENGINE_BASE=null;
+function loadScriptOnce(src){
+  return new Promise((res,rej)=>{ const s=document.createElement('script');
+    s.src=src; s.onload=res; s.onerror=()=>rej(new Error('no '+src)); document.head.appendChild(s); });
+}
+async function engineBase(){
+  if(ENGINE_BASE) return ENGINE_BASE;
+  for(const b of ENGINE_PATHS){
+    try{
+      await loadScriptOnce(b+'pdf.min.js');
+      ENGINE_BASE=b; return b;
+    }catch(e){}
+  }
+  throw new Error('the PDF engine is not next to this page — lib/ ships beside the app '
+    + '(tools/fetch_engines.py fetches it)');
+}
+let pdfjsPromise=null, pdflibPromise=null;
+function ensurePdfjs(){
+  if(!pdfjsPromise) pdfjsPromise=(async()=>{
+    const base=await engineBase();
+    pdfjsLib.GlobalWorkerOptions.workerSrc=base+'pdf.worker.min.js';
+    return pdfjsLib;
+  })();
+  return pdfjsPromise;
+}
+function ensurePdfLib(){
+  if(!pdflibPromise) pdflibPromise=(async()=>{
+    const base=await engineBase();
+    if(!window.PDFLib) await loadScriptOnce(base+'pdf-lib.min.js');
+    ({PDFDocument, degrees, rgb, StandardFonts}=PDFLib);
+    return PDFLib;
+  })();
+  return pdflibPromise;
+}
 
 /* pdf.js worker, inlined as a blob so it works offline */
-pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob(
-  [$('#pdfworker').textContent],{type:'text/javascript'}));
+
 
 let docs=[];            // {id,name,bytes,pdfjs,numPages,size}
 let pages=[];           // {id,docId,src,rot,sel}
@@ -321,6 +357,8 @@ function fmt(n){ return n<1024?n+' B' : n<1048576?(n/1024).toFixed(0)+' KB' : (n
 /* ---------- adding files ---------- */
 async function addFiles(list){
   const files=[...list]; if(!files.length) return;
+  if(!pdfjsPromise) toast('Loading the PDF engine — once, then it is cached');
+  await ensurePdfjs();
   const big=files.reduce((a,f)=>a+(f.size||0),0);
   if(big>150*1048576) toast('That is '+fmt(big)+' — large enough that this tab may run out of memory');
   prog(2);
@@ -454,6 +492,7 @@ function setSel(i,shift){
 
 /* ---------- building the output ---------- */
 async function buildDoc(opts={}){
+  await ensurePdfLib();
   const out=await PDFDocument.create();
   out.setProducer('Offline PDF Toolkit'); out.setCreator('Offline PDF Toolkit');
   const cache=new Map();
@@ -549,6 +588,7 @@ async function buildDoc(opts={}){
 }
 
 async function compressDoc(dpi,quality,grey){
+  await ensurePdfLib();
   const out=await PDFDocument.create();
   const total=pages.length;
   for(let i=0;i<total;i++){
@@ -665,6 +705,7 @@ async function extract(){
 
 /* ---------- shared: render a page (or image) to a canvas ---------- */
 async function pageToCanvas(p,d,scale){
+  await ensurePdfjs();
   const c=document.createElement('canvas');
   if(d.kind==='image'){
     const bmp=await createImageBitmap(new Blob([d.bytes],{type:'image/'+d.mime}));
@@ -682,6 +723,7 @@ async function pageToCanvas(p,d,scale){
 
 /* ---------- unlock a password-protected PDF ---------- */
 async function unlockFile(file){
+  await ensurePdfLib();
   const msg=$('#unmsg'); msg.textContent='Opening…';
   try{
     const bytes=new Uint8Array(await file.arrayBuffer());
@@ -728,13 +770,14 @@ async function extractText(){
    its worker, both WASM cores and the English language data (tools/fetch_ocr.py
    puts them there). Three candidates cover the Pages build, a root build and a
    root build reading the Pages directory. Nothing here leaves this origin. */
-const OCR_CANDIDATES=['ocr/','../ocr/','docs/play/ocr/'];
+const OCR_CANDIDATES=['ocr/','docs/play/ocr/'];
 let OCR_BASE=null, ocrWorker=null, ocrLang=null;
 function ocrUrl(base,name){ return base+name; }
 function ocrState(msg){ $('#ocrstate').textContent=msg; $('#ocrmsg').textContent=msg==='ready'?'':$('#ocrmsg').textContent; }
 async function loadOcr(){
   const lang=$('#ocrlang').value;
-  $('#ocrmsg').textContent='Downloading the engine (~7 MB) — this happens once, then it is cached…';
+  $('#ocrmsg').textContent='Reading the engine from beside this page (~10 MB) — once, then it is cached. '
+    +'Nothing is downloaded from the internet and nothing is uploaded.';
   ocrState('loading');
   try{
     if(!window.Tesseract){
