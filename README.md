@@ -194,9 +194,17 @@ browser*, not on the planet; and a six-character PIN is the floor, not a recomme
 The interface speaks English, Hindi and Gujarati — the language button in the header cycles them and
 the choice is remembered. The Help text and the longer explanatory paragraphs stay in English on
 purpose: a mistranslated word in a document tool that handles clinical paperwork is worse than an
-English one, and those passages want a human read before they are translated. The translations that
-are in place came from a translation model, so corrections from a native speaker are welcome —
-`pipeline/app_i18n.js` is one file of plain string pairs.
+English one, and those passages want a human read before they are translated.
+
+The 100 short interface strings were translated by a model and then **read by a native speaker**
+(Dr Sohil Momin, 2 November 2026) against a numbered review sheet — 100 pairs with the real screens
+in both languages — who reported no corrections needed. That review is the reason the interface can
+claim to be checked rather than merely translated.
+
+Labels added after 1.6.0 (the folder panel, Share locked, page labels, Compare, the redaction
+patterns) are **still English**: 47 of them, listed in the same review sheet. They need a second
+pass. `pipeline/app_i18n.js` is one file of plain string pairs, so a correction is a one-line
+change.
 
 ## Privacy
 
