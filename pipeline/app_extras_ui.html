@@ -60,12 +60,28 @@
     <label><input type="checkbox" id="rdemail"> emails</label>
     <label><input type="checkbox" id="rdpan"> PAN</label>
     <label><input type="checkbox" id="rddate"> dates</label>
-    <label><input type="checkbox" id="rdifsc"> IFSC</label></span></div>
+    <label><input type="checkbox" id="rdifsc"> IFSC</label>
+    <label><input type="checkbox" id="rdlabelled"> labelled IDs (MRN, UHID, OPD, policy)</label></span></div>
   <div class="fld"><label>Mode</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
     <label><input type="checkbox" id="rdraster" checked> rebuild pages as images</label></span></div>
   <p class="hint"><b>Patterns are a helper, not a guarantee</b> — they catch those shapes in text this
   app can read, and see nothing inside a picture. Check the result. With <b>rebuild</b> on, the page
   is rasterised afterwards, so the text underneath is really gone; without it, a box is only a box.</p>
+</div></details>
+
+<details class="sec" id="s-labels"><summary>Page labels</summary><div class="in">
+  <p class="hint">The numbers a reader <b>sees</b>, which need not be the numbers the file counts. A
+  report that opens on a cover and a contents page, then starts at 1, is the usual case: the front
+  matter is numbered i, ii and the body 1, 2, 3. This writes the label table; the printed page stays
+  whatever you set in the header/footer tool.</p>
+  <div class="fld"><label for="lbmode">Style</label><select id="lbmode">
+    <option value="none">leave as it is</option>
+    <option value="roman">i, ii, iii — then 1, 2, 3</option>
+    <option value="letters">a, b, c — then 1, 2, 3</option>
+    <option value="decimal">1, 2, 3 throughout</option>
+  </select></div>
+  <div class="fld"><label for="lbfront">Front matter pages</label><input type="number" id="lbfront" value="2" min="0" max="50" step="1"></div>
+  <div id="lbmsg" class="hint"></div>
 </div></details>
 
 <details class="sec" id="s-doc"><summary>Document &amp; self-test</summary><div class="in">
@@ -75,7 +91,12 @@
     <label><input type="checkbox" id="batch"> one file per source</label></span></div>
   <button class="ibtn" id="selftest">Run self-test</button>
   <div id="selftestout" class="hint" aria-live="polite"></div>
-</div></details>
+</div>
+  <div id="aboutbox" class="hint" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+    <b>Version <span id="aboutver">—</span></b>
+    <ul id="whatsnew" style="margin:8px 0 0;padding-left:18px;line-height:1.6"></ul>
+  </div>
+</details>
 
 <details class="sec" id="s-form"><summary>Form fields</summary><div class="in">
   <p class="hint">Fills an AcroForm and bakes the values into the page, so they cannot be edited back.

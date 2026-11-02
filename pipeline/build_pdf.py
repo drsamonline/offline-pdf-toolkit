@@ -129,6 +129,43 @@ def verify_vendor():
                      % (name, want.get(name), got))
 
 
+def changelog_json(limit=4):
+    """The newest changelog points, as a JSON array for the app's About panel."""
+    import json as _json
+    path = os.path.join(HERE, "CHANGELOG.md")
+    try:
+        text = open(path, encoding="utf-8").read()
+    except OSError:
+        return "[]"
+    m = re.search(r"^## \[([^\]]+)\][^\n]*$", text, re.M)
+    if not m:
+        return "[]"
+    body = text[m.end():]
+    nxt = re.search(r"^## \[", body, re.M)
+    if nxt:
+        body = body[:nxt.start()]
+    items, buf = [], None
+    for line in body.splitlines():
+        if line.startswith("- "):
+            if buf:
+                items.append(buf)
+            buf = line[2:].strip()
+        elif buf and line.startswith("  ") and line.strip():
+            buf += " " + line.strip()
+        elif not line.strip() and buf:
+            items.append(buf)
+            buf = None
+    if buf:
+        items.append(buf)
+
+    def fmt(t):
+        t = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
+        t = re.sub(r"`(.+?)`", r"<code>\1</code>", t)
+        t = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"<a href=\"\2\">\1</a>", t)
+        return t
+    return _json.dumps([fmt(i) for i in items[:limit]], ensure_ascii=False)
+
+
 def main():
     verify_vendor()
     tpl = open(TPL, encoding="utf-8").read()
@@ -158,6 +195,10 @@ def main():
     # fetched on demand. That took the first load from 654 KB gzipped to about
     # 30 KB, and the 1 MB pdf.js worker is now a real file the browser caches
     # instead of a blob rebuilt from HTML text on every visit.
+    # the app carries its own "what's new": the top of the changelog, inlined as a
+    # JSON block so the About panel cannot drift from the release notes.
+    html = html.replace("__WHATS_NEW__", changelog_json(), 1)
+
     libdir = os.path.join(HERE, "docs", "play", "lib")
     os.makedirs(libdir, exist_ok=True)
     for name, path in (("pdf-lib.min.js", LIBS["__PDFLIB__"]),
@@ -188,6 +229,10 @@ def main():
     import build_landing
     before_l, after_l = build_landing.build(quiet=True)
     print("landing     : %d -> %d bytes -> index.html + docs/index.html" % (before_l, after_l))
+
+
+if __name__ == "__main__":
+    main()
 
 
 if __name__ == "__main__":

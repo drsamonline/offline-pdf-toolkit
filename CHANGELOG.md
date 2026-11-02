@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.14.0] — 2026-11-02
+
+The three items the roadmap called cheap. Nothing left on that list now.
+
+### Added
+- **Page labels** — the numbers a reader *sees*, which need not be the numbers the file counts. Set
+  the front matter to i, ii, iii and the body to start at 1, and the app writes the `/PageLabels`
+  number tree the reader honours. Verified by reading the labels back with an independent library:
+  `['i', 'ii', '1', '2']`.
+- **Labelled-identifier redaction** — one pattern for the shapes that carry their own name: `MRN`,
+  `UHID`, `OPD`, `IPD`, `MR`, `Policy`, followed by a value. It is deliberately anchored on the label
+  rather than guessing at digit counts, and it is checked not to fire on ordinary prose.
+- **An About panel inside the app** — the running version and the newest changelog points, inlined by
+  the build from `CHANGELOG.md`, so the app and its release notes cannot disagree.
+
+### Also
+- `build_pdf.py` gained `changelog_json()`, the sibling of the landing page's `whats_new()`: same
+  reading, one for the page and one for the app.
+
+### Verified
+- 7 new checks: the About panel lists the changes and the right version; a labelled file is written
+  and the labels read back as i, ii, 1, 2; the labelled-ID pattern matches three identifiers in a
+  line and nothing in ordinary prose.
+- All eleven suites green (15 + 11 + 7 + 16 + 9 + 12 + 6 + 7 + 6 + 5 + 6 checks).
+
 ## [1.13.0] — 2026-11-02
 
 A polish release: nothing new to learn, three things that were slightly wrong.

@@ -44,13 +44,14 @@ backend to send anything to. The proof is that it runs with the cable pulled out
 | **Bates numbering** | Prefix, start, zero-padded digits, four positions. |
 | **Split** | Every N pages, one file per page, or ranges (`1-3, 4, 8-10`). |
 | **Export images** | Every page as a PNG at the DPI you choose. |
-| **Redaction** | Cover every match of a word — or of a shape: 12-digit numbers, phone numbers, emails, PAN. With *rebuild* on the page is rasterised, so the text underneath is really gone. |
+| **Redaction** | Cover every match of a word — or of a shape: 12-digit numbers, phone numbers, emails, PAN, dates, IFSC, and labelled identifiers (MRN, UHID, OPD, policy). With *rebuild* on the page is rasterised, so the text underneath is really gone. |
 | **Form fields** | Reads the AcroForm, fills it, and flattens the values into the page so they cannot be edited back. |
 | **Signature** | Draw it with a mouse or finger, or load a picture; the empty margin is trimmed and it is stamped where you choose. |
 | **Extract images** | Recovers the pictures stored inside the PDF at their original resolution. |
 | **Compress, three ways** | *Photos only* re-encodes the JPEGs and leaves the text as text; *lossless* runs qpdf over the result; *every page* rasterises, with an optional greyscale pass. |
 | **Batch** | *One file per source* — the same tools on every loaded document, one output each. |
 | **Share locked** | Wrap the finished PDF in a single HTML file that asks for a PIN — AES-256-GCM, the same container [LockHTML](https://github.com/drsamonline/lockhtml) writes, so either viewer opens either file. |
+| **Page labels** | The numbers a reader *sees*: i, ii, iii for the front matter and 1, 2, 3 for the body, written as a `/PageLabels` tree. |
 | **Compare** | Reads the text of the first two documents and reports the pages that differ, with the first line that changed. |
 | **A whole folder** | Pick a folder, and every PDF in it is processed and written to an `out` folder beside it. Chrome, Edge and Android Chrome only — the button says so when the browser cannot. |
 | **Insert blank pages** | Drop an empty page after the selection, sized like the page before it. |

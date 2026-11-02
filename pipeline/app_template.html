@@ -301,6 +301,7 @@ body.light .backdrop{background:rgba(30,50,80,.35)}
 <div id="toast" role="status" aria-live="polite"></div>
 
 <!-- the engines load on demand from lib/ — see ensurePdfjs() / ensurePdfLib() -->
+<script type="application/json" id="changelog-data">__WHATS_NEW__</script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -635,7 +636,9 @@ function toolOpts(){
   const cmp=$('#s-cmp').open?{dpi:+$('#cdpi').value,quality:+$('#cq').value}:null;
   const secure=$('#s-sec').open?{user:$('#secuser').value,owner:$('#secowner').value,
     print:$('#p-print').checked,copy:$('#p-copy').checked,mod:$('#p-mod').checked}:null;
-  return Object.assign({watermark:wm,pagenum:pn,meta,compress:cmp,secure},extrasOpts());
+  return Object.assign({watermark:wm,pagenum:pn,meta,compress:cmp,secure,
+    labels:($('#s-labels')&&$('#s-labels').open)?{mode:$('#lbmode').value,front:+$('#lbfront').value||0}:null},
+    extrasOpts());
 }
 function download(bytes,name){
   const b=new Blob([bytes],{type:'application/pdf'}), u=URL.createObjectURL(b);
@@ -692,6 +695,11 @@ async function save(){
     // If the source was password-protected and the user did not ask for a new
     // password, keep the old one. Silently handing back an unprotected copy of a
     // protected document is the kind of surprise that ends up in an inbox.
+    if(o.labels && o.labels.mode && o.labels.mode!=='none'){
+      await applyPageLabels(doc, o.labels.mode, o.labels.front);
+      const m=$('#lbmsg');
+      if(m) m.textContent='Labelled · '+o.labels.mode+(o.labels.front?' · first '+o.labels.front+' pages':'');
+    }
     const srcPw=(docs.map(d=>d.password).find(Boolean))||null;
     const keepPw=!(o.secure&&(o.secure.user||o.secure.owner))&&!!srcPw;
     const effSecure = (o.secure&&(o.secure.user||o.secure.owner)) ? o.secure
