@@ -31,6 +31,10 @@ collapsed sections in a sidebar.
 ### Changed
 - The page bar hides its twelve disabled buttons until there are pages, keeping only its label and —
   while a job runs — Cancel.
+- **A spacing pass over the whole shell.** The first cut had every border sitting on its contents:
+  card padding 14 → 17 px, grid gaps 10 → 13–15 px, sidebar rows 11 → 14 px, page-bar and header
+  padding up, section margins 12 → 14 px, and one card radius (12 px) shared by page tiles, sidebar
+  panels and tool cards instead of three different ones.
 - The shell-size budget moved from 150 KB to 160 KB **deliberately, for this**: a new interface
   surface, not an engine drifting back inline. A second ceiling was added at 52 KB gzipped, which is
   what a reader on a phone actually pays, and which is the tighter of the two.
