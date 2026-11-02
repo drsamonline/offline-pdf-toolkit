@@ -45,3 +45,21 @@ jobs:
       contents: write
       pages: write
       id-token: write
+
+  # The app shell was 2,093 KB until 1.9.0 took it to 118 KB by moving the engines
+  # out of the HTML. That win is easy to lose by inlining one library again, so it
+  # is guarded here rather than remembered.
+  budget:
+    name: Shell size budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: app.html must stay under 150 KB
+        run: |
+          size=$(stat -c%s app.html)
+          echo "app.html is $size bytes ($((size/1024)) KB)"
+          if [ "$size" -gt 153600 ]; then
+            echo "::error::app.html grew past 150 KB ($size bytes) - the engines belong in docs/play/lib/, not inline"
+            exit 1
+          fi
+          echo "within budget"

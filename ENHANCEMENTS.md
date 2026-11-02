@@ -160,3 +160,20 @@ willing to call lossless.
 **Not applicable, for the record.** ziptastic's lossless JPEG recompression (`jpeg_wrap`) and its
 content-defined dedup both need the archive round-trip to be useful. Inside an openable PDF they
 would have to be expanded again before any viewer could read the page, which puts the bytes back.
+
+## Refused with evidence: a "Repair" button
+
+qpdf looks like it should repair a damaged PDF — it is the tool people reach for. It cannot, in this
+build, and the attempt is recorded here so nobody adds the button again without re-testing.
+
+| damage | what qpdf said |
+|---|---|
+| `startxref` pointing at a wrong offset | `in.pdf (offset 999999): xref not found` |
+| the trailer cut off (truncated download) | `in.pdf: can't find startxref` |
+| `--ignore-xref-streams` on either | same failures |
+
+Both are the cases a Repair button would exist for, and both fail. The button was written, tested,
+and removed rather than shipped greyed out with an apology. The lossless pass already covers what
+qpdf *can* do — rebuild object streams and drop what nothing references — so nothing is lost by the
+removal. If a recovery engine is wanted later it needs to scan for `N N obj` and rebuild the xref
+itself, which is a different piece of work.

@@ -69,7 +69,8 @@
 </div></details>
 
 <details class="sec" id="s-form"><summary>Form fields</summary><div class="in">
-  <p class="hint">Fills an AcroForm and bakes the values into the page, so they cannot be edited back.</p>
+  <p class="hint">Fills an AcroForm and bakes the values into the page, so they cannot be edited back.
+  A password-protected file has to be unlocked first — the Unlock panel does that.</p>
   <button class="ibtn" id="scanform">Find fields</button>
   <div id="formfields" style="margin-top:10px"></div>
 </div></details>
@@ -94,6 +95,19 @@
   <p class="hint">Recovers the pictures stored inside the PDF at their original resolution — not screenshots of the page.</p>
   <button class="ibtn" id="doimg">Extract images</button>
   <div id="imgmsg" class="hint"></div>
+</div></details>
+
+<details class="sec" id="s-lock"><summary>Share locked</summary><div class="in">
+  <p class="hint">Wraps the finished PDF in a single HTML file that asks for a PIN before it opens.
+  AES-256-GCM with a PBKDF2-SHA256 key — the same container <b>LockHTML</b> writes, so a file made
+  here opens in that viewer too, and the other way round. No server: the PIN and the document never
+  leave this tab.</p>
+  <div class="fld"><label for="lkpin">PIN</label><input type="password" id="lkpin" placeholder="at least 6 characters" autocomplete="new-password"></div>
+  <div class="fld"><label for="lkpin2">Again</label><input type="password" id="lkpin2" placeholder="repeat it" autocomplete="new-password"></div>
+  <div class="fld"><label>Options</label><span style="display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px">
+    <label><input type="checkbox" id="lkonce"> one-time view</label></span></div>
+  <button class="ibtn" id="dolock">Make a locked HTML</button>
+  <div id="lockmsg" class="hint"></div>
 </div></details>
 
 <details class="sec" id="s-folder"><summary>Folder</summary><div class="in">
