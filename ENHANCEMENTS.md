@@ -119,3 +119,44 @@ Kept out on purpose, and worth writing down so nobody adds them later:
    offline claim.
 2. **Add the CSP** (§2) once that is done, so the promise is enforced by the browser.
 3. **Undo/redo plus batch mode** (§4) — the two features that turn a demo into a daily tool.
+
+## What ziptastic taught us about PDF compression
+
+`ziptastic` is the CHCE engine — a different job (archival compression, one binary, codecs
+embedded). Its PDF work is worth reading because it measured the thing everyone guesses at.
+
+**What it does.** It finds the FlateDecode streams inside `stream … endstream`, inflates them,
+runs them through the normal pipeline, and stores a *preflate recipe* that reconstructs the
+original Deflate bytes exactly. The output is a `.hzpkg` that `heavenzip` turns back into a
+bit-identical PDF.
+
+**Why none of that can be used here.** The recipe approach exists so the original bytes come back
+byte for byte. This app has to hand back a PDF that opens in Acrobat, not an archive that needs a
+second tool — so a container is the wrong shape, and a lossless *re-encode* is the right one.
+qpdf's `--recompress-flate` does exactly that: inflate, re-deflate at level 9, keep the document
+openable. It cannot beat preflate's ratio because it cannot store a recipe, but it produces the
+thing the user actually asked for.
+
+**What its benchmarks confirm.** Two rows, and both match what this app sees:
+
+| file | before | after | verdict |
+|---|---|---|---|
+| `poor.pdf` (weak, level-1 Deflate) | 31,452 | **6,562** (−79%) | worth doing |
+| `big.pdf` (already level-9) | 6,034 | 6,034 | declined, correctly |
+
+The win is entirely in the streams the *producer* left uncompressed. A PDF whose bytes are mostly
+a JPEG barely moves: measured here on a 233 KB photo page, qpdf returned 238,566 from 238,858 —
+**0.1%**. That is not a defect; it is where the bytes are. Shrinking those is a lossy decision the
+user makes with the quality slider, in *photos only* mode, not something a "lossless" button should
+do behind their back.
+
+**What was adopted.** The discipline, mainly: check whether the transform engaged instead of
+trusting the output size, and say plainly when a file declined. Concretely, the lossless pass now
+also runs `--remove-unreferenced-resources=yes` (safe: it drops only what nothing points at) and
+keeps the original whenever qpdf's output is not smaller. `--optimize-images` was tested and left
+out — it moved 8 bytes on the photo page and its effect on image data is not something this app is
+willing to call lossless.
+
+**Not applicable, for the record.** ziptastic's lossless JPEG recompression (`jpeg_wrap`) and its
+content-defined dedup both need the archive round-trip to be useful. Inside an openable PDF they
+would have to be expanded again before any viewer could read the page, which puts the bytes back.

@@ -9,7 +9,7 @@
  * page is how a shipped change becomes invisible to anyone who has visited
  * before. Bump CACHE on every release.
  */
-const CACHE = 'pdftk-v6';   // bump on every release, or returning readers keep the old app
+const CACHE = 'pdftk-v7';   // bump on every release, or returning readers keep the old app
 const CORE = [
   './',
   './index.html',
@@ -18,7 +18,10 @@ const CORE = [
   './play/index.html',
   './manifest.webmanifest',
   './assets/icon.svg',
-  './assets/icon-192.png'
+  './assets/icon-192.png',
+  './play/lib/pdf.min.js',
+  './play/lib/pdf-lib.min.js',
+  './play/lib/pdf.worker.min.js'
 ];
 
 self.addEventListener('install', e => {

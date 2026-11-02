@@ -2,9 +2,10 @@
 
 <img src="docs/assets/badge-live.svg" alt="live"> <img src="docs/assets/badge-uploads.svg" alt="0 bytes uploaded"> <img src="docs/assets/badge-offline.svg" alt="no network"> <img src="docs/assets/badge-external.svg" alt="0 external requests"> <img src="docs/assets/badge-deps.svg" alt="0 runtime dependencies"> <img src="docs/assets/badge-size.svg" alt="single file"> <img src="docs/assets/badge-licence.svg" alt="licence">
 
-**Merge, split, rotate, watermark, number, protect and compress PDFs — in one HTML file, with no
-server to send them to.** No upload, no account, no tracking, no install. Unplug the network and it
-still works.
+**Merge, split, rotate, watermark, number, protect and compress PDFs — in one small page, with no
+server to send them to.** The page itself is about **36 KB gzipped**; the PDF engines load only when
+you open a document, and the OCR and qpdf engines only when you ask for them. No upload, no account,
+no tracking, no install. Unplug the network and it still works.
 
 **[Open the toolkit →](https://drsamonline.github.io/offline-pdf-toolkit/play/)** ·
 [landing page](https://drsamonline.github.io/offline-pdf-toolkit/) ·
@@ -101,11 +102,12 @@ downloads identify themselves in a file manager instead of arriving as a grey bo
 ## Files
 
 ```
-app.html                     the whole application (one self-contained file, ~2.0 MB)
+app.html                     the application shell (~110 KB; the engines live in lib/)
 index.html                   landing page (root deployment)
 docs/index.html              landing page (Pages deployment)
 docs/play/index.html         the application, as Pages serves it
 docs/assets/                 badges, screenshots, icons, sample PDFs (all local)
+docs/play/lib/               pdf.js, pdf-lib and the pdf.js worker, loaded on demand
 docs/play/ocr/               the OCR engine: wrapper, worker, two LSTM WASM cores, English data
 docs/play/qpdf/              the qpdf WASM runtime for the lossless compression pass
 pipeline/app_template.html   the application source (readable)
@@ -126,7 +128,7 @@ sw.js                        offline cache (identical copy in docs/sw.js)
 ```
 
 `build_pdf.py` reads the three libraries from `vendor/`, verifies each against
-`vendor/SHA256SUMS`, embeds them directly into the HTML and
+`vendor/SHA256SUMS`, writes them beside the app in `docs/play/lib/` and
 minifies the app's own CSS/JS/HTML on the way out. The readable template stays in `pipeline/`.
 `build_landing.py` emits both landing pages from the one source and stamps the build in the footer,
 so "am I on the new one?" is answerable from the page itself.

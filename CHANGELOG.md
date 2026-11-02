@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.9.0] — 2026-11-01
+
+The release where the app stops downloading itself before it can say hello.
+
+### Changed
+- **First load is 118 KB instead of 2,093 KB.** The three engines — pdf.js, pdf-lib and the 1 MB
+  pdf.js worker — used to be inlined in the HTML, so every visit transferred 654 KB gzipped before
+  anything could be typed into. They now live in `docs/play/lib/` and load when they are needed:
+  pdf.js when a document is opened, pdf-lib when one is written. A first visit transfers **118 KB**
+  and paints in about 0.7 s; opening a document fetches the parser; saving fetches the writer.
+- **The worker is a real file again.** It used to be a `<script type="text/plain">` block turned
+  into a blob URL on every load, which meant 1 MB of HTML text was parsed as markup before it could
+  be parsed as JavaScript. It is now a normal script the browser caches and the service worker
+  precaches, so the second visit does not fetch it at all.
+- **The OCR panel says what it is about to load** — about 10 MB, two WASM cores and the English
+  data, from beside the page, not from the internet — and that it is only read when the button is
+  pressed. That is why opening the app stays instant.
+- **The service worker precaches the engines**, so "works offline after the first load" stays true
+  without blocking the first paint.
+
+### Fixed
+- Three 404s per engine load, from a path probe that guessed at `lib/` before trying the right
+  place, and from the service worker precaching `./lib/…` from a scope where that path does not
+  exist.
+
+### Also
+- The lossless qpdf pass now adds `--remove-unreferenced-resources=yes`.
+- `ENHANCEMENTS.md` carries a written analysis of what `ziptastic`'s PDF pipeline does, why an
+  archival container cannot be used here, and what its benchmarks confirm about this app's numbers.
+
+### Verified
+- First-load transfer measured in the browser: 118.3 KB, no engines fetched until a document is
+  opened, thumbnails still drawn, every suite green (15 + 16 + 9 + 12 + 6 + 7 checks), the landing
+  page on both deployments, and the kit's parity check.
+
 ## [1.8.0] — 2026-11-01
 
 ### Added
