@@ -1,5 +1,7 @@
 # Offline PDF Toolkit
 
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE)
+
 <img src="docs/assets/badge-live.svg" alt="live"> <img src="docs/assets/badge-uploads.svg" alt="0 bytes uploaded"> <img src="docs/assets/badge-offline.svg" alt="no network"> <img src="docs/assets/badge-external.svg" alt="0 external requests"> <img src="docs/assets/badge-deps.svg" alt="0 runtime dependencies"> <img src="docs/assets/badge-size.svg" alt="single file"> <img src="docs/assets/badge-licence.svg" alt="licence">
 
 **Merge, split, rotate, watermark, number, protect and compress PDFs — in one small page, with no
