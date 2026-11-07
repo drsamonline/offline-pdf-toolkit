@@ -61,17 +61,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: app.html must stay under 160 KB, and under 52 KB gzipped
+      - name: The shell must stay under 160 KB, and under 52 KB gzipped
+        # The shell is docs/play/index.html. This step read app.html, which stopped existing
+        # when the app moved under docs/play/ - so it failed on `stat` before measuring
+        # anything, red on every push, on a budget nobody had actually breached.
         run: |
-          size=$(stat -c%s app.html)
-          gz=$(gzip -9c app.html | wc -c)
-          echo "app.html is $size bytes ($((size/1024)) KB), $gz gzipped"
+          SHELL_PAGE=docs/play/index.html
+          if [ ! -f "$SHELL_PAGE" ]; then
+            echo "::error::$SHELL_PAGE is missing - the app has moved again; point this check at it"
+            exit 1
+          fi
+          size=$(stat -c%s "$SHELL_PAGE")
+          gz=$(gzip -9c "$SHELL_PAGE" | wc -c)
+          echo "$SHELL_PAGE is $size bytes ($((size/1024)) KB), $gz gzipped"
           if [ "$size" -gt 163840 ]; then
-            echo "::error::app.html grew past 160 KB ($size bytes) - the engines belong in docs/play/lib/, not inline"
+            echo "::error::$SHELL_PAGE grew past 160 KB ($size bytes) - the engines belong in docs/play/lib/, not inline"
             exit 1
           fi
           if [ "$gz" -gt 53248 ]; then
-            echo "::error::app.html is $gz bytes gzipped, past the 52 KB ceiling"
+            echo "::error::$SHELL_PAGE is $gz bytes gzipped, past the 52 KB ceiling"
             exit 1
           fi
           echo "within budget"
