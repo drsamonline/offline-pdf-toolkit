@@ -211,6 +211,36 @@ def main():
     note("impose honours the source page's own rotation",
          bool(dirs) and all(abs(d[0] - 1) < 0.01 and abs(d[1]) < 0.01 for d in dirs), dirs[:3])
 
+    # ---- a request that cannot be honoured is refused, not written ----
+    for cmd, extra in (("delete", ()), ("rotate", ("--right",)), ("order", ())):
+        target = os.path.join(OUT, "none-%s.pdf" % cmd)
+        r = run(cmd, merged, *extra, "--pages", "90-100", "-o", target)
+        note("%s refuses a range past the end" % cmd,
+             r.returncode == 2 and b"selects no page" in r.stderr, r.stderr.decode()[:70])
+        note("%s wrote nothing" % cmd, not os.path.exists(target))
+    r = run("split", merged, "--ranges", "90-100", "-o", os.path.join(OUT, "none-split"))
+    note("split --ranges refuses a range past the end",
+         r.returncode == 2 and not os.path.exists(os.path.join(OUT, "none-split-1.pdf")),
+         r.stderr.decode()[:70])
+
+    # a range that runs off the end still clamps, the way `head -n` does
+    clamped = os.path.join(OUT, "clamped.pdf")
+    r = run("rotate", merged, "--right", "--pages", "1-99", "-o", clamped)
+    note("a range that runs past the end clamps, it does not fail",
+         r.returncode == 0 and pymupdf().open(clamped).page_count == 6, r.returncode)
+
+    r = run("delete", merged, "--pages")
+    note("a flag with no value is a usage error, not 'every page'",
+         r.returncode == 2 and b"needs a value" in r.stderr, r.stderr.decode()[:70])
+    r = run("delete", merged, "--pages", "2", "-o")
+    note("-o with no file is a usage error",
+         r.returncode == 2 and b"needs a file" in r.stderr, r.stderr.decode()[:70])
+    isdir = os.path.join(OUT, "isdir")
+    os.makedirs(isdir, exist_ok=True)
+    r = run("delete", merged, "--pages", "2", "-o", isdir)
+    note("writing onto a directory says so",
+         r.returncode == 1 and b"that path is a directory" in r.stderr, r.stderr.decode()[:70])
+
     # ---- stdout, json, quiet ----
     r = subprocess.run(["node", CLI, "merge", A, B, "-o", "-"], capture_output=True)
     note("a PDF can go to stdout", r.returncode == 0 and r.stdout[:5] == b"%PDF-", r.stdout[:5])

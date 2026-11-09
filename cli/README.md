@@ -61,6 +61,11 @@ pdfkit split big.pdf --each --json | jq -r '.files[]'
 
 Exit codes: `0` done · `1` failed (bad file, engine missing) · `2` usage.
 
+A page selection that lands on no page — `--pages 90-100` in a six-page file — is a usage error,
+not a silent no-op: `delete` and `rotate` used to report success and write the file unchanged, and
+`order` and `split --ranges` wrote a document with no pages. A range that only runs off the end still
+clamps (`--pages 1-99` means "to the end"), the way `head -n` does.
+
 ## What it does not do, and why
 
 Rendering a page to pixels needs a canvas; Node has none without a native module, and this CLI adds

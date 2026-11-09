@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed — the CLI
+
+- **A page selection that lands on no page was written anyway.** `--pages 90-100` in a six-page file
+  ran to completion: `delete` and `rotate` reported success and wrote the file unchanged, and
+  `order` and `split --ranges` wrote a document with no pages. All four now refuse with exit 2 and
+  write nothing. A range that only runs off the end still clamps, the way `head -n` does — that is
+  the case `--pages 1-99` means, and it is unchanged.
+- **A flag at the end of the line took the next thing it found.** `--pages` with no value silently
+  meant *every page* (`rotate --pages` turned the whole file), and `-o` with no value fell back to
+  the default name and wrote it beside the input. Both are usage errors now.
+- **Writing onto a directory printed `EISDIR: illegal operation on a directory, open '…'`.** It says
+  which path and why: `cannot write <path>: that path is a directory`.
+
 ## [1.16.1] — 2026-11-02
 
 An audit of both shells, and the six things it found. Four of them were silent — the kind that
