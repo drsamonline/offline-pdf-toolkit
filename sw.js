@@ -9,7 +9,7 @@
  * page is how a shipped change becomes invisible to anyone who has visited
  * before. Bump CACHE on every release.
  */
-const CACHE = 'pdftk-v7';   // bump on every release, or returning readers keep the old app
+const CACHE = 'pdftk-v8';   // bump on every release, or returning readers keep the old app
 const CORE = [
   './',
   './index.html',

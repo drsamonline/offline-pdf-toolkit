@@ -186,7 +186,7 @@ PIN-locked HTML page anyone can open in a browser; unlocking a password you alre
 </div></section>
 <section class="rule" id="new"><div class="wrap">
 <p class="eyebrow">What's new</p>
-<h2 id="newtitle">Version 1.16.1 — the latest changes.</h2>
+<h2 id="newtitle">Version 1.17.0 — the latest changes.</h2>
 <ul id="newlist" class="newlist">
 <li><b>An encrypted PDF was half-read.</b> <code>ignoreEncryption</code> reads the structure but not the streams, so <code>info</code> reported pages and <code>merge</code> wrote a file whose content was ciphertext. It is now refused with the next step named (the app's *Unlock*, or <code>qpdf --decrypt</code>).</li>
 <li><b>Text the built-in font cannot draw was written as <code>?</code>.</b> The library substitutes without an error: a Devanagari watermark came out as <code>??????</code>. Text outside WinAnsi is now refused, with the character named. WinAnsi's own marks — <code>—</code>, <code>“ ”</code>, <code>é</code> — still pass, which the first cut of this check got wrong in the other direction.</li>
@@ -234,7 +234,7 @@ PIN-locked HTML page anyone can open in a browser; unlocking a password you alre
 <div><h5>Project</h5><ul><li><a href="https://github.com/drsamonline/offline-pdf-toolkit">Source</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/LICENSE">Licence</a></li><li><a href="https://github.com/drsamonline/offline-pdf-toolkit/blob/main/THIRD-PARTY-NOTICES.md">Third-party notices</a></li></ul></div>
 <div><h5>Author</h5><ul><li>Dr Sohil Momin</li><li><a href="https://github.com/drsamonline">github.com/drsamonline</a></li></ul></div>
 </div>
-<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.16.1 · built 2026-11-02 · 39703f4</span></p>
+<p class="fine"><span>Everything here runs in your browser. Your documents are never uploaded, never stored and never seen by anyone but you.</span><span>v1.17.0 · built 2026-11-02 · 39703f4</span></p>
 </div><!-- support:block:start -->
 <style>
   /* Scoped to .support. Uses the host page's variables when they exist. */

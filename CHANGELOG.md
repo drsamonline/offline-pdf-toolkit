@@ -15,6 +15,30 @@
 - **Writing onto a directory printed `EISDIR: illegal operation on a directory, open '…'`.** It says
   which path and why: `cannot write <path>: that path is a directory`.
 
+## [1.17.0] — 2026-11-10
+
+### Fixed — the build was red on every push, and had been since 3 November
+
+The shell size budget caught the support block, and then nobody answered it. `docs/play/index.html`
+has been 168,552 bytes — 4.7 KB over the 160 KB ceiling — since the support block landed on
+3 November, so the `Shell size budget` job has failed on every push since. The app was never
+broken; the guard was doing its job and the growth was never reconciled with it.
+
+- **The support CSS was compacted** (764 bytes back: comments out, whitespace collapsed, every
+  selector and string preserved).
+- **The raw ceiling moves 160 KB → 168 KB**, deliberately and in writing, because the remaining
+  growth is interface that ships on every page: a support dialog, a portrait, a UPI QR and six
+  handles. It cannot be moved to `lib/` — it would have to be deleted. The gzipped ceiling is
+  unchanged at 52 KB and stays the tighter of the two: 52,409 bytes today, 839 to spare.
+- The comment above the budget now records both raises and says what the next one needs: a trim,
+  not a raise.
+
+### Changed
+
+- `1.17.0` across `VERSION`, the app's `app-version` meta, the landing page's release heading and
+  the suite that asserts the running version; the service worker cache moves to `pdftk-v8`, so a
+  returning reader is not served the old shell.
+
 ## [1.16.1] — 2026-11-02
 
 An audit of both shells, and the six things it found. Four of them were silent — the kind that

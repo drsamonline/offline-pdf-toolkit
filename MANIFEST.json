@@ -9,23 +9,47 @@
       "at": "2026-11-04T20:07:03Z"
     },
     "docs/index.html": {
-      "sha": "6c63027a99b013c835c0f38a0632697e45c3ea7a",
-      "producer": "bootstrap@2026-11-04",
-      "class": "generated",
-      "at": "2026-11-04T20:07:03Z"
+      "sha": "09ff8dd88751360370a524576cc5d872a5919ca1",
+      "producer": "audit-2026-11-10",
+      "class": "agent",
+      "at": "2026-11-10T12:45:43Z"
     },
     "docs/play/index.html": {
-      "sha": "244a6ef0a84e83456c233c0f117af790ab4760b0",
-      "producer": "bootstrap@2026-11-04",
-      "class": "generated",
-      "at": "2026-11-04T20:07:03Z"
+      "sha": "925b0bc5a3ee3694291c9a1c91e801a687b6e947",
+      "producer": "audit-2026-11-10",
+      "class": "agent",
+      "at": "2026-11-10T12:45:43Z"
     },
     ".github/workflows/build-apps.yml": {
-      "sha": "e85392971667d4a2012cd889d6211131089861f2",
-      "producer": "bootstrap@2026-11-04",
+      "sha": "130c8d4afe754ea35713385ced1e49f328fee3b8",
+      "producer": "audit-2026-11-10",
       "class": "canonical",
-      "at": "2026-11-04T20:07:03Z"
+      "at": "2026-11-10T12:45:43Z"
+    },
+    "VERSION": {
+      "sha": "092afa15df4df63f74ea0e2fb98baa539fb8275c",
+      "producer": "audit-2026-11-10",
+      "class": "agent",
+      "at": "2026-11-10T12:45:43Z"
+    },
+    "sw.js": {
+      "sha": "881b7a8ddb2186f70c1d7e6484d2ba477b90a08f",
+      "producer": "audit-2026-11-10",
+      "class": "agent",
+      "at": "2026-11-10T12:45:43Z"
+    },
+    "CHANGELOG.md": {
+      "sha": "ebc1cb100c40ee09f33ac112619e7ffa8facf86d",
+      "producer": "audit-2026-11-10",
+      "class": "agent",
+      "at": "2026-11-10T12:45:43Z"
+    },
+    "tools/test/test_app11.py": {
+      "sha": "a6cc67dc1c02e45499c30ed07892951517a28c5b",
+      "producer": "audit-2026-11-10",
+      "class": "agent",
+      "at": "2026-11-10T12:45:43Z"
     }
   },
-  "updated": "2026-11-04T20:07:03Z"
+  "updated": "2026-11-10T12:45:43Z"
 }
