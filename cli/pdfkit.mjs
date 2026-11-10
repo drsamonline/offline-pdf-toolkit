@@ -101,9 +101,14 @@ function parseArgs(argv) {
       const eq = a.indexOf('=');
       const k = (eq > 0 ? a.slice(2, eq) : a.slice(2)).toLowerCase();
       if (eq > 0) out.f[k] = a.slice(eq + 1);
-      else if (takesValue.has(k)) out.f[k] = argv[++i];
-      else out.f[k] = true;
-    } else if (a === '-o') out.f.out = argv[++i];
+      else if (takesValue.has(k)) {
+        if (i + 1 >= argv.length) die(`--${k} needs a value`, 2);
+        out.f[k] = argv[++i];
+      } else out.f[k] = true;
+    } else if (a === '-o') {
+      if (i + 1 >= argv.length) die('-o needs a file', 2);
+      out.f.out = argv[++i];
+    }
     else if (a.startsWith('-') && a !== '-') out.f[a.slice(1).toLowerCase()] = true;
     else out._.push(a);
   }
@@ -132,6 +137,11 @@ function pick(spec, total, { sorted = true, keepRepeats = false } = {}) {
     }
   }
   const out = keepRepeats ? idx : [...new Set(idx)];
+  // A selection that lands on no page is never what was asked for. Left alone
+  // it either does nothing (`delete`, `rotate` report success and write the
+  // file unchanged) or produces a document with no pages (`order`, `split
+  // --ranges`). Refuse it the way an out-of-range single page already is.
+  if (!out.length) die(`"${spec}" selects no page — this document has ${total}`, 2);
   return sorted ? out.sort((a, b) => a - b) : out;
 }
 
@@ -152,7 +162,12 @@ function writeOut(bytes, dest, fallbackName) {
     return '-';
   }
   fs.mkdirSync(path.dirname(path.resolve(target)), { recursive: true });
-  fs.writeFileSync(target, Buffer.from(bytes));
+  try {
+    fs.writeFileSync(target, Buffer.from(bytes));
+  } catch (e) {
+    // A raw EISDIR is not a sentence a user can act on.
+    die(`cannot write ${target}: ${e.code === 'EISDIR' ? 'that path is a directory' : (e.message || e)}`, 1);
+  }
   return target;
 }
 
