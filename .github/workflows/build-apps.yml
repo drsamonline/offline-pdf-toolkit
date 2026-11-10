@@ -44,6 +44,7 @@ jobs:
     permissions:
       contents: write
       pages: write
+      actions: write    # the shot job dispatches the run that publishes its picture
       id-token: write
 
   # The app shell was 2,093 KB until 1.9.0 took it to 118 KB by moving the engines
